@@ -1,5 +1,6 @@
 package com.example.quranapp.screen.permission
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,9 +15,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.quranapp.R
 import com.example.quranapp.util.addPaddingValues
 
 @Composable
@@ -48,6 +51,12 @@ fun PermissionScreen(
                     .fillMaxWidth(),
             )
         }
+        Image(
+            painter = painterResource(id = R.drawable.permission_screen_illustration),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+        )
         Column {
             Text(
                 text = "To provide you with the best experience, we need access to your device's storage. This allows us to save and retrieve your files, images, and other data, ensuring smooth functionality",
