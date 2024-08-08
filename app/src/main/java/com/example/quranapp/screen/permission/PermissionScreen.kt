@@ -1,6 +1,7 @@
 package com.example.quranapp.screen.permission
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -27,6 +28,7 @@ fun PermissionScreen(
     innerPadding: PaddingValues
 ) {
     val newPadding = addPaddingValues(innerPadding, PaddingValues(24.dp))
+    val isSystemInDarkTheme = isSystemInDarkTheme()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween,
@@ -52,7 +54,7 @@ fun PermissionScreen(
             )
         }
         Image(
-            painter = painterResource(id = R.drawable.permission_screen_illustration),
+            painter = painterResource(id = if (isSystemInDarkTheme) R.drawable.permission_screen_illustration_dark else R.drawable.permission_screen_illustration),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()

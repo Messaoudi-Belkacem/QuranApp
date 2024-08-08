@@ -5,17 +5,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Gold,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = Goldenrod,
+    onPrimary = Color.White,
+    background = CharcoalBlack,
+    outline = Goldenrod
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = GoldDark,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = Gold,
+    onPrimary = CharcoalBlack,
+    background = IvoryWhite,
+    outline = Gold
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
