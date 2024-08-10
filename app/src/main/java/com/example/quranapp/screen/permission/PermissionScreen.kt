@@ -120,7 +120,9 @@ fun PermissionScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
-                onClick = { /*TODO*/ }
+                onClick = {
+                    showDialog = true
+                }
             ) {
                 Text(
                     text = "Deny",
