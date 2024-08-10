@@ -1,6 +1,8 @@
 package com.example.quranapp
 
+import android.content.pm.PackageManager
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quranapp.data.Repository

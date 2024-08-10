@@ -25,7 +25,8 @@ import com.example.quranapp.util.addPaddingValues
 
 @Composable
 fun PermissionScreen(
-    innerPadding: PaddingValues
+    innerPadding: PaddingValues,
+    requestStoragePermission: () -> Unit
 ) {
     val newPadding = addPaddingValues(innerPadding, PaddingValues(24.dp))
     val isSystemInDarkTheme = isSystemInDarkTheme()
@@ -54,14 +55,18 @@ fun PermissionScreen(
             )
         }
         Image(
-            painter = painterResource(id = if (isSystemInDarkTheme) R.drawable.permission_screen_illustration_dark else R.drawable.permission_screen_illustration),
+            painter = painterResource(
+                if (isSystemInDarkTheme) R.drawable.permission_screen_illustration_dark
+                else R.drawable.permission_screen_illustration
+            ),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
         )
         Column {
             Text(
-                text = "To provide you with the best experience, we need access to your device's storage. This allows us to save and retrieve your files, images, and other data, ensuring smooth functionality",
+                text = "To provide you with the best experience, we need access to your device's storage." +
+                        "This allows us to save and retrieve your files, images, and other data, ensuring smooth functionality",
                 fontSize = 16.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
@@ -72,7 +77,9 @@ fun PermissionScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
-                onClick = { /*TODO*/ }
+                onClick = {
+                    requestStoragePermission()
+                }
             ) {
                 Text(
                     text = "Allow Access",
