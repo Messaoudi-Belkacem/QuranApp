@@ -15,8 +15,7 @@ import com.example.quranapp.screen.permission.PermissionScreen
 fun RootNavigationGraph(
     innerPadding: PaddingValues,
     navHostController: NavHostController,
-    startDestination: String,
-    requestStoragePermission: () -> Unit
+    startDestination: String
 ) {
     val time = 250
     NavHost(
@@ -33,7 +32,7 @@ fun RootNavigationGraph(
         composable(route = Screen.PermissionRoute.route) {
             PermissionScreen(
                 innerPadding = innerPadding,
-                requestStoragePermission = requestStoragePermission
+                navHostController = navHostController
             )
         }
     }

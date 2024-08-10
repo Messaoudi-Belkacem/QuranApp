@@ -1,5 +1,9 @@
 package com.example.quranapp.screen.permission
 
+import android.Manifest
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -14,22 +18,47 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.quranapp.R
+import com.example.quranapp.navigation.Screen
+import com.example.quranapp.screen.PermissionDeniedDialog
 import com.example.quranapp.util.addPaddingValues
 
 @Composable
 fun PermissionScreen(
     innerPadding: PaddingValues,
-    requestStoragePermission: () -> Unit
+    navHostController: NavHostController
 ) {
+    val tag = "PermissionScreen.kt"
     val newPadding = addPaddingValues(innerPadding, PaddingValues(24.dp))
     val isSystemInDarkTheme = isSystemInDarkTheme()
+    var showDialog by remember { mutableStateOf(false) }
+
+    // Request Permission Launcher
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            navHostController.navigate(Screen.HomeRoute.route)
+        } else {
+            Log.d(tag, "Permission is denied")
+            showDialog = true
+        }
+    }
+
+    if (showDialog) {
+        PermissionDeniedDialog(onDismiss = { showDialog = false })
+    }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween,
@@ -66,7 +95,7 @@ fun PermissionScreen(
         Column {
             Text(
                 text = "To provide you with the best experience, we need access to your device's storage." +
-                        "This allows us to save and retrieve your files, images, and other data, ensuring smooth functionality",
+                       "This allows us to save and retrieve your files, images, and other data, ensuring smooth functionality",
                 fontSize = 16.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
@@ -78,7 +107,7 @@ fun PermissionScreen(
                     .fillMaxWidth()
                     .height(48.dp),
                 onClick = {
-                    requestStoragePermission()
+                    requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
                 }
             ) {
                 Text(

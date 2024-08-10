@@ -1,7 +1,9 @@
 package com.example.quranapp
 
+import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -9,16 +11,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
-import com.example.quranapp.ui.theme.QuranAppTheme
-import android.Manifest
-import android.util.Log
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.quranapp.navigation.RootNavigationGraph
 import com.example.quranapp.navigation.Screen
-import com.example.quranapp.util.Constants.REQUEST_CODE
+import com.example.quranapp.ui.theme.QuranAppTheme
 
 class MainActivity : ComponentActivity() {
     private val tag = "MainActivity.kt"
@@ -42,26 +39,10 @@ class MainActivity : ComponentActivity() {
                     RootNavigationGraph(
                         innerPadding = innerPadding,
                         navHostController = navHostController,
-                        startDestination = startDestination,
-                        requestStoragePermission = { requestStoragePermission() }
+                        startDestination = startDestination
                     )
                 }
             }
         }
     }
-
-    private fun requestStoragePermission() {
-        requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-    }
-
-    private val requestPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if (isGranted) {
-                navHostController.navigate(Screen.HomeRoute.route)
-            } else {
-                Log.d(tag, "Permission is denied")
-            }
-        }
 }
