@@ -1,4 +1,4 @@
-package com.example.quranapp.screen
+package com.example.quranapp.presentation.screen
 
 import android.app.Activity
 import androidx.compose.foundation.background

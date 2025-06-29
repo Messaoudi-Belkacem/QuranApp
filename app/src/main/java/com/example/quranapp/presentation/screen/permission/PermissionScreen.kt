@@ -1,4 +1,4 @@
-package com.example.quranapp.screen.permission
+package com.example.quranapp.presentation.screen.permission
 
 import android.Manifest
 import android.util.Log
@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.quranapp.R
-import com.example.quranapp.navigation.Screen
-import com.example.quranapp.screen.PermissionDeniedDialog
+import com.example.quranapp.presentation.navigation.Screen
+import com.example.quranapp.presentation.screen.PermissionDeniedDialog
 import com.example.quranapp.util.addPaddingValues
 
 @Composable

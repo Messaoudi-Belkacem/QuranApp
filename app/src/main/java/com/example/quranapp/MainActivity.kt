@@ -12,12 +12,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.quranapp.navigation.RootNavigationGraph
-import com.example.quranapp.navigation.Screen
-import com.example.quranapp.ui.theme.QuranAppTheme
+import com.example.quranapp.presentation.navigation.RootNavigationGraph
+import com.example.quranapp.presentation.navigation.Screen
+import com.example.quranapp.presentation.ui.theme.QuranAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

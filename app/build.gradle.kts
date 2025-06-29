@@ -112,6 +112,11 @@ dependencies {
 
     // Constraint layout
     implementation(libs.androidx.constraintlayout.compose)
+
+    // Room Database
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.paging)
+    implementation(libs.androidx.room.ktx)
 }
 
 // Allow references to generated code

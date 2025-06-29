@@ -1,4 +1,4 @@
-package com.example.quranapp.navigation
+package com.example.quranapp.presentation.navigation
 
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -8,8 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.quranapp.screen.home.HomeScreen
-import com.example.quranapp.screen.permission.PermissionScreen
+import com.example.quranapp.presentation.screen.home.HomeScreen
+import com.example.quranapp.presentation.screen.permission.PermissionScreen
 
 @Composable
 fun RootNavigationGraph(

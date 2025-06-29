@@ -1,4 +1,4 @@
-package com.example.quranapp.screen.home
+package com.example.quranapp.presentation.screen.home
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
