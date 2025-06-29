@@ -10,5 +10,6 @@ interface QuranRepository {
     fun getAyahsBySurah(surahId: Int): Flow<List<Ayah>>
     suspend fun addBookmark(surahId: Int, ayahId: Int, note: String)
     suspend fun isBookmarked(surahId: Int, ayahId: Int): Boolean
+    suspend fun removeBookmark(bookmark: Bookmark)
     fun getAllBookmarks(): Flow<List<Bookmark>>
 }

@@ -30,5 +30,9 @@ class QuranRepositoryImpl @Inject constructor(
         return bookmarkDao.isBookmarked(surahId, ayahId) > 0
     }
 
+    override suspend fun removeBookmark(bookmark: Bookmark) {
+        bookmarkDao.deleteBookmark(bookmark = bookmark)
+    }
+
     override fun getAllBookmarks(): Flow<List<Bookmark>> = bookmarkDao.getAllBookmarks()
 }
