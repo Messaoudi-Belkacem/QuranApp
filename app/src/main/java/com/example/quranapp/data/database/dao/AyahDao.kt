@@ -12,4 +12,7 @@ interface AyahDao {
 
     @Query("SELECT * FROM ayahs WHERE id = :id")
     suspend fun getAyahById(id: Int): Ayah?
+
+    @Query("SELECT COUNT(*) FROM ayahs")
+    suspend fun getAyahCount(): Int
 }
