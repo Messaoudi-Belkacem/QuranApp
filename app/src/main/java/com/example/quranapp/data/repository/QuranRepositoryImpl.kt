@@ -8,8 +8,8 @@ import com.example.quranapp.data.database.dao.SurahDao
 import com.example.quranapp.data.database.entities.Ayah
 import com.example.quranapp.data.database.entities.Bookmark
 import com.example.quranapp.data.database.entities.Surah
-import jakarta.inject.Inject
-import jakarta.inject.Singleton
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import androidx.core.content.edit
 
