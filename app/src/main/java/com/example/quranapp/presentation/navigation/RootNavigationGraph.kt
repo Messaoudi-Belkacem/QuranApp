@@ -43,7 +43,7 @@ fun RootNavigationGraph(
             )
         }
         composable(route = Screen.MushafRoute.route) {
-            MushafScreen()
+            MushafScreen() // Use hiltViewModel() here if needed
         }
         composable(route = Screen.PrayerTimesRoute.route) {
             PrayerTimesScreen()
