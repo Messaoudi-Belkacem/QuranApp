@@ -8,8 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.quranapp.presentation.screen.adkar.AdkarScreen
 import com.example.quranapp.presentation.screen.home.HomeScreen
+import com.example.quranapp.presentation.screen.mushaf.MushafScreen
 import com.example.quranapp.presentation.screen.permission.PermissionScreen
+import com.example.quranapp.presentation.screen.prayertimes.PrayerTimesScreen
+import com.example.quranapp.presentation.screen.settings.SettingsScreen
 
 @Composable
 fun RootNavigationGraph(
@@ -27,13 +31,28 @@ fun RootNavigationGraph(
         popExitTransition = { fadeOut(animationSpec = tween(time)) }
     ) {
         composable(route = Screen.HomeRoute.route) {
-            HomeScreen(innerPadding = innerPadding)
+            HomeScreen(
+                innerPadding = innerPadding,
+                navHostController = navHostController
+            )
         }
         composable(route = Screen.PermissionRoute.route) {
             PermissionScreen(
                 innerPadding = innerPadding,
                 navHostController = navHostController
             )
+        }
+        composable(route = Screen.MushafRoute.route) {
+            MushafScreen()
+        }
+        composable(route = Screen.PrayerTimesRoute.route) {
+            PrayerTimesScreen()
+        }
+        composable(route = Screen.AdkarRoute.route) {
+            AdkarScreen()
+        }
+        composable(route = Screen.SettingsRoute.route) {
+            SettingsScreen()
         }
     }
 }

@@ -13,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import com.example.quranapp.presentation.navigation.Screen
 import com.example.quranapp.util.addPaddingValues
 
 data class HomeOption(
@@ -23,7 +25,8 @@ data class HomeOption(
 
 @Composable
 fun HomeScreen(
-    innerPadding: PaddingValues
+    innerPadding: PaddingValues,
+    navHostController: NavHostController
 ) {
     val newPadding = addPaddingValues(innerPadding, PaddingValues(24.dp))
 
@@ -31,22 +34,22 @@ fun HomeScreen(
         HomeOption(
             title = "Mushaf",
             icon = Icons.AutoMirrored.Filled.MenuBook,
-            onClick = { /* TODO: Navigate to Mushaf screen */ }
+            onClick = { navHostController.navigate(Screen.MushafRoute.route) }
         ),
         HomeOption(
             title = "Prayer Times",
             icon = Icons.Default.AccessTime,
-            onClick = { /* TODO: Navigate to Prayer Times screen */ }
+            onClick = { navHostController.navigate(Screen.PrayerTimesRoute.route) }
         ),
         HomeOption(
             title = "Adkar",
             icon = Icons.Default.Favorite,
-            onClick = { /* TODO: Navigate to Adkar screen */ }
+            onClick = { navHostController.navigate(Screen.AdkarRoute.route) }
         ),
         HomeOption(
             title = "Settings",
             icon = Icons.Default.Settings,
-            onClick = { /* TODO: Navigate to Settings screen */ }
+            onClick = { navHostController.navigate(Screen.SettingsRoute.route) }
         )
         // Add more options here later
     )
