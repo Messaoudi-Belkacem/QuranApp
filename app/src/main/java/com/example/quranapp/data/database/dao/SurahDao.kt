@@ -11,7 +11,7 @@ interface SurahDao {
     fun getAllSurahs(): Flow<List<Surah>>
 
     @Query("SELECT * FROM surahs WHERE id = :id")
-    suspend fun getSurahById(id: Int): Surah?
+    fun getSurahById(id: Int): Flow<Surah>
 
     @Query("SELECT COUNT(*) FROM surahs")
     suspend fun getSurahCount(): Int

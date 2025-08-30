@@ -27,6 +27,8 @@ class QuranRepositoryImpl @Inject constructor(
 
     override fun getAllSurahs(): Flow<List<Surah>> = surahDao.getAllSurahs()
 
+    override fun getSurahById(surahId: Int): Flow<Surah> = surahDao.getSurahById(surahId)
+
     override fun getAyahsBySurah(surahId: Int): Flow<List<Ayah>> =
         ayahDao.getAyahsBySurah(surahId)
 

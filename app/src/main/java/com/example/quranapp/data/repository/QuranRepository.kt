@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface QuranRepository {
     fun getAllSurahs(): Flow<List<Surah>>
+    fun getSurahById(surahId: Int): Flow<Surah>
     fun getAyahsBySurah(surahId: Int): Flow<List<Ayah>>
     suspend fun addBookmark(surahId: Int, ayahId: Int, note: String)
     suspend fun isBookmarked(surahId: Int, ayahId: Int): Boolean

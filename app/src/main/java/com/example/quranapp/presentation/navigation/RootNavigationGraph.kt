@@ -6,14 +6,17 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.quranapp.presentation.screen.adkar.AdkarScreen
 import com.example.quranapp.presentation.screen.home.HomeScreen
 import com.example.quranapp.presentation.screen.mushaf.MushafScreen
 import com.example.quranapp.presentation.screen.permission.PermissionScreen
 import com.example.quranapp.presentation.screen.prayertimes.PrayerTimesScreen
 import com.example.quranapp.presentation.screen.settings.SettingsScreen
+import com.example.quranapp.presentation.screen.surah.SurahReadingScreen
 
 @Composable
 fun RootNavigationGraph(
@@ -43,7 +46,21 @@ fun RootNavigationGraph(
             )
         }
         composable(route = Screen.MushafRoute.route) {
-            MushafScreen() // Use hiltViewModel() here if needed
+            MushafScreen(
+                onSurahClick = { surah ->
+                    navHostController.navigate(Screen.SurahReadingRoute.createRoute(surah.id))
+                }
+            )
+        }
+        composable(
+            route = Screen.SurahReadingRoute.route,
+            arguments = listOf(navArgument("surahId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val surahId = backStackEntry.arguments?.getInt("surahId") ?: 1
+            SurahReadingScreen(
+                surahId = surahId,
+                onBackClick = { navHostController.popBackStack() }
+            )
         }
         composable(route = Screen.PrayerTimesRoute.route) {
             PrayerTimesScreen()
