@@ -15,7 +15,7 @@ interface QuranRepository {
     fun getAllBookmarks(): Flow<List<Bookmark>>
     suspend fun getSurahCount(): Int
     suspend fun getAyahCount(): Int
-
     suspend fun isFirstLaunch(): Boolean
     suspend fun setFirstLaunch(isFirst: Boolean)
+    suspend fun initializeDatabase()
 }

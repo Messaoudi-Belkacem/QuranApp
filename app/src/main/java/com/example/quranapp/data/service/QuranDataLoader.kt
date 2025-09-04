@@ -1,0 +1,112 @@
+package com.example.quranapp.data.service
+
+import android.content.Context
+import android.util.Log
+import com.example.quranapp.data.database.dao.AyahDao
+import com.example.quranapp.data.database.dao.SurahDao
+import com.example.quranapp.data.database.entities.Ayah
+import com.example.quranapp.data.database.entities.Surah
+import com.example.quranapp.data.model.QuranData
+import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.IOException
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class QuranDataLoader @Inject constructor(
+    private val context: Context,
+    private val surahDao: SurahDao,
+    private val ayahDao: AyahDao
+) {
+    private val tag = "QuranDataLoader"
+
+    suspend fun initializeDatabase() {
+        withContext(Dispatchers.IO) {
+            try {
+                Log.d(tag, "Checking if database needs initialization...")
+
+                val surahCount = surahDao.getSurahCount()
+                val ayahCount = ayahDao.getAyahCount()
+
+                Log.d(tag, "Current database state - Surahs: $surahCount, Ayahs: $ayahCount")
+
+                // Check if database is empty or incomplete (114 surahs and ~6236 ayahs in Quran)
+                if (surahCount < 114 || ayahCount < 6000) {
+                    Log.d(tag, "Database is incomplete. Loading data from JSON...")
+                    loadQuranDataFromJson()
+                } else {
+                    Log.d(tag, "Database already contains complete Quran data")
+                }
+            } catch (e: Exception) {
+                Log.e(tag, "Error during database initialization", e)
+            }
+        }
+    }
+
+    private suspend fun loadQuranDataFromJson() {
+        try {
+            Log.d(tag, "Reading JSON file from assets...")
+            val jsonString = readJsonFromAssets("quran_data.json")
+
+            Log.d(tag, "Parsing JSON data...")
+            val gson = Gson()
+            val quranData = gson.fromJson(jsonString, QuranData::class.java)
+
+            Log.d(tag, "Converting and inserting data into database...")
+            val surahs = mutableListOf<Surah>()
+            val ayahs = mutableListOf<Ayah>()
+
+            quranData.surahs.forEach { surahJson ->
+                // Convert SurahJson to Surah entity
+                val surah = Surah(
+                    id = surahJson.id,
+                    name = surahJson.name,
+                    nameArabic = surahJson.nameArabic,
+                    nameEnglish = surahJson.nameEnglish,
+                    ayahCount = surahJson.ayahCount,
+                    revelationType = surahJson.revelationType,
+                    orderInQuran = surahJson.orderInQuran
+                )
+                surahs.add(surah)
+
+                // Convert AyahJson to Ayah entities
+                surahJson.ayahs.forEach { ayahJson ->
+                    val ayah = Ayah(
+                        id = ayahJson.id,
+                        surahId = surahJson.id,
+                        ayahNumber = ayahJson.ayahNumber,
+                        textArabic = ayahJson.textArabic,
+                        textTranslation = ayahJson.textTranslation,
+                        juzNumber = ayahJson.juzNumber,
+                        hizbNumber = ayahJson.hizbNumber,
+                        rukuNumber = ayahJson.rukuNumber
+                    )
+                    ayahs.add(ayah)
+                }
+            }
+
+            Log.d(tag, "Inserting ${surahs.size} surahs into database...")
+            surahDao.insertSurahs(surahs)
+
+            Log.d(tag, "Inserting ${ayahs.size} ayahs into database...")
+            ayahDao.insertAyahs(ayahs)
+
+            Log.d(tag, "Database initialization completed successfully!")
+
+        } catch (e: Exception) {
+            Log.e(tag, "Error loading Quran data from JSON", e)
+            throw e
+        }
+    }
+
+    private fun readJsonFromAssets(fileName: String): String {
+        return try {
+            context.assets.open(fileName).bufferedReader().use { it.readText() }
+        } catch (e: IOException) {
+            Log.e(tag, "Error reading JSON file from assets", e)
+            throw e
+        }
+    }
+}

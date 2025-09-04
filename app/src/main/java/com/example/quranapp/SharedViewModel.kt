@@ -22,6 +22,16 @@ class SharedViewModel @Inject constructor(private val quranRepository: QuranRepo
         viewModelScope.launch {
             val apiLevel = Build.VERSION.SDK_INT
             Log.d("API Level", "The API level of this device is: $apiLevel")
+
+            // Initialize database with Quran data
+            try {
+                Log.d(tag, "Starting database initialization...")
+                quranRepository.initializeDatabase()
+                Log.d(tag, "Database initialization completed")
+            } catch (e: Exception) {
+                Log.e(tag, "Failed to initialize database", e)
+            }
+
             if (quranRepository.isFirstLaunch()) {
                 Log.d(tag, "This is first launch")
                 quranRepository.setFirstLaunch(false)

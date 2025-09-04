@@ -8,6 +8,7 @@ import com.example.quranapp.data.database.dao.SurahDao
 import com.example.quranapp.data.database.entities.Ayah
 import com.example.quranapp.data.database.entities.Bookmark
 import com.example.quranapp.data.database.entities.Surah
+import com.example.quranapp.data.service.QuranDataLoader
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +20,7 @@ class QuranRepositoryImpl @Inject constructor(
     private val ayahDao: AyahDao,
     private val bookmarkDao: BookmarkDao,
     private val context: Context,
+    private val quranDataLoader: QuranDataLoader
 ) : QuranRepository {
 
     private val prefs: SharedPreferences by lazy {
@@ -56,5 +58,9 @@ class QuranRepositoryImpl @Inject constructor(
 
     override suspend fun setFirstLaunch(isFirst: Boolean) {
         prefs.edit { putBoolean("is_first_launch", isFirst) }
+    }
+
+    override suspend fun initializeDatabase() {
+        quranDataLoader.initializeDatabase()
     }
 }

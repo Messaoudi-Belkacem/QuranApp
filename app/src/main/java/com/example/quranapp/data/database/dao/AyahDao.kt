@@ -1,6 +1,8 @@
 package com.example.quranapp.data.database.dao
 
 import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.quranapp.data.database.entities.Ayah
 import kotlinx.coroutines.flow.Flow
@@ -15,4 +17,10 @@ interface AyahDao {
 
     @Query("SELECT COUNT(*) FROM ayahs")
     suspend fun getAyahCount(): Int
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAyah(ayah: Ayah)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAyahs(ayahs: List<Ayah>)
 }
