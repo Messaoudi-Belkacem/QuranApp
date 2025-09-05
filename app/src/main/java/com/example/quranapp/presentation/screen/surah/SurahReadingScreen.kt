@@ -270,7 +270,7 @@ private fun SurahHeaderCard(
 
                 InfoChip(
                     label = "Order",
-                    value = surah.orderInQuran.toString()
+                    value = surah.id.toString()
                 )
             }
         }
