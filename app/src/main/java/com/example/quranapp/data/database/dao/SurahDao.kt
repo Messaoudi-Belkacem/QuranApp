@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SurahDao {
-    @Query("SELECT * FROM surahs ORDER BY orderInQuran")
+    @Query("SELECT * FROM surahs ORDER BY id")
     fun getAllSurahs(): Flow<List<Surah>>
 
     @Query("SELECT * FROM surahs WHERE id = :id")
