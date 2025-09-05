@@ -1,4 +1,4 @@
-package com.example.quranapp.presentation.screen.mushaf
+package com.example.quranapp.presentation.screen.quran
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
