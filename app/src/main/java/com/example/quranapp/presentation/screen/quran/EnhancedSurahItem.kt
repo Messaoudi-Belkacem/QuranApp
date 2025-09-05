@@ -68,14 +68,6 @@ fun EnhancedSurahItem(
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            Spacer(modifier = Modifier.height(2.dp))
-
-            Text(
-                text = surah.nameArabic,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
             Spacer(modifier = Modifier.height(4.dp))
 
             Row(
@@ -104,16 +96,10 @@ fun EnhancedSurahItem(
         }
 
         // Simple Bookmark Icon
-        IconButton(
-            onClick = { /* Handle bookmark */ },
-            modifier = Modifier.size(48.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.BookmarkBorder,
-                contentDescription = "Bookmark Surah",
-                tint = MaterialTheme.colorScheme.outline,
-                modifier = Modifier.size(24.dp)
-            )
-        }
+        Text(
+            text = surah.nameArabic,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
