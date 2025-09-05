@@ -2,10 +2,10 @@ package com.example.quranapp.data.database.entities
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "ayahs",
+    primaryKeys = ["id", "surahId"],
     foreignKeys = [ForeignKey(
         entity = Surah::class,
         parentColumns = ["id"],
@@ -14,7 +14,7 @@ import androidx.room.PrimaryKey
     )]
 )
 data class Ayah(
-    @PrimaryKey val id: Int,
+    val id: Int,
     val surahId: Int,
     val ayahNumber: Int,
     val textArabic: String,

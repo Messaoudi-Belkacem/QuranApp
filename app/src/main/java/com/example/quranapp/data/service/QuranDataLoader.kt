@@ -6,7 +6,7 @@ import com.example.quranapp.data.database.dao.AyahDao
 import com.example.quranapp.data.database.dao.SurahDao
 import com.example.quranapp.data.database.entities.Ayah
 import com.example.quranapp.data.database.entities.Surah
-import com.example.quranapp.data.model.QuranData
+import com.example.quranapp.data.model.SurahJson
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -52,36 +52,36 @@ class QuranDataLoader @Inject constructor(
 
             Log.d(tag, "Parsing JSON data...")
             val gson = Gson()
-            val quranData = gson.fromJson(jsonString, QuranData::class.java)
+            val quranDataArray = gson.fromJson(jsonString, Array<SurahJson>::class.java)
+            val quranData = quranDataArray.toList()
 
             Log.d(tag, "Converting and inserting data into database...")
             val surahs = mutableListOf<Surah>()
             val ayahs = mutableListOf<Ayah>()
 
-            quranData.surahs.forEach { surahJson ->
+            quranData.forEach { surahJson ->
                 // Convert SurahJson to Surah entity
                 val surah = Surah(
                     id = surahJson.id,
                     name = surahJson.name,
-                    nameArabic = surahJson.nameArabic,
-                    nameEnglish = surahJson.nameEnglish,
-                    ayahCount = surahJson.ayahCount,
-                    revelationType = surahJson.revelationType,
-                    orderInQuran = surahJson.orderInQuran
+                    nameArabic = surahJson.name,
+                    nameEnglish = "",
+                    ayahCount = surahJson.totalVerses,
+                    revelationType = surahJson.type
                 )
                 surahs.add(surah)
 
                 // Convert AyahJson to Ayah entities
-                surahJson.ayahs.forEach { ayahJson ->
+                surahJson.verses.forEach { ayahJson ->
                     val ayah = Ayah(
                         id = ayahJson.id,
                         surahId = surahJson.id,
-                        ayahNumber = ayahJson.ayahNumber,
-                        textArabic = ayahJson.textArabic,
-                        textTranslation = ayahJson.textTranslation,
-                        juzNumber = ayahJson.juzNumber,
-                        hizbNumber = ayahJson.hizbNumber,
-                        rukuNumber = ayahJson.rukuNumber
+                        ayahNumber = ayahJson.id,
+                        textArabic = ayahJson.text,
+                        textTranslation = "",
+                        juzNumber = 0,
+                        hizbNumber = 0,
+                        rukuNumber = 0
                     )
                     ayahs.add(ayah)
                 }

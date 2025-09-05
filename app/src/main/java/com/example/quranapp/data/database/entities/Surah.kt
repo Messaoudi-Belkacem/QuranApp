@@ -10,6 +10,5 @@ data class Surah(
     val nameArabic: String,
     val nameEnglish: String,
     val ayahCount: Int,
-    val revelationType: String, // "Meccan" or "Medinan"
-    val orderInQuran: Int
+    val revelationType: String // "Meccan" or "Medinan"
 )

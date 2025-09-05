@@ -45,9 +45,7 @@ fun PermissionScreen(
     var showDialog by remember { mutableStateOf(false) }
 
     // Request Permission Launcher
-    val requestPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
+    val requestPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
         if (isGranted) {
             navHostController.navigate(Screen.HomeRoute.route)
         } else {
@@ -121,11 +119,11 @@ fun PermissionScreen(
                     .fillMaxWidth()
                     .height(48.dp),
                 onClick = {
-                    showDialog = true
+                    navHostController.navigate(Screen.HomeRoute.route)
                 }
             ) {
                 Text(
-                    text = "Deny",
+                    text = "Skip",
                     fontSize = 14.sp,
                 )
             }
