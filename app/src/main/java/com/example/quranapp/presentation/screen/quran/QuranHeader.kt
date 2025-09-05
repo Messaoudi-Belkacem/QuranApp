@@ -73,7 +73,7 @@ fun QuranHeader(
             }
 
             Image(
-                painter = painterResource(id = R.drawable.mosque_image),
+                painter = painterResource(id = R.drawable.mosque_vector),
                 contentDescription = "Quran Icon",
                 modifier = Modifier.size(64.dp)
             )
