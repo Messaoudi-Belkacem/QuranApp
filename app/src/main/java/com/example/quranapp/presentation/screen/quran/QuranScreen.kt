@@ -147,40 +147,6 @@ fun MushafScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SearchSection(
-    searchQuery: String,
-    onSearchQueryChange: (String) -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = onSearchQueryChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            placeholder = {
-                Text("Search Surah by name or number...")
-            },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search"
-                )
-            },
-            shape = RoundedCornerShape(12.dp),
-            singleLine = true
-        )
-    }
-}
-
 @Composable
 private fun LoadingSection() {
     Box(
