@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
@@ -37,6 +38,7 @@ fun MushafScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
+    var isSearchVisible by remember { mutableStateOf(false) }
 
     val filteredSurahs = remember(uiState.surahs, searchQuery) {
         if (searchQuery.isEmpty()) {
@@ -51,51 +53,95 @@ fun MushafScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f),
-                        MaterialTheme.colorScheme.surface
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "QURAN",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
                     )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { /* Handle menu click */ }) {
+                        Icon(
+                            imageVector = Icons.Default.Menu,
+                            contentDescription = "Menu"
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            isSearchVisible = !isSearchVisible
+                            if (!isSearchVisible) {
+                                searchQuery = ""
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.primary
                 )
             )
-    ) {
-        // Header Section
-        QuranHeader()
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f),
+                            MaterialTheme.colorScheme.surface
+                        )
+                    )
+                )
+        ) {
+            // Header Section
+            QuranHeader()
 
-        // Search Section
-        SearchSection(
-            searchQuery = searchQuery,
-            onSearchQueryChange = { searchQuery = it }
-        )
-
-        // Content Section
-        when {
-            uiState.isLoading -> {
-                LoadingSection()
-            }
-
-            uiState.errorMessage != null -> {
-                ErrorSection(
-                    errorMessage = uiState.errorMessage!!,
-                    onRetry = { viewModel.refreshSurahs() }
+            // Search Section
+            AnimatedVisibility(visible = isSearchVisible) {
+                SearchSection(
+                    searchQuery = searchQuery,
+                    onSearchQueryChange = { searchQuery = it }
                 )
             }
 
-            filteredSurahs.isNotEmpty() -> {
-                SurahListSection(
-                    surahs = filteredSurahs,
-                    onSurahClick = onSurahClick
-                )
-            }
+            // Content Section
+            when {
+                uiState.isLoading -> {
+                    LoadingSection()
+                }
 
-            else -> {
-                EmptyStateSection(
-                    isSearching = searchQuery.isNotEmpty()
-                )
+                uiState.errorMessage != null -> {
+                    ErrorSection(
+                        errorMessage = uiState.errorMessage!!,
+                        onRetry = { viewModel.refreshSurahs() }
+                    )
+                }
+
+                filteredSurahs.isNotEmpty() -> {
+                    SurahListSection(
+                        surahs = filteredSurahs,
+                        onSurahClick = onSurahClick
+                    )
+                }
+
+                else -> {
+                    EmptyStateSection(
+                        isSearching = searchQuery.isNotEmpty()
+                    )
+                }
             }
         }
     }
