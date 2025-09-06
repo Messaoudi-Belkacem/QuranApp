@@ -12,7 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.quranapp.presentation.screen.adkar.AdkarScreen
 import com.example.quranapp.presentation.screen.home.HomeScreen
-import com.example.quranapp.presentation.screen.quran.MushafScreen
+import com.example.quranapp.presentation.screen.quran.QuranScreen
 import com.example.quranapp.presentation.screen.permission.PermissionScreen
 import com.example.quranapp.presentation.screen.prayertimes.PrayerTimesScreen
 import com.example.quranapp.presentation.screen.settings.SettingsScreen
@@ -46,7 +46,7 @@ fun RootNavigationGraph(
             )
         }
         composable(route = Screen.MushafRoute.route) {
-            MushafScreen(
+            QuranScreen(
                 onSurahClick = { surah ->
                     navHostController.navigate(Screen.SurahReadingRoute.createRoute(surah.id))
                 }

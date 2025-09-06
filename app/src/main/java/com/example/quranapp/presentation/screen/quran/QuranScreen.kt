@@ -4,18 +4,42 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -26,13 +50,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MushafScreen(
+fun QuranScreen(
     viewModel: MushafViewModel = hiltViewModel(),
-    onSurahClick: (com.example.quranapp.data.database.entities.Surah) -> Unit = {}
+    onSurahClick: (com.example.quranapp.data.database.entities.Surah) -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     var isSearchVisible by remember { mutableStateOf(false) }
+    var selectedTab by remember { mutableIntStateOf(0) }
 
     val filteredSurahs = remember(uiState.surahs, searchQuery) {
         if (searchQuery.isEmpty()) {
@@ -111,6 +136,11 @@ fun MushafScreen(
                 )
             }
 
+            QuranBar(
+                selectedTab = selectedTab,
+                onTabSelected = { newTab -> selectedTab = newTab }
+            )
+
             // Content Section
             when {
                 uiState.isLoading -> {
@@ -170,7 +200,7 @@ private fun LoadingSection() {
 @Composable
 private fun ErrorSection(
     errorMessage: String,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -223,7 +253,7 @@ private fun ErrorSection(
 @Composable
 private fun SurahListSection(
     surahs: List<com.example.quranapp.data.database.entities.Surah>,
-    onSurahClick: (com.example.quranapp.data.database.entities.Surah) -> Unit
+    onSurahClick: (com.example.quranapp.data.database.entities.Surah) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -252,7 +282,7 @@ private fun SurahListSection(
 
 @Composable
 private fun EmptyStateSection(
-    isSearching: Boolean
+    isSearching: Boolean,
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -263,7 +293,7 @@ private fun EmptyStateSection(
             modifier = Modifier.padding(32.dp)
         ) {
             Icon(
-                imageVector = if (isSearching) Icons.Default.Search else Icons.Default.MenuBook,
+                imageVector = if (isSearching) Icons.Default.Search else Icons.AutoMirrored.Filled.MenuBook,
                 contentDescription = if (isSearching) "No search results" else "No Surahs",
                 modifier = Modifier.size(80.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
