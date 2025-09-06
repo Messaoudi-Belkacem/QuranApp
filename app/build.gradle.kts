@@ -127,4 +127,7 @@ dependencies {
 
     // Constraint layout
     implementation(libs.androidx.constraintlayout.compose)
+
+    // Google Fonts
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.9.0")
 }

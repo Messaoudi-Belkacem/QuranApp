@@ -40,8 +40,8 @@ fun QuranBar(
         // Tab Row following Material Design
         TabRow(
             selectedTabIndex = selectedTab,
-            containerColor = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.primary
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
         ) {
             tabs.forEachIndexed { index, title ->
                 Tab(

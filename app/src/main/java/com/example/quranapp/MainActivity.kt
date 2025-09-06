@@ -16,7 +16,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.quranapp.presentation.navigation.RootNavigationGraph
 import com.example.quranapp.presentation.navigation.Screen
-import com.example.quranapp.presentation.ui.theme.QuranAppTheme
+import com.example.quranapp.presentation.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
             startDestination = Screen.PermissionRoute.route
         }
         setContent {
-            QuranAppTheme {
+            AppTheme {
                 navHostController = rememberNavController()
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     RootNavigationGraph(
