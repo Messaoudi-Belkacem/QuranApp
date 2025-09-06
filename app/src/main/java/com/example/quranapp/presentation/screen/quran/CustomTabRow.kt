@@ -49,7 +49,6 @@ fun CustomTabRow(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
     ) {
         Box(
             modifier = Modifier

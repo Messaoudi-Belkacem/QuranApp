@@ -3,6 +3,8 @@ package com.example.quranapp.presentation.screen.quran
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -10,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun QuranBar(
@@ -19,7 +22,9 @@ fun QuranBar(
     val tabs = listOf("Surah", "Juz", "Page")
 
     Row (
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -36,7 +41,8 @@ fun QuranBar(
         CustomTabRow(
             tabs = tabs,
             selectedTabIndex = selectedTab,
-            onTabSelected = onTabSelected
+            onTabSelected = onTabSelected,
+            modifier = Modifier.width(256.dp)
         )
     }
 }
