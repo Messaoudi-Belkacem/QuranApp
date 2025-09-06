@@ -24,7 +24,7 @@ fun QuranBar(
     Row (
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 16.dp),
+            .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -41,8 +41,7 @@ fun QuranBar(
         CustomTabRow(
             tabs = tabs,
             selectedTabIndex = selectedTab,
-            onTabSelected = onTabSelected,
-            modifier = Modifier.width(256.dp)
+            onTabSelected = onTabSelected
         )
     }
 }
