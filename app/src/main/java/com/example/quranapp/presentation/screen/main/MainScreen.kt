@@ -1,8 +1,13 @@
 package com.example.quranapp.presentation.screen.main
 
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -28,12 +33,14 @@ fun MainScreen() {
 
 @Composable
 fun BottomBar(navController: NavHostController) {
-    val screens = listOf(
-        Screen.HomeRoute,
-        Screen.QiblaRoute,
-        Screen.QuranRoute,
-        Screen.TasbihRoute
-    )
+    val screens = remember {
+        listOf(
+            Screen.HomeRoute,
+            Screen.QiblaRoute,
+            Screen.QuranRoute,
+            Screen.TasbihRoute
+        )
+    }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
@@ -41,19 +48,11 @@ fun BottomBar(navController: NavHostController) {
         screens.forEach { screen ->
             NavigationBarItem(
                 selected = currentDestination?.route == screen.route,
-                onClick = {
-                    navController.navigate(screen.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
+                onClick = { navigateToScreen(navController, screen.route) },
                 icon = {
                     Icon(
                         imageVector = screen.icon,
-                        contentDescription = screen.title
+                        contentDescription = screen.title // Add content description for accessibility
                     )
                 },
                 label = {
@@ -61,5 +60,15 @@ fun BottomBar(navController: NavHostController) {
                 }
             )
         }
+    }
+}
+
+private fun navigateToScreen(navController: NavHostController, route: String) {
+    navController.navigate(route) {
+        popUpTo(navController.graph.findStartDestination().id) {
+            saveState = true
+        }
+        launchSingleTop = true
+        restoreState = true
     }
 }
