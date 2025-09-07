@@ -13,10 +13,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.quranapp.R
 import com.example.quranapp.presentation.navigation.MainNavGraph
 import com.example.quranapp.presentation.navigation.Screen
 
@@ -43,8 +45,8 @@ fun BottomBar(navController: NavHostController) {
     val screens = remember {
         listOf(
             Screen.HomeRoute,
-            Screen.QiblaRoute,
             Screen.QuranRoute,
+            Screen.QiblaRoute,
             Screen.TasbihRoute
         )
     }
@@ -58,8 +60,8 @@ fun BottomBar(navController: NavHostController) {
                 onClick = { navigateToScreen(navController, screen.route) },
                 icon = {
                     Icon(
-                        imageVector = screen.icon,
-                        contentDescription = screen.title // Add content description for accessibility
+                        painter = painterResource(id = screen.icon ?: R.drawable.mosque_vector),
+                        contentDescription = screen.title
                     )
                 },
                 label = {
