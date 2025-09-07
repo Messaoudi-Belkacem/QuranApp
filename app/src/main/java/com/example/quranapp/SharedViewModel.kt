@@ -1,9 +1,9 @@
 package com.example.quranapp
 
-import android.content.Context
+import android.app.Application
 import android.os.Build
 import android.util.Log
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quranapp.data.repository.QuranRepository
 import com.example.quranapp.util.createFolder
@@ -14,8 +14,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SharedViewModel @Inject constructor(private val quranRepository: QuranRepository, private val context: Context) : ViewModel() {
+class SharedViewModel @Inject constructor(
+    private val quranRepository: QuranRepository,
+    application: Application,
+) : AndroidViewModel(application) {
     private val tag: String = "SharedViewModel.kt"
+    private val context = getApplication<Application>()
 
     init {
         Log.d(tag, "SharedViewModel init is called")
@@ -48,8 +52,10 @@ class SharedViewModel @Inject constructor(private val quranRepository: QuranRepo
                         Log.d(tag, "Folder creation failed")
                     }
                 }
+
                 else -> {
-                    val externalFolderPath = context.getExternalFilesDir(null)?.absolutePath + "Quran"
+                    val externalFolderPath =
+                        context.getExternalFilesDir(null)?.absolutePath + "Quran"
                     if (isFolderExists(externalFolderPath)) {
                         Log.d(tag, "Folder exists and path is $externalFolderPath")
                     } else {
