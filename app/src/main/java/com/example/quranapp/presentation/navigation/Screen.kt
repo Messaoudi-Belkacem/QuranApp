@@ -1,11 +1,5 @@
 package com.example.quranapp.presentation.navigation
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Explore
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.MenuBook
-import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.quranapp.R
 
 sealed class Screen(val route: String, val title: String, val icon: Int? = null) {
@@ -34,11 +28,11 @@ sealed class Screen(val route: String, val title: String, val icon: Int? = null)
     )
 
 
-
     data object PermissionRoute : Screen(route = "permission_screen", title = "")
     data object SurahReadingRoute : Screen(route = "surah_reading_screen/{surahId}", title = "") {
         fun createRoute(surahId: Int) = "surah_reading_screen/$surahId"
     }
+
     data object PrayerTimesRoute : Screen(route = "prayer_times_screen", title = "")
     data object AdkarRoute : Screen(route = "adkar_screen", title = "")
     data object SettingsRoute : Screen(route = "settings_screen", title = "")
