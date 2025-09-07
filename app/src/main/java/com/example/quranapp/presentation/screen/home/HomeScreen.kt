@@ -36,7 +36,7 @@ fun HomeScreen(
         HomeOption(
             title = "Mushaf",
             icon = Icons.AutoMirrored.Filled.MenuBook,
-            onClick = { navHostController.navigate(Screen.MushafRoute.route) }
+            onClick = { navHostController.navigate(Screen.QuranRoute.route) }
         ),
         HomeOption(
             title = "Prayer Times",

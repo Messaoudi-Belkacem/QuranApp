@@ -30,7 +30,9 @@ fun MainScreen() {
 fun BottomBar(navController: NavHostController) {
     val screens = listOf(
         Screen.HomeRoute,
-        Screen.QiblaRoute
+        Screen.QiblaRoute,
+        Screen.QuranRoute,
+        Screen.TasbihRoute
     )
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination

@@ -11,19 +11,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.quranapp.presentation.screen.adkar.AdkarScreen
-import com.example.quranapp.presentation.screen.home.HomeScreen
-import com.example.quranapp.presentation.screen.quran.QuranScreen
+import com.example.quranapp.presentation.screen.main.MainScreen
 import com.example.quranapp.presentation.screen.permission.PermissionScreen
 import com.example.quranapp.presentation.screen.prayertimes.PrayerTimesScreen
+import com.example.quranapp.presentation.screen.quran.QuranScreen
 import com.example.quranapp.presentation.screen.settings.SettingsScreen
 import com.example.quranapp.presentation.screen.surah.SurahReadingScreen
-import com.example.quranapp.presentation.screen.main.MainScreen
 
 @Composable
 fun RootNavigationGraph(
     innerPadding: PaddingValues,
     navHostController: NavHostController,
-    startDestination: String
+    startDestination: String,
 ) {
     val time = 250
     NavHost(
@@ -34,19 +33,13 @@ fun RootNavigationGraph(
         popEnterTransition = { fadeIn(animationSpec = tween(time)) },
         popExitTransition = { fadeOut(animationSpec = tween(time)) }
     ) {
-        composable(route = Screen.HomeRoute.route) {
-            HomeScreen(
-                innerPadding = innerPadding,
-                navHostController = navHostController
-            )
-        }
         composable(route = Screen.PermissionRoute.route) {
             PermissionScreen(
                 innerPadding = innerPadding,
                 navHostController = navHostController
             )
         }
-        composable(route = Screen.MushafRoute.route) {
+        composable(route = Screen.QuranRoute.route) {
             QuranScreen(
                 onSurahClick = { surah ->
                     navHostController.navigate(Screen.SurahReadingRoute.createRoute(surah.id))
