@@ -32,6 +32,9 @@ class MainActivity : ComponentActivity() {
                 }
             } else {
                 Log.d(tag, "Permission denied")
+                navHostController.navigate(Screen.PermissionRoute.route) {
+                    popUpTo(0)
+                }
             }
         }
 
@@ -40,14 +43,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         val startDestination: String = if (ContextCompat.checkSelfPermission(
                 this,
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             Log.d(tag, "Permission is granted")
             Screen.MainRoute.route
         } else {
             Log.d(tag, "Permission is not granted")
-            requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
             Screen.PermissionRoute.route
         }
 

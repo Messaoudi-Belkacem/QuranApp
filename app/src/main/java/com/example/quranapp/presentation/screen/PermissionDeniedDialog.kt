@@ -1,6 +1,7 @@
 package com.example.quranapp.presentation.screen
 
 import android.app.Activity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,7 +26,7 @@ import androidx.compose.ui.unit.sp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PermissionDeniedDialog(onDismiss: () -> Unit) {
-    val activity = LocalContext.current as Activity
+    val activity = LocalActivity.current as Activity
     BasicAlertDialog(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background, RoundedCornerShape(16.dp)),
@@ -43,9 +44,9 @@ fun PermissionDeniedDialog(onDismiss: () -> Unit) {
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "You have denied the permission to access storage." +
+                text = "You have denied the permission to access your location." +
                         " Unfortunately, you cannot use this app without granting this permission." +
-                        " Please enable storage access in your device settings to continue using the app.",
+                        " Please enable location access in your device settings to continue using the app.",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Normal
             )

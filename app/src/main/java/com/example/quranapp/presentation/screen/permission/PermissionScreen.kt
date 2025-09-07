@@ -43,11 +43,8 @@ fun PermissionScreen(
 
     // Request Permission Launcher
     val requestPermissionLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            // Only check location permission
-            val isLocationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
-
-            if (isLocationGranted) {
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
                 navHostController.navigate(Screen.HomeRoute.route)
             } else {
                 Log.d(tag, "Permission is denied")
@@ -108,9 +105,7 @@ fun PermissionScreen(
                     .height(48.dp),
                 onClick = {
                     requestPermissionLauncher.launch(
-                        arrayOf(
-                            Manifest.permission.ACCESS_FINE_LOCATION
-                        )
+                        Manifest.permission.ACCESS_FINE_LOCATION
                     )
                 }
             ) {
