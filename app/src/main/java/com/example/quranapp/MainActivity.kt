@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
                 }
             } else {
                 Log.d(tag, "Permission denied")
-                navHostController.navigate(Screen.PermissionRoute.route) {
+                navHostController.navigate(Screen.MainRoute.route) {
                     popUpTo(0)
                 }
             }
