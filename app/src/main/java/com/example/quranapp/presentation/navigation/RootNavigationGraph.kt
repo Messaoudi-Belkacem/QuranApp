@@ -17,6 +17,7 @@ import com.example.quranapp.presentation.screen.permission.PermissionScreen
 import com.example.quranapp.presentation.screen.prayertimes.PrayerTimesScreen
 import com.example.quranapp.presentation.screen.settings.SettingsScreen
 import com.example.quranapp.presentation.screen.surah.SurahReadingScreen
+import com.example.quranapp.presentation.screen.main.MainScreen
 
 @Composable
 fun RootNavigationGraph(
@@ -70,6 +71,9 @@ fun RootNavigationGraph(
         }
         composable(route = Screen.SettingsRoute.route) {
             SettingsScreen()
+        }
+        composable(route = Screen.MainRoute.route) {
+            MainScreen()
         }
     }
 }

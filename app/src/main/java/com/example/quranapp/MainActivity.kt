@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
             Log.d(tag, "Permission granted")
-            navHostController.navigate(Screen.HomeRoute.route) {
+            navHostController.navigate(Screen.MainRoute.route) {
                 popUpTo(0) // Clear back stack
             }
         } else {
@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         val startDestination: String = if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             Log.d(tag, "Permission is granted")
-            Screen.HomeRoute.route
+            Screen.MainRoute.route
         } else {
             Log.d(tag, "Permission is not granted")
             requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
 
         val apiLevel = android.os.Build.VERSION.SDK_INT
         val adjustedStartDestination = if (apiLevel >= 34 && startDestination == Screen.PermissionRoute.route) {
-            Screen.HomeRoute.route
+            Screen.MainRoute.route
         } else {
             startDestination
         }

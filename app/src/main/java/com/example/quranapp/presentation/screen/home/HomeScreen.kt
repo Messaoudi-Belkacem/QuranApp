@@ -9,6 +9,8 @@ import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -51,23 +53,33 @@ fun HomeScreen(
             icon = Icons.Default.Settings,
             onClick = { navHostController.navigate(Screen.SettingsRoute.route) }
         )
-        // Add more options here later
     )
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(newPadding),
-        contentPadding = PaddingValues(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        contentPadding = newPadding,
+        modifier = Modifier.fillMaxSize()
     ) {
         items(options) { option ->
-            HomeOptionItem(
-                option = option,
-                modifier = Modifier.fillMaxWidth()
-            )
+            HomeOptionItem(option = option)
         }
+    }
+}
+
+@Composable
+fun HomeOptionItem(option: HomeOption) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = option.icon,
+            contentDescription = option.title,
+            modifier = Modifier.size(48.dp)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = option.title)
     }
 }
