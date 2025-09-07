@@ -74,6 +74,7 @@ fun HomeScreen(
             .padding(top = 24.dp)
     ) {
         CurrentTimeDisplay() // Add current time display at the top
+        PrayerTimesComponent() // Add prayer times component below the current time
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             contentPadding = PaddingValues(24.dp),
@@ -88,7 +89,7 @@ fun HomeScreen(
 
 @Composable
 fun CurrentTimeDisplay() {
-    val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+    val timeFormat = SimpleDateFormat("hh:mm", Locale.getDefault())
     val currentTime = remember { mutableStateOf(timeFormat.format(Date())) }
 
     // Update time every minute
@@ -124,5 +125,20 @@ fun HomeOptionItem(option: HomeOption) {
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = option.title)
+    }
+}
+
+@Composable
+fun PrayerTimesComponent() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text("Prayer Times", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(8.dp))
+        for (time in listOf("Fajr: 05:00 AM", "Dhuhr: 12:30 PM", "Asr: 03:45 PM", "Maghrib: 06:15 PM", "Isha: 07:30 PM")) {
+            Text(time, style = MaterialTheme.typography.bodyMedium)
+        }
     }
 }

@@ -43,11 +43,14 @@ fun PermissionScreen(
 
     // Request Permission Launcher
     val requestPermissionLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
-            if (isGranted) {
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            val isStorageGranted = permissions[Manifest.permission.READ_EXTERNAL_STORAGE] ?: false
+            val isLocationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+
+            if (isStorageGranted && isLocationGranted) {
                 navHostController.navigate(Screen.HomeRoute.route)
             } else {
-                Log.d(tag, "Permission is denied")
+                Log.d(tag, "Permissions are denied")
                 showDialog = true
             }
         }
@@ -73,7 +76,7 @@ fun PermissionScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "We need your permission",
+                text = "We need your permissions",
                 fontSize = 20.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
@@ -91,8 +94,8 @@ fun PermissionScreen(
         )
         Column {
             Text(
-                text = "To provide you with the best experience, we need access to your device's storage." +
-                        "This allows us to save and retrieve your files, images, and other data, ensuring smooth functionality",
+                text = "To provide you with the best experience, we need access to your device's storage and location. " +
+                        "This allows us to save and retrieve your files, images, and other data, as well as provide location-based features.",
                 fontSize = 16.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
@@ -104,7 +107,12 @@ fun PermissionScreen(
                     .fillMaxWidth()
                     .height(48.dp),
                 onClick = {
-                    requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    requestPermissionLauncher.launch(
+                        arrayOf(
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        )
+                    )
                 }
             ) {
                 Text(
