@@ -44,13 +44,13 @@ fun PermissionScreen(
     // Request Permission Launcher
     val requestPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            val isStorageGranted = permissions[Manifest.permission.READ_EXTERNAL_STORAGE] ?: false
+            // Only check location permission
             val isLocationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
 
-            if (isStorageGranted && isLocationGranted) {
+            if (isLocationGranted) {
                 navHostController.navigate(Screen.HomeRoute.route)
             } else {
-                Log.d(tag, "Permissions are denied")
+                Log.d(tag, "Permission is denied")
                 showDialog = true
             }
         }
@@ -94,8 +94,8 @@ fun PermissionScreen(
         )
         Column {
             Text(
-                text = "To provide you with the best experience, we need access to your device's storage and location. " +
-                        "This allows us to save and retrieve your files, images, and other data, as well as provide location-based features.",
+                text = "To provide you with the best experience, we need access to your device's location. " +
+                        "This allows us to provide location-based features.",
                 fontSize = 16.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
@@ -109,7 +109,6 @@ fun PermissionScreen(
                 onClick = {
                     requestPermissionLauncher.launch(
                         arrayOf(
-                            Manifest.permission.READ_EXTERNAL_STORAGE,
                             Manifest.permission.ACCESS_FINE_LOCATION
                         )
                     )
@@ -130,7 +129,7 @@ fun PermissionScreen(
                 }
             ) {
                 Text(
-                    text = "Skip",
+                    text = "Deny",
                     fontSize = 14.sp,
                 )
             }

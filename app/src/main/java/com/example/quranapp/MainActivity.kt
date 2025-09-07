@@ -51,20 +51,12 @@ class MainActivity : ComponentActivity() {
             Screen.PermissionRoute.route
         }
 
-        val apiLevel = android.os.Build.VERSION.SDK_INT
-        val adjustedStartDestination =
-            if (apiLevel >= 34 && startDestination == Screen.PermissionRoute.route) {
-                Screen.MainRoute.route
-            } else {
-                startDestination
-            }
-
         setContent {
             AppTheme {
                 navHostController = rememberNavController()
                 RootNavigationGraph(
                     navHostController = navHostController,
-                    startDestination = adjustedStartDestination
+                    startDestination = startDestination
                 )
             }
         }
