@@ -130,4 +130,7 @@ dependencies {
 
     // Google Fonts
     implementation("androidx.compose.ui:ui-text-google-fonts:1.9.0")
+
+    //Azan
+    implementation("com.github.ahmedeltaher:Azan:3.0")
 }
