@@ -9,9 +9,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Scaffold
-import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -26,21 +23,26 @@ class MainActivity : ComponentActivity() {
     private val sharedViewModel: SharedViewModel by viewModels()
     private lateinit var navHostController: NavHostController
 
-    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-        if (isGranted) {
-            Log.d(tag, "Permission granted")
-            navHostController.navigate(Screen.MainRoute.route) {
-                popUpTo(0) // Clear back stack
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                Log.d(tag, "Permission granted")
+                navHostController.navigate(Screen.MainRoute.route) {
+                    popUpTo(0) // Clear back stack
+                }
+            } else {
+                Log.d(tag, "Permission denied")
             }
-        } else {
-            Log.d(tag, "Permission denied")
         }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val startDestination: String = if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        val startDestination: String = if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             Log.d(tag, "Permission is granted")
             Screen.MainRoute.route
         } else {
@@ -50,22 +52,20 @@ class MainActivity : ComponentActivity() {
         }
 
         val apiLevel = android.os.Build.VERSION.SDK_INT
-        val adjustedStartDestination = if (apiLevel >= 34 && startDestination == Screen.PermissionRoute.route) {
-            Screen.MainRoute.route
-        } else {
-            startDestination
-        }
+        val adjustedStartDestination =
+            if (apiLevel >= 34 && startDestination == Screen.PermissionRoute.route) {
+                Screen.MainRoute.route
+            } else {
+                startDestination
+            }
 
         setContent {
             AppTheme {
                 navHostController = rememberNavController()
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    RootNavigationGraph(
-                        innerPadding = innerPadding,
-                        navHostController = navHostController,
-                        startDestination = adjustedStartDestination
-                    )
-                }
+                RootNavigationGraph(
+                    navHostController = navHostController,
+                    startDestination = adjustedStartDestination
+                )
             }
         }
     }

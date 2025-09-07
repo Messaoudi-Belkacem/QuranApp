@@ -1,6 +1,14 @@
 package com.example.quranapp.presentation.screen.home
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -10,36 +18,33 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.quranapp.presentation.navigation.Screen
-import java.text.SimpleDateFormat
-import java.util.*
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import com.example.quranapp.util.addPaddingValues
 import kotlinx.coroutines.delay
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 data class HomeOption(
     val title: String,
     val icon: ImageVector,
-    val onClick: () -> Unit
+    val onClick: () -> Unit,
 )
 
 @Composable
 fun HomeScreen(
-    innerPadding: PaddingValues,
-    navHostController: NavHostController
+    navHostController: NavHostController,
 ) {
-    val newPadding = addPaddingValues(innerPadding, PaddingValues(24.dp))
-
     val options = listOf(
         HomeOption(
             title = "Favorites",
@@ -63,11 +68,15 @@ fun HomeScreen(
         )
     )
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 24.dp)
+    ) {
         CurrentTimeDisplay() // Add current time display at the top
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-            contentPadding = newPadding,
+            contentPadding = PaddingValues(24.dp),
             modifier = Modifier.fillMaxSize()
         ) {
             items(options) { option ->

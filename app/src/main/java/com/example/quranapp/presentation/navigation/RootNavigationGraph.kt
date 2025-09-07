@@ -20,7 +20,6 @@ import com.example.quranapp.presentation.screen.surah.SurahReadingScreen
 
 @Composable
 fun RootNavigationGraph(
-    innerPadding: PaddingValues,
     navHostController: NavHostController,
     startDestination: String,
 ) {
@@ -35,7 +34,6 @@ fun RootNavigationGraph(
     ) {
         composable(route = Screen.PermissionRoute.route) {
             PermissionScreen(
-                innerPadding = innerPadding,
                 navHostController = navHostController
             )
         }

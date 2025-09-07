@@ -1,5 +1,9 @@
 package com.example.quranapp.presentation.screen.main
 
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -8,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -20,13 +25,15 @@ fun MainScreen() {
     val navController = rememberNavController()
 
     Scaffold(
+        modifier = Modifier
+            .systemBarsPadding(),
         bottomBar = {
             BottomBar(navController = navController)
         }
     ) { innerPadding ->
+        innerPadding
         MainNavGraph(
-            navController = navController,
-            innerPadding = innerPadding
+            navController = navController
         )
     }
 }
