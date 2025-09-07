@@ -51,7 +51,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuranScreen(
-    viewModel: MushafViewModel = hiltViewModel(),
+    viewModel: QuranViewModel = hiltViewModel(),
     onSurahClick: (com.example.quranapp.data.database.entities.Surah) -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsState()

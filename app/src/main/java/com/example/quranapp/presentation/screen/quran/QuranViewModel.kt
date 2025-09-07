@@ -19,7 +19,7 @@ data class MushafUiState(
 )
 
 @HiltViewModel
-class MushafViewModel @Inject constructor(
+class QuranViewModel @Inject constructor(
     private val quranRepository: QuranRepository
 ) : ViewModel() {
 
