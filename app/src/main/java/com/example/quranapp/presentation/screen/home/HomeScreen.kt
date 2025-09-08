@@ -12,17 +12,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.NightsStay
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.WbCloudy
 import androidx.compose.material.icons.filled.WbShade
 import androidx.compose.material.icons.filled.WbSunny
@@ -40,10 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import com.example.quranapp.presentation.navigation.Screen
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -56,53 +46,26 @@ data class HomeOption(
 )
 
 @Composable
-fun HomeScreen(
-    navHostController: NavHostController,
-) {
-    val options = listOf(
-        HomeOption(
-            title = "Favorites",
-            icon = Icons.Filled.Favorite,
-            onClick = { /* Future implementation for time-related features */ }
-        ),
-        HomeOption(
-            title = "Settings",
-            icon = Icons.Filled.Settings,
-            onClick = { navHostController.navigate(Screen.SettingsRoute.route) }
-        ),
-        HomeOption(
-            title = "Quran",
-            icon = Icons.AutoMirrored.Filled.MenuBook,
-            onClick = { navHostController.navigate(Screen.QuranRoute.route) }
-        ),
-        HomeOption(
-            title = "Time",
-            icon = Icons.Filled.AccessTime,
-            onClick = { /* Future implementation for time-related features */ }
-        )
-    )
-
+fun HomeScreen(innerPadding: PaddingValues) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 24.dp)
+            .padding(innerPadding)
     ) {
-        CurrentTimeDisplay() // Add current time display at the top
+        CurrentTimeDisplay(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) // Add current time display at the top
         PrayerTimesComponent() // Add prayer times component below the current time
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(24.dp),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(options) { option ->
-                HomeOptionItem(option = option)
-            }
-        }
+        FeatureGridComponent() // Add feature grid component
     }
 }
 
 @Composable
-fun CurrentTimeDisplay() {
+fun CurrentTimeDisplay(
+    modifier: Modifier
+) {
     val timeFormat = SimpleDateFormat("hh:mm", Locale.getDefault())
     val currentTime = remember { mutableStateOf(timeFormat.format(Date())) }
 
@@ -114,14 +77,20 @@ fun CurrentTimeDisplay() {
         }
     }
 
-    Text(
-        text = currentTime.value,
-        style = MaterialTheme.typography.headlineMedium,
-        textAlign = TextAlign.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 16.dp)
-    )
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = modifier
+    ) {
+        Text(
+            text = currentTime.value,
+            style = MaterialTheme.typography.headlineMedium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp)
+        )
+    }
 }
 
 @Composable
@@ -165,7 +134,7 @@ fun PrayerTimesComponent() {
                 .padding(start = 24.dp, bottom = 8.dp)
         )
 
-        LazyRow (
+        LazyRow(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.fillMaxWidth(),
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp)

@@ -1,5 +1,6 @@
 package com.example.quranapp.presentation.navigation
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -12,6 +13,7 @@ import com.example.quranapp.presentation.screen.tasbih.TasbihScreen
 @Composable
 fun MainNavGraph(
     navController: NavHostController,
+    innerPadding: PaddingValues
 ) {
     NavHost(
         navController = navController,
@@ -19,7 +21,7 @@ fun MainNavGraph(
     ) {
         composable(route = Screen.HomeRoute.route) {
             HomeScreen(
-                navHostController = navController
+                innerPadding = innerPadding
             )
         }
         composable(route = Screen.QiblaRoute.route) {

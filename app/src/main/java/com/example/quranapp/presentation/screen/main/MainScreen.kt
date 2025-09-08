@@ -32,9 +32,9 @@ fun MainScreen() {
             BottomBar(navController = navController)
         }
     ) { innerPadding ->
-        innerPadding
         MainNavGraph(
-            navController = navController
+            navController = navController,
+            innerPadding = innerPadding
         )
     }
 }
