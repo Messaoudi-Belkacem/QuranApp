@@ -1,7 +1,6 @@
 package com.example.quranapp.presentation.screen.main
 
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -26,8 +25,7 @@ fun MainScreen() {
     val navController = rememberNavController()
 
     Scaffold(
-        modifier = Modifier
-            .systemBarsPadding(),
+        modifier = Modifier,
         bottomBar = {
             BottomBar(navController = navController)
         }

@@ -57,8 +57,8 @@ fun HomeScreen(innerPadding: PaddingValues) {
                 .fillMaxWidth()
                 .weight(1f)
         ) // Add current time display at the top
-        PrayerTimesComponent() // Add prayer times component below the current time
         FeatureGridComponent() // Add feature grid component
+        PrayerTimesComponent() // Add prayer times component below the current time
     }
 }
 
