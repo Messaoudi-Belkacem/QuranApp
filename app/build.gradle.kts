@@ -130,4 +130,7 @@ dependencies {
 
     // Google Fonts
     implementation("androidx.compose.ui:ui-text-google-fonts:1.9.0")
+
+    // Muslim Data
+    implementation("dev.kosrat:muslimdata:2.7.1")
 }
