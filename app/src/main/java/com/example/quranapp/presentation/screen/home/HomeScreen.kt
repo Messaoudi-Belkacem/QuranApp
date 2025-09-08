@@ -94,24 +94,6 @@ fun CurrentTimeDisplay(
 }
 
 @Composable
-fun HomeOptionItem(option: HomeOption) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center
-    ) {
-        Icon(
-            imageVector = option.icon,
-            contentDescription = option.title,
-            modifier = Modifier.size(48.dp)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = option.title)
-    }
-}
-
-@Composable
 fun PrayerTimesComponent() {
     val prayerTimes = listOf(
         PrayerTime("Fajr", "05:00 AM", Icons.Default.WbTwilight),
