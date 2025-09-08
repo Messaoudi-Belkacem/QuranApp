@@ -8,6 +8,7 @@ import com.example.quranapp.data.database.dao.SurahDao
 import com.example.quranapp.data.database.entities.Ayah
 import com.example.quranapp.data.database.entities.Bookmark
 import com.example.quranapp.data.database.entities.Surah
+import com.example.quranapp.data.model.Location
 import com.example.quranapp.data.service.QuranDataLoader
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -58,6 +59,20 @@ class QuranRepositoryImpl @Inject constructor(
 
     override suspend fun setFirstLaunch(isFirst: Boolean) {
         prefs.edit { putBoolean("is_first_launch", isFirst) }
+    }
+
+    override suspend fun getCurrentLocation(): Location? {
+        val locationString = prefs.getString("current_location", null)
+        return locationString?.let { Location.fromString(it) }
+    }
+
+    override suspend fun setCurrentLocation(latitude: Float, longitude: Float) {
+        val location = Location(latitude, longitude)
+        prefs.edit { putString("current_location", location.toString()) }
+    }
+
+    override suspend fun clearCurrentLocation() {
+        prefs.edit { remove("current_location") }
     }
 
     override suspend fun initializeDatabase() {
