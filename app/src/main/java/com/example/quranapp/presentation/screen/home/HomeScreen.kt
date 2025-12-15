@@ -21,11 +21,14 @@ import androidx.compose.material.icons.filled.WbShade
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.filled.WbTwilight
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -34,6 +37,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -46,7 +50,12 @@ data class HomeOption(
 )
 
 @Composable
-fun HomeScreen(innerPadding: PaddingValues) {
+fun HomeScreen(
+    innerPadding: PaddingValues,
+    viewModel: HomeScreenViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -56,9 +65,12 @@ fun HomeScreen(innerPadding: PaddingValues) {
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-        ) // Add current time display at the top
-        FeatureGridComponent() // Add feature grid component
-        PrayerTimesComponent() // Add prayer times component below the current time
+        )
+        FeatureGridComponent()
+        PrayerTimesComponent(
+            uiState = uiState,
+            onRefresh = { viewModel.refreshPrayerTimes() }
+        )
     }
 }
 
@@ -94,18 +106,12 @@ fun CurrentTimeDisplay(
 }
 
 @Composable
-fun PrayerTimesComponent() {
-    val prayerTimes = listOf(
-        PrayerTime("Fajr", "05:00 AM", Icons.Default.WbTwilight),
-        PrayerTime("Dhuhr", "12:30 PM", Icons.Default.WbSunny),
-        PrayerTime("Asr", "03:45 PM", Icons.Default.WbCloudy),
-        PrayerTime("Maghrib", "06:15 PM", Icons.Default.WbShade),
-        PrayerTime("Isha", "07:30 PM", Icons.Default.NightsStay)
-    )
-
+fun PrayerTimesComponent(
+    uiState: HomeUiState,
+    onRefresh: () -> Unit = {}
+) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = Modifier.fillMaxWidth()
     ) {
         Text(
             text = "Prayer Times",
@@ -116,20 +122,110 @@ fun PrayerTimesComponent() {
                 .padding(start = 24.dp, bottom = 8.dp)
         )
 
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp)
-        ) {
-            items(prayerTimes) { prayer ->
-                PrayerTimeItem(
-                    prayer = prayer
-                )
+        when {
+            uiState.isLoading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            uiState.error != null -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = uiState.error,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            else -> {
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp)
+                ) {
+                    items(uiState.prayerTimes) { prayerTime ->
+                        PrayerTimeItemFromViewModel(
+                            prayerTimeData = prayerTime
+                        )
+                    }
+                }
             }
         }
     }
 }
 
+@Composable
+fun PrayerTimeItemFromViewModel(
+    prayerTimeData: PrayerTimeData
+) {
+    // Map prayer names to icons
+    val icon = when (prayerTimeData.name) {
+        "Fajr" -> Icons.Default.WbTwilight
+        "Sunrise" -> Icons.Default.WbSunny
+        "Dhuhr" -> Icons.Default.WbSunny
+        "Asr" -> Icons.Default.WbCloudy
+        "Maghrib" -> Icons.Default.WbShade
+        "Isha" -> Icons.Default.NightsStay
+        else -> Icons.Default.WbSunny
+    }
+
+    Card {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        shape = CircleShape
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = "${prayerTimeData.name} prayer",
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = prayerTimeData.name,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Medium
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = prayerTimeData.time,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Normal
+            )
+        }
+    }
+}
+
+// Keep the existing PrayerTimeItem for backward compatibility if needed
 @Composable
 fun PrayerTimeItem(
     prayer: PrayerTime,
