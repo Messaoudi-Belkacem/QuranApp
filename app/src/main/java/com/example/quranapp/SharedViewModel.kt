@@ -79,24 +79,35 @@ class SharedViewModel @Inject constructor(
 
     private suspend fun handleLocationSetup() {
         try {
+            Log.d(tag, "=== handleLocationSetup started ===")
+
             if (locationHelper.hasLocationPermission()) {
-                Log.d(tag, "Location permission granted, attempting to get current location")
+                Log.d(tag, "✓ Location permission granted")
 
                 if (locationHelper.isLocationEnabled()) {
+                    Log.d(tag, "✓ Location services enabled, fetching location...")
+
                     val currentLocation = locationHelper.getCurrentLocation()
                     if (currentLocation != null) {
                         val (latitude, longitude) = currentLocation
                         quranRepository.setCurrentLocation(latitude, longitude)
-                        Log.d(tag, "Successfully stored current location: $latitude, $longitude")
+                        Log.d(tag, "✓✓✓ Successfully stored location: $latitude, $longitude")
                     } else {
-                        Log.w(tag, "Could not get current location")
+                        Log.w(tag, "⚠ Could not get current location (last known location not available)")
+                        Log.d(tag, "This may happen on:")
+                        Log.d(tag, "  - First app launch")
+                        Log.d(tag, "  - Device hasn't used GPS recently")
+                        Log.d(tag, "  - Location cache is cleared")
+                        Log.d(tag, "Solution: HomeScreenViewModel will fetch fresh location when needed")
                     }
                 } else {
-                    Log.w(tag, "Location services are disabled")
+                    Log.w(tag, "⚠ Location services are disabled in device settings")
                 }
             } else {
-                Log.d(tag, "Location permission not granted")
+                Log.d(tag, "Location permission not granted yet")
             }
+
+            Log.d(tag, "=== handleLocationSetup completed ===")
         } catch (e: Exception) {
             Log.e(tag, "Error handling location setup", e)
         }

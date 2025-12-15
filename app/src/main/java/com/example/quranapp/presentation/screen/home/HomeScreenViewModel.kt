@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quranapp.data.repository.QuranRepository
+import com.example.quranapp.util.LocationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.kosrat.muslimdata.models.AsrMethod
@@ -28,6 +29,8 @@ class HomeScreenViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+    private val locationHelper = LocationHelper(context)
+    private val tag = "HomeScreenViewModel"
 
     init {
         loadPrayerTimes()
@@ -36,13 +39,64 @@ class HomeScreenViewModel @Inject constructor(
     private fun loadPrayerTimes() {
         viewModelScope.launch {
             try {
-                // Get stored location from preferences
-                val storedLocation = quranRepository.getCurrentLocation()
+                Log.d(tag, "=== Starting loadPrayerTimes ===")
 
+                // Step 1: Check location permission
+                if (!locationHelper.hasLocationPermission()) {
+                    Log.e(tag, "Location permission not granted")
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = "Location permission is required. Please grant permission in settings."
+                    )
+                    return@launch
+                }
+                Log.d(tag, "✓ Location permission granted")
+
+                // Step 2: Check if location services are enabled
+                if (!locationHelper.isLocationEnabled()) {
+                    Log.e(tag, "Location services are disabled")
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = "Location services are disabled. Please enable GPS in your device settings."
+                    )
+                    return@launch
+                }
+                Log.d(tag, "✓ Location services enabled")
+
+                // Step 3: Try to get stored location first
+                var storedLocation = quranRepository.getCurrentLocation()
+                Log.d(tag, "Stored location: $storedLocation")
+
+                // Step 4: If no stored location, fetch fresh location
+                if (storedLocation == null) {
+                    Log.d(tag, "No stored location found, fetching fresh location...")
+                    val freshLocation = locationHelper.getCurrentLocation()
+
+                    if (freshLocation != null) {
+                        val (latitude, longitude) = freshLocation
+                        Log.d(tag, "✓ Fresh location obtained: $latitude, $longitude")
+
+                        // Store it for future use
+                        quranRepository.setCurrentLocation(latitude, longitude)
+                        storedLocation = quranRepository.getCurrentLocation()
+                        Log.d(tag, "✓ Location stored successfully")
+                    } else {
+                        Log.e(tag, "Failed to get fresh location")
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            error = "Unable to get your location. Please check:\n" +
+                                    "1. GPS is enabled\n" +
+                                    "2. Location permission is granted\n" +
+                                    "3. Try moving to an open area"
+                        )
+                        return@launch
+                    }
+                }
+
+                // Step 5: Calculate prayer times with the location
                 if (storedLocation != null) {
-                    Log.d("HomeScreenViewModel", "Location found: ${storedLocation.latitude}, ${storedLocation.longitude}")
+                    Log.d(tag, "✓ Using location: ${storedLocation.latitude}, ${storedLocation.longitude}")
 
-                    // Calculate prayer times based on location
                     val prayerTimes = calculatePrayerTimes(
                         latitude = storedLocation.latitude.toDouble(),
                         longitude = storedLocation.longitude.toDouble()
@@ -51,17 +105,19 @@ class HomeScreenViewModel @Inject constructor(
                     _uiState.value = _uiState.value.copy(
                         prayerTimes = prayerTimes,
                         isLoading = false,
-                        currentLocation = storedLocation
+                        currentLocation = storedLocation,
+                        error = null
                     )
+                    Log.d(tag, "✓ Prayer times calculated successfully")
                 } else {
-                    Log.w("HomeScreenViewModel", "No location available")
+                    Log.e(tag, "Location is still null after all attempts")
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        error = "Location not available. Please enable location services."
+                        error = "Failed to obtain location data"
                     )
                 }
             } catch (e: Exception) {
-                Log.e("HomeScreenViewModel", "Error loading prayer times", e)
+                Log.e(tag, "Error in loadPrayerTimes", e)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = "Failed to load prayer times: ${e.message}"

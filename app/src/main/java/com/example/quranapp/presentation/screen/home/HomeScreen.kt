@@ -164,11 +164,12 @@ fun PrayerTimesComponent(
             }
 
             uiState.error != null -> {
-                Box(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(24.dp),
-                    contentAlignment = Alignment.Center
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
                     Text(
                         text = uiState.error,
@@ -176,6 +177,12 @@ fun PrayerTimesComponent(
                         color = MaterialTheme.colorScheme.error,
                         textAlign = TextAlign.Center
                     )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    androidx.compose.material3.Button(
+                        onClick = onRefresh
+                    ) {
+                        Text("Retry")
+                    }
                 }
             }
 

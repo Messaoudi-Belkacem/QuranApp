@@ -41,24 +41,31 @@ class LocationHelper(private val context: Context) {
      * Get the current location using the best available provider
      */
     suspend fun getCurrentLocation(): Pair<Float, Float>? {
+        Log.d(tag, "=== getCurrentLocation called ===")
+
         if (!hasLocationPermission()) {
             Log.w(tag, "Location permission not granted")
             return null
         }
+        Log.d(tag, "✓ Location permission granted")
 
         if (!isLocationEnabled()) {
             Log.w(tag, "Location services are disabled")
             return null
         }
+        Log.d(tag, "✓ Location services enabled")
 
         return try {
             val location = getLastKnownLocation()
             if (location != null) {
-                Log.d(tag, "Got location: ${location.latitude}, ${location.longitude}")
+                Log.d(tag, "✓ Got location: ${location.latitude}, ${location.longitude}")
+                Log.d(tag, "  Provider: ${location.provider}, Accuracy: ${location.accuracy}m, Age: ${(System.currentTimeMillis() - location.time) / 1000}s")
                 Pair(location.latitude.toFloat(), location.longitude.toFloat())
             } else {
-                Log.w(tag, "No location available")
-                null
+                Log.w(tag, "⚠ No last known location available")
+                Log.d(tag, "Attempting to request fresh location update...")
+                // Try to request a fresh location update
+                requestLocationUpdate()
             }
         } catch (e: SecurityException) {
             Log.e(tag, "Security exception getting location", e)
@@ -74,18 +81,37 @@ class LocationHelper(private val context: Context) {
      */
     @Suppress("MissingPermission")
     private fun getLastKnownLocation(): Location? {
-        if (!hasLocationPermission()) return null
+        if (!hasLocationPermission()) {
+            Log.w(tag, "Cannot get last known location - no permission")
+            return null
+        }
 
         val providers = locationManager.getProviders(true)
+        Log.d(tag, "Available location providers: $providers")
+
+        if (providers.isEmpty()) {
+            Log.w(tag, "No location providers are enabled")
+            return null
+        }
+
         var bestLocation: Location? = null
 
         for (provider in providers) {
             val location = locationManager.getLastKnownLocation(provider)
+            Log.d(tag, "Provider: $provider, Location: ${if (location != null) "${location.latitude},${location.longitude}" else "null"}")
+
             if (location != null) {
                 if (bestLocation == null || location.accuracy < bestLocation.accuracy) {
                     bestLocation = location
+                    Log.d(tag, "  → New best location from $provider")
                 }
             }
+        }
+
+        if (bestLocation == null) {
+            Log.w(tag, "No last known location found from any provider")
+        } else {
+            Log.d(tag, "Best location selected from provider: ${bestLocation.provider}")
         }
 
         return bestLocation
