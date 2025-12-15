@@ -31,6 +31,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -39,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -76,32 +78,53 @@ fun HomeScreen(
 
 @Composable
 fun CurrentTimeDisplay(
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
-    val timeFormat = SimpleDateFormat("hh:mm", Locale.getDefault())
-    val currentTime = remember { mutableStateOf(timeFormat.format(Date())) }
+    // Keep formatters in memory so they aren't recreated on every recomposition
+    val timeFormatter = remember { SimpleDateFormat("hh:mm", Locale.getDefault()) }
+    val dateFormatter = remember { SimpleDateFormat("EEEE, MMMM dd, yyyy", Locale.getDefault()) }
 
-    // Update time every minute
+    // current timestamp state
+    var now by remember { mutableStateOf(Date()) }
+
+    // Update the time aligned to the minute boundary (so it updates exactly when the minute changes)
     LaunchedEffect(Unit) {
-        while (true) {
-            currentTime.value = timeFormat.format(Date())
-            delay(60_000L) // Delay for 1 minute
+        while (isActive) {
+            now = Date()
+            val millis = now.time
+            val delayMillis = 60_000L - (millis % 60_000L)
+            delay(delayMillis)
         }
     }
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+    // Use a Box that fills available space and center its content, then a Column for the texts
+    Box(
         modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = currentTime.value,
-            style = MaterialTheme.typography.headlineMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp)
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                text = timeFormatter.format(now),
+                style = MaterialTheme.typography.headlineMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = dateFormatter.format(now),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
