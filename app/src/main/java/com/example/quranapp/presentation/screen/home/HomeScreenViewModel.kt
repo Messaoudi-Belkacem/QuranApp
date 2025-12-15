@@ -156,23 +156,57 @@ class HomeScreenViewModel @Inject constructor(
 
             // Convert to our data format with null safety
             if (prayerTimes != null) {
-                listOf(
-                    PrayerTimeData("Fajr", formatTime(prayerTimes.fajr)),
-                    PrayerTimeData("Sunrise", formatTime(prayerTimes.sunrise)),
-                    PrayerTimeData("Dhuhr", formatTime(prayerTimes.dhuhr)),
-                    PrayerTimeData("Asr", formatTime(prayerTimes.asr)),
-                    PrayerTimeData("Maghrib", formatTime(prayerTimes.maghrib)),
-                    PrayerTimeData("Isha", formatTime(prayerTimes.isha))
+                val prayers = listOf(
+                    PrayerTimeData("Fajr", formatTime(prayerTimes.fajr), prayerTimes.fajr),
+                    PrayerTimeData("Sunrise", formatTime(prayerTimes.sunrise), prayerTimes.sunrise),
+                    PrayerTimeData("Dhuhr", formatTime(prayerTimes.dhuhr), prayerTimes.dhuhr),
+                    PrayerTimeData("Asr", formatTime(prayerTimes.asr), prayerTimes.asr),
+                    PrayerTimeData("Maghrib", formatTime(prayerTimes.maghrib), prayerTimes.maghrib),
+                    PrayerTimeData("Isha", formatTime(prayerTimes.isha), prayerTimes.isha)
                 )
+
+                // Calculate next and previous prayers
+                calculateNextAndPreviousPrayers(prayers)
+
+                prayers
             } else {
-                Log.w("HomeScreenViewModel", "Prayer times calculation returned null")
+                Log.w(tag, "Prayer times calculation returned null")
                 generateMockPrayerTimes()
             }
 
         } catch (e: Exception) {
-            Log.e("HomeScreenViewModel", "Error calculating prayer times", e)
+            Log.e(tag, "Error calculating prayer times", e)
             generateMockPrayerTimes()
         }
+    }
+
+    private fun calculateNextAndPreviousPrayers(prayers: List<PrayerTimeData>) {
+        val now = Date()
+        var nextPrayer: PrayerTimeData? = null
+        var lastPrayer: PrayerTimeData? = null
+
+        // Find next prayer (first prayer after current time)
+        for (prayer in prayers) {
+            if (prayer.dateTime != null && prayer.dateTime.after(now)) {
+                nextPrayer = prayer
+                break
+            }
+        }
+
+        // Find last prayer (last prayer before current time)
+        for (i in prayers.indices.reversed()) {
+            val prayer = prayers[i]
+            if (prayer.dateTime != null && prayer.dateTime.before(now)) {
+                lastPrayer = prayer
+                break
+            }
+        }
+
+        // Update UI state with next and previous prayers
+        _uiState.value = _uiState.value.copy(
+            nextPrayer = nextPrayer,
+            lastPrayer = lastPrayer
+        )
     }
 
     private fun formatTime(date: Date): String {
@@ -200,10 +234,13 @@ data class HomeUiState(
     val prayerTimes: List<PrayerTimeData> = emptyList(),
     val isLoading: Boolean = true,
     val error: String? = null,
-    val currentLocation: com.example.quranapp.data.model.Location? = null
+    val currentLocation: com.example.quranapp.data.model.Location? = null,
+    val nextPrayer: PrayerTimeData? = null,
+    val lastPrayer: PrayerTimeData? = null
 )
 
 data class PrayerTimeData(
     val name: String,
-    val time: String
+    val time: String,
+    val dateTime: Date? = null
 )
