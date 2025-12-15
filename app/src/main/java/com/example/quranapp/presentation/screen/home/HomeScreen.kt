@@ -68,10 +68,19 @@ fun HomeScreen(
                 .fillMaxWidth()
                 .weight(1f)
         )
-        FeatureGridComponent()
+        /*
+        FeatureGridComponent(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        )
+        */
         PrayerTimesComponent(
             uiState = uiState,
-            onRefresh = { viewModel.refreshPrayerTimes() }
+            onRefresh = { viewModel.refreshPrayerTimes() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
         )
     }
 }
@@ -80,14 +89,11 @@ fun HomeScreen(
 fun CurrentTimeDisplay(
     modifier: Modifier = Modifier
 ) {
-    // Keep formatters in memory so they aren't recreated on every recomposition
     val timeFormatter = remember { SimpleDateFormat("hh:mm", Locale.getDefault()) }
     val dateFormatter = remember { SimpleDateFormat("EEEE, MMMM dd, yyyy", Locale.getDefault()) }
 
-    // current timestamp state
     var now by remember { mutableStateOf(Date()) }
 
-    // Update the time aligned to the minute boundary (so it updates exactly when the minute changes)
     LaunchedEffect(Unit) {
         while (isActive) {
             now = Date()
@@ -97,7 +103,6 @@ fun CurrentTimeDisplay(
         }
     }
 
-    // Use a Box that fills available space and center its content, then a Column for the texts
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -130,11 +135,12 @@ fun CurrentTimeDisplay(
 
 @Composable
 fun PrayerTimesComponent(
+    modifier: Modifier = Modifier,
     uiState: HomeUiState,
     onRefresh: () -> Unit = {}
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         Text(
             text = "Prayer Times",
