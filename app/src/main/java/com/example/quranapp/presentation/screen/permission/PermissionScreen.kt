@@ -41,13 +41,17 @@ fun PermissionScreen(
     val isSystemInDarkTheme = isSystemInDarkTheme()
     var showDialog by remember { mutableStateOf(false) }
 
-    // Request Permission Launcher
-    val requestPermissionLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
+    // Request Multiple Permissions Launcher
+    val requestMultiplePermissionsLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            val fineLocationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+            val coarseLocationGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+
+            if (fineLocationGranted || coarseLocationGranted) {
+                Log.d(tag, "Location permission granted (fine: $fineLocationGranted, coarse: $coarseLocationGranted)")
                 navHostController.navigate(Screen.HomeRoute.route)
             } else {
-                Log.d(tag, "Permission is denied")
+                Log.d(tag, "Location permissions denied")
                 showDialog = true
             }
         }
@@ -104,8 +108,11 @@ fun PermissionScreen(
                     .fillMaxWidth()
                     .height(48.dp),
                 onClick = {
-                    requestPermissionLauncher.launch(
-                        Manifest.permission.ACCESS_FINE_LOCATION
+                    requestMultiplePermissionsLauncher.launch(
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        )
                     )
                 }
             ) {

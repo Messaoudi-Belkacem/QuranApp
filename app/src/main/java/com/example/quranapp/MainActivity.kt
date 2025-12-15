@@ -23,15 +23,18 @@ class MainActivity : ComponentActivity() {
     private val sharedViewModel: SharedViewModel by viewModels()
     private lateinit var navHostController: NavHostController
 
-    private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
-                Log.d(tag, "Permission granted")
+    private val requestMultiplePermissionsLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            val fineLocationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+            val coarseLocationGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+
+            if (fineLocationGranted || coarseLocationGranted) {
+                Log.d(tag, "Location permission granted (fine: $fineLocationGranted, coarse: $coarseLocationGranted)")
                 navHostController.navigate(Screen.MainRoute.route) {
                     popUpTo(0) // Clear back stack
                 }
             } else {
-                Log.d(tag, "Permission denied")
+                Log.d(tag, "Location permissions denied")
                 navHostController.navigate(Screen.PermissionRoute.route) {
                     popUpTo(0)
                 }
@@ -41,16 +44,30 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val startDestination: String = if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            Log.d(tag, "Permission is granted")
+
+        // Check if either fine or coarse location permission is granted
+        val hasFineLocation = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val hasCoarseLocation = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val startDestination: String = if (hasFineLocation || hasCoarseLocation) {
+            Log.d(tag, "Location permission already granted (fine: $hasFineLocation, coarse: $hasCoarseLocation)")
             Screen.MainRoute.route
         } else {
-            Log.d(tag, "Permission is not granted")
-            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            Log.d(tag, "Location permissions not granted, requesting...")
+            // Request both permissions
+            requestMultiplePermissionsLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
             Screen.PermissionRoute.route
         }
 
