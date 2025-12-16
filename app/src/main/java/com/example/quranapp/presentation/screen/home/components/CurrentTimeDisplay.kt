@@ -56,7 +56,7 @@ fun CurrentTimeDisplay(
         ) {
             Text(
                 text = timeFormatter.format(now),
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.displayLarge,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -65,7 +65,7 @@ fun CurrentTimeDisplay(
 
             Text(
                 text = dateFormatter.format(now),
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.displayMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
