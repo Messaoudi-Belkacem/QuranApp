@@ -132,6 +132,9 @@ dependencies {
     // Google Fonts
     implementation("androidx.compose.ui:ui-text-google-fonts:1.10.0")
 
+    // Google Play Services Location
+    implementation(libs.play.services.location)
+
     // Muslim Data
     implementation("dev.kosrat:muslimdata:2.7.1")
 }
