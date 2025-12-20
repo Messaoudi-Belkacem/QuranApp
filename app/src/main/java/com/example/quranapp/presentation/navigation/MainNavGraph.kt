@@ -25,7 +25,9 @@ fun MainNavGraph(
             )
         }
         composable(route = Screen.QiblaRoute.route) {
-            QiblaScreen()
+            QiblaScreen(
+                innerPadding = innerPadding
+            )
         }
         composable(route = Screen.QuranRoute.route) {
             QuranScreen()

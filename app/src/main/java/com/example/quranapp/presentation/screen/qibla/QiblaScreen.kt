@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -53,6 +54,7 @@ import kotlin.math.abs
 
 @Composable
 fun QiblaScreen(
+    innerPadding: PaddingValues,
     viewModel: QiblaViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -75,6 +77,7 @@ fun QiblaScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(innerPadding)
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
@@ -179,6 +182,27 @@ private fun QiblaCompassContent(
             }
         }
 
+        // Kaaba icon at center
+        Surface(
+            modifier = Modifier.size(60.dp),
+            shape = CircleShape,
+            color = if (isAligned)
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+            else
+                MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+        ) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.padding(12.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.kaaba_selected),
+                    contentDescription = "Kaaba",
+                    modifier = Modifier.size(36.dp)
+                )
+            }
+        }
+
         // Compass
         Box(
             modifier = Modifier
@@ -196,6 +220,14 @@ private fun QiblaCompassContent(
                     .rotate(-uiState.deviceAzimuth)
             )
 
+            // Azimuth arrow (points to direction device is facing)
+            Image(
+                painter = painterResource(id = R.drawable.direction_needle),
+                contentDescription = "point Direction",
+                modifier = Modifier
+                    .size(300.dp)
+            )
+
             // Qibla arrow (points to Kaaba)
             Image(
                 painter = painterResource(id = R.drawable.compass_needle),
@@ -208,27 +240,6 @@ private fun QiblaCompassContent(
                         scaleY = pulseScale
                     }
             )
-
-            // Kaaba icon at center
-            Surface(
-                modifier = Modifier.size(60.dp),
-                shape = CircleShape,
-                color = if (isAligned)
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-                else
-                    MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.padding(12.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_kaaba),
-                        contentDescription = "Kaaba",
-                        modifier = Modifier.size(36.dp)
-                    )
-                }
-            }
         }
 
         // Bottom info
