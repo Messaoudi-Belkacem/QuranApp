@@ -20,8 +20,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -39,6 +37,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -144,7 +143,7 @@ private fun QiblaCompassContent(
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         // Top info card
         QiblaInfoCard(
@@ -169,9 +168,10 @@ private fun QiblaCompassContent(
                 painter = painterResource(id = R.drawable.compass),
                 contentDescription = "Compass Background",
                 modifier = Modifier
-                    .size(300.dp)
+                    .fillMaxSize()
                     .alpha(0.8f)
-                    .rotate(-uiState.deviceAzimuth)
+                    .rotate(-uiState.deviceAzimuth),
+                contentScale = ContentScale.Fit
             )
 
             // Azimuth arrow (points to direction device is facing)
@@ -179,7 +179,8 @@ private fun QiblaCompassContent(
                 painter = painterResource(id = R.drawable.compass_needle),
                 contentDescription = "point Direction",
                 modifier = Modifier
-                    .size(300.dp)
+                    .fillMaxSize(),
+                contentScale = ContentScale.Fit
             )
 
             // Qibla arrow (points to Kaaba)
@@ -187,12 +188,13 @@ private fun QiblaCompassContent(
                 painter = painterResource(id = R.drawable.kaaba_needle),
                 contentDescription = "Qibla Direction",
                 modifier = Modifier
-                    .size(300.dp)
+                    .fillMaxSize()
                     .rotate(smoothRotation)
                     .graphicsLayer {
                         scaleX = pulseScale
                         scaleY = pulseScale
-                    }
+                    },
+                contentScale = ContentScale.Fit
             )
         }
 
@@ -202,11 +204,8 @@ private fun QiblaCompassContent(
         ) {
             AnimatedQiblaCard(isAligned)
 
-            Spacer(modifier = Modifier.height(8.dp))
-
             FilledTonalButton(
-                onClick = onRefresh,
-                modifier = Modifier.padding(8.dp)
+                onClick = onRefresh
             ) {
                 Icon(
                     imageVector = Icons.Default.Refresh,
