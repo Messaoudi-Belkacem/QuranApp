@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,7 +18,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Card
@@ -28,7 +26,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,7 +33,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -53,7 +49,6 @@ import com.example.quranapp.R
 import com.example.quranapp.util.RequestLocationPermission
 import java.util.Locale
 import kotlin.math.abs
-import kotlinx.coroutines.delay
 
 @Composable
 fun QiblaScreen(
@@ -176,57 +171,26 @@ private fun QiblaCompassContent(
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = "Distance: ${String.format(Locale.US, "%.0f", uiState.distanceToKaaba)} km",
+                    text = "Distance: ${
+                        String.format(
+                            Locale.US,
+                            "%.0f",
+                            uiState.distanceToKaaba
+                        )
+                    } km",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
-
-                // New: show current device azimuth
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Pulse briefly when azimuth updates
-                var azimuthPulse by remember { mutableStateOf(false) }
-                LaunchedEffect(uiState.deviceAzimuth) {
-                    azimuthPulse = true
-                    delay(260)
-                    azimuthPulse = false
-                }
-                val azimuthScale by animateFloatAsState(targetValue = if (azimuthPulse) 1.08f else 1f, animationSpec = tween(220))
-
                 Text(
                     text = "${String.format(Locale.US, "%.1f", uiState.deviceAzimuth)}°",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f)
                 )
-
-                Text(
-                    text = "Device Azimuth: ${String.format(Locale.US, "%.1f", uiState.deviceAzimuth)}°",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                )
             }
         }
 
         // Kaaba icon at center
-        Surface(
-            modifier = Modifier.size(60.dp),
-            shape = CircleShape,
-            color = if (isAligned)
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-            else
-                MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
-        ) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.padding(12.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.kaaba_selected),
-                    contentDescription = "Kaaba",
-                    modifier = Modifier.size(36.dp)
-                )
-            }
-        }
+        AnimatedKaabaIcon(isAligned = isAligned)
 
         // Compass
         Box(
@@ -269,8 +233,7 @@ private fun QiblaCompassContent(
 
         // Bottom info
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(bottom = 16.dp)
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AnimatedQiblaCard(isAligned)
 
@@ -290,7 +253,13 @@ private fun QiblaCompassContent(
             }
 
             Text(
-                text = "Lat: ${String.format(Locale.US, "%.4f", uiState.userLatitude)}, Lon: ${String.format(Locale.US, "%.4f", uiState.userLongitude)}",
+                text = "Lat: ${
+                    String.format(
+                        Locale.US,
+                        "%.4f",
+                        uiState.userLatitude
+                    )
+                }, Lon: ${String.format(Locale.US, "%.4f", uiState.userLongitude)}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                 modifier = Modifier.padding(top = 4.dp)
