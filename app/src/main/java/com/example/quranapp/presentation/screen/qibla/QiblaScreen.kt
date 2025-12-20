@@ -147,47 +147,12 @@ private fun QiblaCompassContent(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         // Top info card
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
-            )
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Direction to Kaaba",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "${String.format(Locale.US, "%.1f", uiState.qiblaBearing)}° from North",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = "Distance: ${
-                        String.format(
-                            Locale.US,
-                            "%.0f",
-                            uiState.distanceToKaaba
-                        )
-                    } km",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                )
-                Text(
-                    text = "${String.format(Locale.US, "%.1f", uiState.deviceAzimuth)}°",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f)
-                )
-            }
-        }
+        QiblaInfoCard(
+            qiblaBearing = uiState.qiblaBearing,
+            distanceToKaaba = uiState.distanceToKaaba,
+            deviceAzimuth = uiState.deviceAzimuth,
+            modifier = Modifier.fillMaxWidth()
+        )
 
         // Kaaba icon at center
         AnimatedKaabaIcon(isAligned = isAligned)
