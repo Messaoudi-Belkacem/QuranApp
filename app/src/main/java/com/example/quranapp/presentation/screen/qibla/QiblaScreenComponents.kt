@@ -205,8 +205,9 @@ fun QiblaInfoCard(
             contentAlignment = Alignment.Center
         ) {
             // Background image with blur effect
+            val bgRes = remember { listOf(R.drawable.qaaba_1, R.drawable.qaaba_2, R.drawable.qaaba_3).random() }
             Image(
-                painter = painterResource(id = R.drawable.qaaba_1),
+                painter = painterResource(id = bgRes),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
