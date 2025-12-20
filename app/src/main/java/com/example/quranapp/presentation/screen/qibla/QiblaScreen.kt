@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -47,10 +48,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.quranapp.R
 import com.example.quranapp.util.RequestLocationPermission
+import java.util.Locale
 import kotlin.math.abs
+import kotlinx.coroutines.delay
 
 @Composable
 fun QiblaScreen(
@@ -58,16 +61,14 @@ fun QiblaScreen(
     viewModel: QiblaViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var hasPermission by remember { mutableStateOf(false) }
-    var showPermissionDenied by remember { mutableStateOf(false) }
+    val showPermissionDeniedState = remember { mutableStateOf(false) }
 
     RequestLocationPermission(
         onPermissionGranted = {
-            hasPermission = true
             viewModel.loadLocation()
         },
         onPermissionDenied = {
-            showPermissionDenied = true
+            showPermissionDeniedState.value = true
         }
     ) { requestPermission ->
         LaunchedEffect(Unit) {
@@ -88,10 +89,10 @@ fun QiblaScreen(
                 )
         ) {
             when {
-                showPermissionDenied -> {
+                showPermissionDeniedState.value -> {
                     PermissionDeniedContent(
                         onRetry = {
-                            showPermissionDenied = false
+                            showPermissionDeniedState.value = false
                             requestPermission()
                         }
                     )
@@ -170,12 +171,36 @@ private fun QiblaCompassContent(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "${String.format("%.1f", uiState.qiblaBearing)}° from North",
+                    text = "${String.format(Locale.US, "%.1f", uiState.qiblaBearing)}° from North",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = "Distance: ${String.format("%.0f", uiState.distanceToKaaba)} km",
+                    text = "Distance: ${String.format(Locale.US, "%.0f", uiState.distanceToKaaba)} km",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+
+                // New: show current device azimuth
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Pulse briefly when azimuth updates
+                var azimuthPulse by remember { mutableStateOf(false) }
+                LaunchedEffect(uiState.deviceAzimuth) {
+                    azimuthPulse = true
+                    delay(260)
+                    azimuthPulse = false
+                }
+                val azimuthScale by animateFloatAsState(targetValue = if (azimuthPulse) 1.08f else 1f, animationSpec = tween(220))
+
+                Text(
+                    text = "${String.format(Locale.US, "%.1f", uiState.deviceAzimuth)}°",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f)
+                )
+
+                Text(
+                    text = "Device Azimuth: ${String.format(Locale.US, "%.1f", uiState.deviceAzimuth)}°",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
@@ -212,7 +237,7 @@ private fun QiblaCompassContent(
         ) {
             // Compass background
             Image(
-                painter = painterResource(id = R.drawable.compass_360_dark),
+                painter = painterResource(id = R.drawable.compass),
                 contentDescription = "Compass Background",
                 modifier = Modifier
                     .size(300.dp)
@@ -222,7 +247,7 @@ private fun QiblaCompassContent(
 
             // Azimuth arrow (points to direction device is facing)
             Image(
-                painter = painterResource(id = R.drawable.direction_needle),
+                painter = painterResource(id = R.drawable.compass_needle),
                 contentDescription = "point Direction",
                 modifier = Modifier
                     .size(300.dp)
@@ -230,10 +255,10 @@ private fun QiblaCompassContent(
 
             // Qibla arrow (points to Kaaba)
             Image(
-                painter = painterResource(id = R.drawable.compass_needle),
+                painter = painterResource(id = R.drawable.kaaba_needle),
                 contentDescription = "Qibla Direction",
                 modifier = Modifier
-                    .size(150.dp)
+                    .size(300.dp)
                     .rotate(smoothRotation)
                     .graphicsLayer {
                         scaleX = pulseScale
@@ -287,12 +312,7 @@ private fun QiblaCompassContent(
             }
 
             Text(
-                text = "Lat: ${
-                    String.format(
-                        "%.4f",
-                        uiState.userLatitude
-                    )
-                }, Lon: ${String.format("%.4f", uiState.userLongitude)}",
+                text = "Lat: ${String.format(Locale.US, "%.4f", uiState.userLatitude)}, Lon: ${String.format(Locale.US, "%.4f", uiState.userLongitude)}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                 modifier = Modifier.padding(top = 4.dp)
@@ -435,4 +455,3 @@ private fun NoSensorContent() {
         )
     }
 }
-
