@@ -130,7 +130,7 @@ private fun QiblaCompassContent(
     )
 
     // Pulsing animation when aligned with Qibla
-    val isAligned = abs(uiState.rotationAngle % 360) < 5 || abs(uiState.rotationAngle % 360) > 355
+    val isAligned = abs(uiState.rotationAngle % 360) !in 5.0..355.0
     val pulseScale by animateFloatAsState(
         targetValue = if (isAligned) 1.05f else 1f,
         animationSpec = infiniteRepeatable(
@@ -188,7 +188,7 @@ private fun QiblaCompassContent(
         ) {
             // Compass background
             Image(
-                painter = painterResource(id = R.drawable.compass_background),
+                painter = painterResource(id = R.drawable.compass_360_dark),
                 contentDescription = "Compass Background",
                 modifier = Modifier
                     .size(300.dp)
@@ -198,10 +198,10 @@ private fun QiblaCompassContent(
 
             // Qibla arrow (points to Kaaba)
             Image(
-                painter = painterResource(id = R.drawable.ic_qibla),
+                painter = painterResource(id = R.drawable.compass_needle),
                 contentDescription = "Qibla Direction",
                 modifier = Modifier
-                    .size(200.dp)
+                    .size(150.dp)
                     .rotate(smoothRotation)
                     .graphicsLayer {
                         scaleX = pulseScale
