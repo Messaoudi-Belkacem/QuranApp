@@ -150,6 +150,7 @@ private fun QiblaCompassContent(
             qiblaBearing = uiState.qiblaBearing,
             distanceToKaaba = uiState.distanceToKaaba,
             deviceAzimuth = uiState.deviceAzimuth,
+            isAligned = isAligned,
             modifier = Modifier.fillMaxWidth()
         )
 

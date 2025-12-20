@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,8 +16,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -156,6 +159,7 @@ fun AnimatedKaabaIcon(isAligned: Boolean) {
                 modifier = Modifier
                     .size(36.dp)
                     .graphicsLayer {
+                        scaleX = iconScale
                         scaleY = iconScale
                     }
             )
@@ -168,68 +172,103 @@ fun QiblaInfoCard(
     qiblaBearing: Float,
     distanceToKaaba: Double,
     deviceAzimuth: Float,
+    isAligned: Boolean,
     modifier: Modifier = Modifier
 ) {
+    // Animate blur effect
+    val blurRadius by animateDpAsState(
+        targetValue = if (isAligned) 0.dp else 20.dp,
+        animationSpec = tween(600, easing = FastOutSlowInEasing),
+        label = "blurRadius"
+    )
+
+    // Animate background alpha
+    val backgroundAlpha by animateFloatAsState(
+        targetValue = if (isAligned) 0.95f else 0.3f,
+        animationSpec = tween(600, easing = FastOutSlowInEasing),
+        label = "backgroundAlpha"
+    )
+
     Card(
         modifier = modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .fillMaxSize(0.225f),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.95f)
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 2.dp
         )
     ) {
-        Column(
-            modifier = Modifier.padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = "Direction to Kaaba",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
+            // Background image with blur effect
+            Image(
+                painter = painterResource(id = R.drawable.qaaba_1),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .blur(radius = blurRadius)
+                    .graphicsLayer { alpha = backgroundAlpha }
             )
 
-            // Primary info - Qibla bearing
-            Text(
-                text = "${String.format(Locale.US, "%.1f", qiblaBearing)}°",
-                style = MaterialTheme.typography.displaySmall,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            Text(
-                text = "from North",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            HorizontalDivider(
-                modifier = Modifier.padding(horizontal = 24.dp),
-                color = MaterialTheme.colorScheme.outlineVariant
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Secondary info
+            // Content overlay
             Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Distance: ${String.format(Locale.US, "%.0f", distanceToKaaba)} km",
-                    style = MaterialTheme.typography.bodyMedium,
+                    text = "Direction to Kaaba",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                // Primary info - Qibla bearing
+                Text(
+                    text = "${String.format(Locale.US, "%.1f", qiblaBearing)}°",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Text(
+                    text = "from North",
+                    style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                Text(
-                    text = "Device: ${String.format(Locale.US, "%.1f", deviceAzimuth)}°",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 24.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant
                 )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Secondary info
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Distance: ${String.format(Locale.US, "%.0f", distanceToKaaba)} km",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = "Device: ${String.format(Locale.US, "%.1f", deviceAzimuth)}°",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }
