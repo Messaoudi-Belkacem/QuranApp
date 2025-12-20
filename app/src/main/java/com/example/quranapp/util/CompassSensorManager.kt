@@ -26,13 +26,29 @@ class CompassSensorManager(context: Context) {
      * Returns angle in degrees (0-360°) where 0° is north
      */
     fun getAzimuthFlow(): Flow<Float> = callbackFlow {
-        var azimuth = 0f
+        val smoothedAzimuth: Float? = null
+        val smoothingFactor = 0.15f // Lower = smoother but slower response
 
         // Arrays for sensor data
         val rotationMatrix = FloatArray(9)
         val orientation = FloatArray(3)
         val gravity = FloatArray(3)
         val geomagnetic = FloatArray(3)
+
+        /**
+         * Apply exponential smoothing to reduce jitter
+         */
+        fun smoothAzimuth(newAzimuth: Float): Float {
+            val currentSmoothed = smoothedAzimuth ?: return newAzimuth
+
+            // Handle wrap-around at 0°/360°
+            var delta = newAzimuth - currentSmoothed
+            if (delta > 180) delta -= 360
+            if (delta < -180) delta += 360
+
+            val result = (currentSmoothed + delta * smoothingFactor + 360) % 360
+            return result
+        }
 
         val listener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent) {
@@ -41,9 +57,9 @@ class CompassSensorManager(context: Context) {
                         // Preferred method - more stable
                         SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values)
                         SensorManager.getOrientation(rotationMatrix, orientation)
-                        azimuth = Math.toDegrees(orientation[0].toDouble()).toFloat()
+                        var azimuth = Math.toDegrees(orientation[0].toDouble()).toFloat()
                         azimuth = (azimuth + 360) % 360
-                        trySend(azimuth)
+                        trySend(smoothAzimuth(azimuth))
                     }
 
                     Sensor.TYPE_ACCELEROMETER -> {
@@ -70,9 +86,9 @@ class CompassSensorManager(context: Context) {
                     )
                     if (success) {
                         SensorManager.getOrientation(rotationMatrix, orientation)
-                        azimuth = Math.toDegrees(orientation[0].toDouble()).toFloat()
+                        var azimuth = Math.toDegrees(orientation[0].toDouble()).toFloat()
                         azimuth = (azimuth + 360) % 360
-                        trySend(azimuth)
+                        trySend(smoothAzimuth(azimuth))
                     }
                 }
             }
