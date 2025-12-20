@@ -272,29 +272,7 @@ private fun QiblaCompassContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(bottom = 16.dp)
         ) {
-            if (isAligned) {
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier.padding(8.dp)
-                ) {
-                    Text(
-                        text = "✓ Aligned with Qibla",
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
-            } else {
-                Text(
-                    text = "Rotate your device to align with Qibla",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                    textAlign = TextAlign.Center
-                )
-            }
+            AnimatedQiblaCard(isAligned)
 
             Spacer(modifier = Modifier.height(8.dp))
 
