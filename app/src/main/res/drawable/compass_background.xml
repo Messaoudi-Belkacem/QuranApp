@@ -156,10 +156,8 @@
         android:strokeLineJoin="round"/>
 
     <!-- Center point -->
-    <circle
-        android:radius="3"
-        android:fillColor="#4CAF50"
-        android:cx="150"
-        android:cy="150"/>
+    <path
+        android:pathData="M150,150m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0"
+        android:fillColor="#4CAF50"/>
 </vector>
 
