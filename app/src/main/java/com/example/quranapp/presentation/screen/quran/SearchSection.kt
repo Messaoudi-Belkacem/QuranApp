@@ -25,11 +25,11 @@ fun SearchSection(
         onValueChange = onSearchQueryChange,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         placeholder = {
             Text(
-                text = "Search Surah...",
-                fontSize = 16.sp,
+                text = "Search Surah by name or number...",
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
@@ -40,7 +40,7 @@ fun SearchSection(
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(12.dp),
         singleLine = true,
         textStyle = androidx.compose.ui.text.TextStyle(
             fontSize = 16.sp,

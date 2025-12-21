@@ -32,21 +32,21 @@ fun EnhancedSurahItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onSurahClick(surah) }
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Simple Surah Number Circle
+        // Surah Number Circle
         Box(
             modifier = Modifier
-                .size(40.dp)
+                .size(48.dp)
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.primaryContainer),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = surah.id.toString(),
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
@@ -58,9 +58,9 @@ fun EnhancedSurahItem(
             modifier = Modifier.weight(1f)
         ) {
             Text(
-                text = surah.name,
+                text = surah.transliteration,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
@@ -71,7 +71,7 @@ fun EnhancedSurahItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = surah.type,
+                    text = surah.type.replaceFirstChar { it.uppercase() },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Medium
@@ -91,11 +91,12 @@ fun EnhancedSurahItem(
             }
         }
 
-        // Simple Bookmark Icon
+        // Arabic Name
         Text(
             text = surah.name,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }
