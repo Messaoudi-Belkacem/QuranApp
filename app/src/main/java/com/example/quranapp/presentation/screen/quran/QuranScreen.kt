@@ -64,10 +64,10 @@ fun QuranScreen(
             uiState.surahs
         } else {
             uiState.surahs.filter { surah ->
-                surah.nameEnglish.contains(searchQuery, ignoreCase = true) ||
-                        surah.nameArabic.contains(searchQuery) ||
-                        surah.name.contains(searchQuery, ignoreCase = true) ||
-                        surah.id.toString() == searchQuery
+                surah.transliteration.contains(searchQuery, ignoreCase = true) ||
+                surah.name.contains(searchQuery) ||
+                surah.name.contains(searchQuery, ignoreCase = true) ||
+                surah.id.toString() == searchQuery
             }
         }
     }

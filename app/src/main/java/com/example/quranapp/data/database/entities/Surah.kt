@@ -7,8 +7,7 @@ import androidx.room.PrimaryKey
 data class Surah(
     @PrimaryKey val id: Int,
     val name: String,
-    val nameArabic: String,
-    val nameEnglish: String,
-    val ayahCount: Int,
-    val revelationType: String // "Meccan" or "Medinan"
+    val transliteration: String,
+    val type: String,
+    val totalVerses: Int,
 )

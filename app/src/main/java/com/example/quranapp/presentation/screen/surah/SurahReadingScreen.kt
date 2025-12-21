@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -130,12 +132,12 @@ private fun SurahTopAppBar(
             if (surah != null) {
                 Column {
                     Text(
-                        text = surah.nameArabic,
+                        text = surah.name,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = surah.nameEnglish,
+                        text = surah.transliteration,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -147,7 +149,7 @@ private fun SurahTopAppBar(
         navigationIcon = {
             IconButton(onClick = onBackClick) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back"
                 )
             }
@@ -236,7 +238,7 @@ private fun SurahHeaderCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = surah.nameArabic,
+                text = surah.name,
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -246,7 +248,7 @@ private fun SurahHeaderCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = surah.nameEnglish,
+                text = surah.transliteration,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -260,12 +262,12 @@ private fun SurahHeaderCard(
             ) {
                 InfoChip(
                     label = "Ayahs",
-                    value = surah.ayahCount.toString()
+                    value = surah.totalVerses.toString()
                 )
 
                 InfoChip(
                     label = "Type",
-                    value = surah.revelationType
+                    value = surah.type
                 )
 
                 InfoChip(
@@ -359,7 +361,7 @@ private fun AyahCard(
                     modifier = Modifier.clip(RoundedCornerShape(20.dp))
                 ) {
                     Text(
-                        text = ayah.ayahNumber.toString(),
+                        text = ayah.id.toString(),
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Bold,
@@ -394,7 +396,7 @@ private fun AyahCard(
 
             // Arabic text
             Text(
-                text = ayah.textArabic,
+                text = ayah.text,
                 modifier = Modifier.fillMaxWidth(),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Normal,
@@ -408,7 +410,7 @@ private fun AyahCard(
 
             // Translation
             Text(
-                text = ayah.textTranslation,
+                text = ayah.text,
                 modifier = Modifier.fillMaxWidth(),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -418,7 +420,7 @@ private fun AyahCard(
             Spacer(modifier = Modifier.height(12.dp))
 
             // Additional info
-            Row(
+            /*Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 if (ayah.juzNumber > 0) {
@@ -436,7 +438,7 @@ private fun AyahCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                     )
                 }
-            }
+            }*/
         }
     }
 }
@@ -534,7 +536,7 @@ private fun EmptyContent() {
             modifier = Modifier.padding(32.dp)
         ) {
             Icon(
-                imageVector = Icons.Default.MenuBook,
+                imageVector = Icons.AutoMirrored.Filled.MenuBook,
                 contentDescription = "No content",
                 modifier = Modifier.size(80.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)

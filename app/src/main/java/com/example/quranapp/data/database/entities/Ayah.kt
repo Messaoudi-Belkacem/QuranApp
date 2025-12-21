@@ -16,10 +16,5 @@ import androidx.room.ForeignKey
 data class Ayah(
     val id: Int,
     val surahId: Int,
-    val ayahNumber: Int,
-    val textArabic: String,
-    val textTranslation: String,
-    val juzNumber: Int,
-    val hizbNumber: Int,
-    val rukuNumber: Int
+    val text: String
 )

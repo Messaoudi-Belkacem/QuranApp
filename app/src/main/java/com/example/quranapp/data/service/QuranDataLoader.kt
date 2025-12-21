@@ -18,7 +18,7 @@ import javax.inject.Singleton
 class QuranDataLoader @Inject constructor(
     private val context: Context,
     private val surahDao: SurahDao,
-    private val ayahDao: AyahDao
+    private val ayahDao: AyahDao,
 ) {
     private val tag = "QuranDataLoader"
 
@@ -64,10 +64,9 @@ class QuranDataLoader @Inject constructor(
                 val surah = Surah(
                     id = surahJson.id,
                     name = surahJson.name,
-                    nameArabic = surahJson.name,
-                    nameEnglish = "",
-                    ayahCount = surahJson.totalVerses,
-                    revelationType = surahJson.type
+                    transliteration = surahJson.transliteration,
+                    type = surahJson.type,
+                    totalVerses = surahJson.verses.size
                 )
                 surahs.add(surah)
 
@@ -76,12 +75,7 @@ class QuranDataLoader @Inject constructor(
                     val ayah = Ayah(
                         id = ayahJson.id,
                         surahId = surahJson.id,
-                        ayahNumber = ayahJson.id,
-                        textArabic = ayahJson.text,
-                        textTranslation = "",
-                        juzNumber = 0,
-                        hizbNumber = 0,
-                        rukuNumber = 0
+                        text = ayahJson.text,
                     )
                     ayahs.add(ayah)
                 }

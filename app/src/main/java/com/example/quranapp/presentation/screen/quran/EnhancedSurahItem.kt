@@ -58,7 +58,7 @@ fun EnhancedSurahItem(
             modifier = Modifier.weight(1f)
         ) {
             Text(
-                text = surah.nameEnglish,
+                text = surah.name,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
@@ -71,7 +71,7 @@ fun EnhancedSurahItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = surah.revelationType,
+                    text = surah.type,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Medium
@@ -84,7 +84,7 @@ fun EnhancedSurahItem(
                 )
 
                 Text(
-                    text = "${surah.ayahCount} verses",
+                    text = "${surah.totalVerses} verses",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -93,7 +93,7 @@ fun EnhancedSurahItem(
 
         // Simple Bookmark Icon
         Text(
-            text = surah.nameArabic,
+            text = surah.name,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
