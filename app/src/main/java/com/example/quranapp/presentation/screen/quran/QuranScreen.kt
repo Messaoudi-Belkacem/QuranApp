@@ -1,5 +1,6 @@
 package com.example.quranapp.presentation.screen.quran
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -58,8 +59,16 @@ fun QuranScreen(
     var isSearchVisible by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableIntStateOf(0) }
 
+    // Log UI state changes
+    androidx.compose.runtime.LaunchedEffect(uiState) {
+        Log.d("QuranScreen", "=== UI State Changed ===")
+        Log.d("QuranScreen", "isLoading: ${uiState.isLoading}")
+        Log.d("QuranScreen", "surahs count: ${uiState.surahs.size}")
+        Log.d("QuranScreen", "errorMessage: ${uiState.errorMessage}")
+    }
+
     val filteredSurahs = remember(uiState.surahs, searchQuery) {
-        if (searchQuery.isEmpty()) {
+        val filtered = if (searchQuery.isEmpty()) {
             uiState.surahs
         } else {
             uiState.surahs.filter { surah ->
@@ -69,6 +78,8 @@ fun QuranScreen(
                 surah.id.toString() == searchQuery
             }
         }
+        Log.d("QuranScreen", "Filtered surahs count: ${filtered.size} (searchQuery: '$searchQuery')")
+        filtered
     }
 
     Scaffold(
@@ -137,10 +148,12 @@ fun QuranScreen(
             // Content Section
             when {
                 uiState.isLoading -> {
+                    Log.d("QuranScreen", ">>> Showing LoadingSection")
                     LoadingSection()
                 }
 
                 uiState.errorMessage != null -> {
+                    Log.d("QuranScreen", ">>> Showing ErrorSection: ${uiState.errorMessage}")
                     ErrorSection(
                         errorMessage = uiState.errorMessage!!,
                         onRetry = { viewModel.refreshSurahs() }
@@ -148,6 +161,7 @@ fun QuranScreen(
                 }
 
                 filteredSurahs.isNotEmpty() -> {
+                    Log.d("QuranScreen", ">>> Showing SurahListSection with ${filteredSurahs.size} surahs")
                     SurahListSection(
                         surahs = filteredSurahs,
                         onSurahClick = onSurahClick
@@ -155,6 +169,7 @@ fun QuranScreen(
                 }
 
                 else -> {
+                    Log.d("QuranScreen", ">>> Showing EmptyStateSection (isSearching: ${searchQuery.isNotEmpty()})")
                     EmptyStateSection(
                         isSearching = searchQuery.isNotEmpty()
                     )
