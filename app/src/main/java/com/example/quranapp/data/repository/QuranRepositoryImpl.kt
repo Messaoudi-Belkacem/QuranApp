@@ -2,14 +2,12 @@ package com.example.quranapp.data.repository
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.example.quranapp.data.database.dao.AyahDao
 import com.example.quranapp.data.database.dao.BookmarkDao
-import com.example.quranapp.data.database.dao.SurahDao
 import com.example.quranapp.data.database.entities.Ayah
 import com.example.quranapp.data.database.entities.Bookmark
 import com.example.quranapp.data.database.entities.Surah
 import com.example.quranapp.data.model.Location
-import com.example.quranapp.data.service.QuranDataLoader
+import com.example.quranapp.data.service.QuranJsonLoader
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
@@ -17,23 +15,20 @@ import androidx.core.content.edit
 
 @Singleton
 class QuranRepositoryImpl @Inject constructor(
-    private val surahDao: SurahDao,
-    private val ayahDao: AyahDao,
     private val bookmarkDao: BookmarkDao,
     private val context: Context,
-    private val quranDataLoader: QuranDataLoader
+    private val quranJsonLoader: QuranJsonLoader
 ) : QuranRepository {
 
     private val prefs: SharedPreferences by lazy {
         context.getSharedPreferences("quran_prefs", Context.MODE_PRIVATE)
     }
 
-    override fun getAllSurahs(): Flow<List<Surah>> = surahDao.getAllSurahs()
+    override suspend fun getAllSurahs(): List<Surah> = quranJsonLoader.loadAllSurahs()
 
-    override fun getSurahById(surahId: Int): Flow<Surah> = surahDao.getSurahById(surahId)
+    override suspend fun getSurahById(surahId: Int): Surah? = quranJsonLoader.getSurahById(surahId)
 
-    override fun getAyahsBySurah(surahId: Int): Flow<List<Ayah>> =
-        ayahDao.getAyahsBySurah(surahId)
+    override suspend fun getAyahsBySurah(surahId: Int): List<Ayah> = quranJsonLoader.getAyahsBySurah(surahId)
 
     override suspend fun addBookmark(surahId: Int, ayahId: Int, note: String) {
         bookmarkDao.insertBookmark(Bookmark(surahId = surahId, ayahId = ayahId, note = note))
@@ -48,10 +43,6 @@ class QuranRepositoryImpl @Inject constructor(
     }
 
     override fun getAllBookmarks(): Flow<List<Bookmark>> = bookmarkDao.getAllBookmarks()
-
-    override suspend fun getSurahCount(): Int = surahDao.getSurahCount()
-
-    override suspend fun getAyahCount(): Int = ayahDao.getAyahCount()
 
     override suspend fun isFirstLaunch(): Boolean {
         return prefs.getBoolean("is_first_launch", true)
@@ -73,9 +64,5 @@ class QuranRepositoryImpl @Inject constructor(
 
     override suspend fun clearCurrentLocation() {
         prefs.edit { remove("current_location") }
-    }
-
-    override suspend fun initializeDatabase() {
-        quranDataLoader.initializeDatabase()
     }
 }

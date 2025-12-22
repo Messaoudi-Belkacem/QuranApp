@@ -29,14 +29,6 @@ class SharedViewModel @Inject constructor(
             val apiLevel = Build.VERSION.SDK_INT
             Log.d("API Level", "The API level of this device is: $apiLevel")
 
-            // Initialize database with Quran data
-            try {
-                Log.d(tag, "Starting database initialization...")
-                quranRepository.initializeDatabase()
-                Log.d(tag, "Database initialization completed")
-            } catch (e: Exception) {
-                Log.e(tag, "Failed to initialize database", e)
-            }
 
             // Handle location if permission is granted
             handleLocationSetup()

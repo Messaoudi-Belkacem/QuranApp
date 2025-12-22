@@ -9,7 +9,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -33,49 +32,22 @@ class SurahReadingViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
             try {
-                // Load surah details
-                quranRepository.getSurahById(surahId)
-                    .catch { exception: Throwable ->
-                        _uiState.value = _uiState.value.copy(
-                            isLoading = false,
-                            errorMessage = "Failed to load Surah: ${exception.message}"
-                        )
-                        return@catch
-                    }
-                    .collect { surah: Surah ->
-                        _uiState.value = _uiState.value.copy(currentSurah = surah)
-                    }
+                // Load surah details and ayahs
+                val surah = quranRepository.getSurahById(surahId)
+                val ayahs = quranRepository.getAyahsBySurah(surahId)
 
-                // Load ayahs for this surah
-                quranRepository.getAyahsBySurah(surahId)
-                    .catch { exception: Throwable ->
-                        _uiState.value = _uiState.value.copy(
-                            isLoading = false,
-                            errorMessage = "Failed to load Ayahs: ${exception.message}"
-                        )
-                        return@catch
-                    }
-                    .collect { ayahs: List<Ayah> ->
-                        _uiState.value = _uiState.value.copy(
-                            ayahs = ayahs,
-                            isLoading = false,
-                            errorMessage = null
-                        )
-                    }
+                _uiState.value = _uiState.value.copy(
+                    currentSurah = surah,
+                    ayahs = ayahs,
+                    isLoading = false,
+                    errorMessage = null
+                )
             } catch (exception: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "An unexpected error occurred: ${exception.message}"
+                    errorMessage = "Failed to load Surah: ${exception.message}"
                 )
             }
         }
-    }
-
-    fun refreshSurah(surahId: Int) {
-        loadSurah(surahId)
-    }
-
-    fun clearError() {
-        _uiState.value = _uiState.value.copy(errorMessage = null)
     }
 }
