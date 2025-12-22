@@ -1,5 +1,6 @@
 package com.example.quranapp.presentation.screen.quran
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,7 +32,10 @@ fun EnhancedSurahItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onSurahClick(surah) }
+            .clickable {
+                Log.d("QuranScreen", "Surah clicked: id=${surah.id}, name=${surah.transliteration}")
+                onSurahClick(surah)
+            }
             .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

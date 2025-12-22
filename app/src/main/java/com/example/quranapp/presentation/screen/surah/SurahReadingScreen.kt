@@ -1,5 +1,6 @@
 package com.example.quranapp.presentation.screen.surah
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
@@ -23,7 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -33,13 +34,20 @@ fun SurahReadingScreen(
     viewModel: SurahReadingViewModel = hiltViewModel(),
     onBackClick: () -> Unit = {}
 ) {
+    Log.d("SurahReading", "Entering SurahReadingScreen with surahId=$surahId")
+
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
     var showScrollToTop by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(surahId) {
+        Log.d("SurahReading", "Requesting loadSurah($surahId)")
         viewModel.loadSurah(surahId)
+    }
+
+    LaunchedEffect(uiState) {
+        Log.d("SurahReading", "uiState changed: isLoading=${uiState.isLoading}, ayahs=${uiState.ayahs.size}, error=${uiState.errorMessage}")
     }
 
     LaunchedEffect(listState) {
