@@ -35,7 +35,8 @@ import kotlin.math.min
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TasbihScreen(
-    viewModel: TasbihViewModel = hiltViewModel()
+    viewModel: TasbihViewModel = hiltViewModel(),
+    innerPadding: PaddingValues
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -67,6 +68,11 @@ fun TasbihScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .padding(
+                    PaddingValues(
+                        bottom = innerPadding.calculateBottomPadding()
+                    )
+                )
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
@@ -212,7 +218,7 @@ private fun DhikrDisplay(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp),
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -299,12 +305,10 @@ private fun TasbihCounter(
         // Main Tappable Button
         Surface(
             onClick = {
-                isPressed = true
                 onTap()
                 // Reset pressed state after animation
                 coroutineScope.launch {
                     delay(100)
-                    isPressed = false
                 }
             },
             modifier = Modifier
@@ -734,15 +738,10 @@ private fun triggerHapticFeedback(context: Context, isTargetReached: Boolean) {
         context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
     }
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val effect = if (isTargetReached) {
-            VibrationEffect.createWaveform(longArrayOf(0, 100, 50, 100), -1)
-        } else {
-            VibrationEffect.createOneShot(30, VibrationEffect.DEFAULT_AMPLITUDE)
-        }
-        vibrator.vibrate(effect)
+    val effect = if (isTargetReached) {
+        VibrationEffect.createWaveform(longArrayOf(0, 100, 50, 100), -1)
     } else {
-        @Suppress("DEPRECATION")
-        vibrator.vibrate(if (isTargetReached) 200 else 30)
+        VibrationEffect.createOneShot(30, VibrationEffect.DEFAULT_AMPLITUDE)
     }
+    vibrator.vibrate(effect)
 }

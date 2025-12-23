@@ -39,7 +39,9 @@ fun MainNavGraph(
             )
         }
         composable(route = Screen.TasbihRoute.route) {
-            TasbihScreen()
+            TasbihScreen(
+                innerPadding = innerPadding
+            )
         }
     }
 }
