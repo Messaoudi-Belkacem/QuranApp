@@ -14,9 +14,11 @@ import javax.inject.Inject
 
 data class SurahReadingUiState(
     val currentSurah: Surah? = null,
-    val ayahs: List<Ayah> = emptyList(),
+    val allAyahs: List<Ayah> = emptyList(),
+    val filteredAyahs: List<Ayah> = emptyList(),
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val searchQuery: String = ""
 )
 
 @HiltViewModel
@@ -38,7 +40,8 @@ class SurahReadingViewModel @Inject constructor(
 
                 _uiState.value = _uiState.value.copy(
                     currentSurah = surah,
-                    ayahs = ayahs,
+                    allAyahs = ayahs,
+                    filteredAyahs = ayahs,
                     isLoading = false,
                     errorMessage = null
                 )
@@ -49,6 +52,27 @@ class SurahReadingViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun updateSearchQuery(query: String) {
+        _uiState.value = _uiState.value.copy(searchQuery = query)
+        filterAyahs(query)
+    }
+
+    private fun filterAyahs(query: String) {
+        val filtered = if (query.isBlank()) {
+            _uiState.value.allAyahs
+        } else {
+            _uiState.value.allAyahs.filter { ayah ->
+                ayah.text.contains(query, ignoreCase = true) ||
+                ayah.id.toString().contains(query)
+            }
+        }
+        _uiState.value = _uiState.value.copy(filteredAyahs = filtered)
+    }
+
+    fun clearSearch() {
+        updateSearchQuery("")
     }
 
     fun refreshSurah(surahId: Int) {

@@ -1,14 +1,15 @@
 package com.example.quranapp.presentation.screen.surah
 
 import android.util.Log
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -39,6 +40,7 @@ fun SurahReadingScreen(
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
     var showScrollToTop by remember { mutableStateOf(false) }
+    var isSearchVisible by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(surahId) {
@@ -46,37 +48,51 @@ fun SurahReadingScreen(
         viewModel.loadSurah(surahId)
     }
 
-    LaunchedEffect(uiState) {
-        Log.d("SurahReading", "uiState changed: isLoading=${uiState.isLoading}, ayahs=${uiState.ayahs.size}, error=${uiState.errorMessage}")
-    }
-
     LaunchedEffect(listState) {
         snapshotFlow { listState.firstVisibleItemIndex }
             .collect { index ->
-                showScrollToTop = index > 5
+                showScrollToTop = index > 3
             }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.05f),
-                            MaterialTheme.colorScheme.surface
-                        )
-                    )
-                )
-        ) {
-            // Top App Bar
+    Scaffold(
+        topBar = {
             SurahTopAppBar(
                 surah = uiState.currentSurah,
                 onBackClick = onBackClick,
-                isLoading = uiState.isLoading
+                isLoading = uiState.isLoading,
+                onSearchClick = { isSearchVisible = !isSearchVisible },
+                isSearchVisible = isSearchVisible
             )
-
+        },
+        floatingActionButton = {
+            AnimatedVisibility(
+                visible = showScrollToTop,
+                enter = scaleIn(animationSpec = tween(300)) + fadeIn(),
+                exit = scaleOut(animationSpec = tween(300)) + fadeOut()
+            ) {
+                FloatingActionButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            listState.animateScrollToItem(0)
+                        }
+                    },
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowUp,
+                        contentDescription = "Scroll to top"
+                    )
+                }
+            }
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
             when {
                 uiState.isLoading -> {
                     LoadingContent()
@@ -89,40 +105,38 @@ fun SurahReadingScreen(
                     )
                 }
 
-                uiState.currentSurah != null && uiState.ayahs.isNotEmpty() -> {
-                    SurahContent(
-                        surah = uiState.currentSurah!!,
-                        ayahs = uiState.ayahs,
-                        listState = listState
-                    )
+                uiState.currentSurah != null -> {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        // Search Bar
+                        AnimatedVisibility(
+                            visible = isSearchVisible,
+                            enter = expandVertically(animationSpec = tween(300)) + fadeIn(),
+                            exit = shrinkVertically(animationSpec = tween(300)) + fadeOut()
+                        ) {
+                            SearchBar(
+                                searchQuery = uiState.searchQuery,
+                                onSearchQueryChange = { viewModel.updateSearchQuery(it) },
+                                onClearSearch = { viewModel.clearSearch() }
+                            )
+                        }
+
+                        // Content
+                        if (uiState.filteredAyahs.isEmpty() && uiState.searchQuery.isNotBlank()) {
+                            EmptySearchContent()
+                        } else {
+                            SurahContent(
+                                surah = uiState.currentSurah!!,
+                                ayahs = uiState.filteredAyahs,
+                                listState = listState,
+                                searchQuery = uiState.searchQuery
+                            )
+                        }
+                    }
                 }
 
                 else -> {
                     EmptyContent()
                 }
-            }
-        }
-
-        // Floating Action Button for scroll to top
-        AnimatedVisibility(
-            visible = showScrollToTop,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        ) {
-            FloatingActionButton(
-                onClick = {
-                    coroutineScope.launch {
-                        listState.animateScrollToItem(0)
-                    }
-                },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowUp,
-                    contentDescription = "Scroll to top"
-                )
             }
         }
     }
@@ -133,25 +147,36 @@ fun SurahReadingScreen(
 private fun SurahTopAppBar(
     surah: com.example.quranapp.data.database.entities.Surah?,
     onBackClick: () -> Unit,
-    isLoading: Boolean
+    isLoading: Boolean,
+    onSearchClick: () -> Unit,
+    isSearchVisible: Boolean
 ) {
     TopAppBar(
         title = {
-            if (surah != null) {
-                Column {
-                    Text(
-                        text = surah.name,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = surah.transliteration,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+            AnimatedContent(
+                targetState = surah,
+                transitionSpec = {
+                    fadeIn(animationSpec = tween(300)) togetherWith
+                            fadeOut(animationSpec = tween(300))
+                },
+                label = "title"
+            ) { targetSurah ->
+                if (targetSurah != null) {
+                    Column {
+                        Text(
+                            text = targetSurah.name,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = targetSurah.transliteration,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else if (isLoading) {
+                    Text("Loading...")
                 }
-            } else if (isLoading) {
-                Text("Loading...")
             }
         },
         navigationIcon = {
@@ -163,17 +188,19 @@ private fun SurahTopAppBar(
             }
         },
         actions = {
-            IconButton(onClick = { /* Handle bookmark */ }) {
-                Icon(
-                    imageVector = Icons.Default.BookmarkBorder,
-                    contentDescription = "Bookmark"
-                )
-            }
-            IconButton(onClick = { /* Handle settings */ }) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = "Settings"
-                )
+            IconButton(onClick = onSearchClick) {
+                AnimatedContent(
+                    targetState = isSearchVisible,
+                    transitionSpec = {
+                        scaleIn() + fadeIn() togetherWith scaleOut() + fadeOut()
+                    },
+                    label = "search_icon"
+                ) { searchVisible ->
+                    Icon(
+                        imageVector = if (searchVisible) Icons.Default.Close else Icons.Default.Search,
+                        contentDescription = if (searchVisible) "Close search" else "Search"
+                    )
+                }
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
@@ -184,45 +211,105 @@ private fun SurahTopAppBar(
 }
 
 @Composable
+private fun SearchBar(
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
+    onClearSearch: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        shape = RoundedCornerShape(28.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        tonalElevation = 2.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp)
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            TextField(
+                value = searchQuery,
+                onValueChange = onSearchQueryChange,
+                modifier = Modifier.weight(1f),
+                placeholder = {
+                    Text(
+                        "Search ayahs...",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                    unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
+                ),
+                singleLine = true
+            )
+
+            if (searchQuery.isNotEmpty()) {
+                IconButton(onClick = onClearSearch) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = "Clear search",
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun SurahContent(
     surah: com.example.quranapp.data.database.entities.Surah,
     ayahs: List<com.example.quranapp.data.database.entities.Ayah>,
-    listState: androidx.compose.foundation.lazy.LazyListState
+    listState: LazyListState,
+    searchQuery: String
 ) {
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // Surah Header
-        item {
+        item(key = "header") {
             SurahHeaderCard(surah = surah)
         }
 
-        // Bismillah (except for Surah At-Tawbah)
-        if (surah.id != 9) {
-            item {
+        // Bismillah (except for Surah At-Tawbah and when searching)
+        if (surah.id != 9 && searchQuery.isBlank()) {
+            item(key = "bismillah") {
                 BismillahCard()
             }
         }
 
-        // Ayahs
+        // Ayahs with optimized lazy loading
         items(
             items = ayahs,
-            key = { ayah -> ayah.id }
+            key = { ayah -> "ayah_${ayah.id}" }
         ) { ayah ->
-            AnimatedVisibility(
-                visible = true,
-                enter = fadeIn() + slideInVertically()
-            ) {
-                AyahCard(ayah = ayah)
-            }
+            AyahCard(
+                ayah = ayah,
+                highlight = searchQuery.isNotBlank()
+            )
         }
 
         // Bottom spacer
-        item {
-            Spacer(modifier = Modifier.height(80.dp))
+        item(key = "bottom_spacer") {
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -231,57 +318,102 @@ private fun SurahContent(
 private fun SurahHeaderCard(
     surah: com.example.quranapp.data.database.entities.Surah
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
+    val infiniteTransition = rememberInfiniteTransition(label = "header_shimmer")
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 0.7f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1500, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "alpha"
+    )
+
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = surah.name,
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-                fontSize = 28.sp
+        Box {
+            // Background gradient overlay
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.primary.copy(alpha = alpha * 0.1f),
+                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0f)
+                            )
+                        )
+                    )
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = surah.transliteration,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(24.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                InfoChip(
-                    label = "Ayahs",
-                    value = surah.totalVerses.toString()
+                // Arabic name
+                Text(
+                    text = surah.name,
+                    style = MaterialTheme.typography.displaySmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center
                 )
 
-                InfoChip(
-                    label = "Type",
-                    value = surah.type
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Transliteration
+                Text(
+                    text = surah.transliteration,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
 
-                InfoChip(
-                    label = "Order",
-                    value = surah.id.toString()
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Divider
+                HorizontalDivider(
+                    modifier = Modifier.width(80.dp),
+                    thickness = 2.dp,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Info chips
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    InfoChip(
+                        icon = Icons.Default.Book,
+                        label = "Ayahs",
+                        value = surah.totalVerses.toString()
+                    )
+
+                    InfoChip(
+                        icon = Icons.Default.LocationOn,
+                        label = surah.type.replaceFirstChar { it.uppercase() },
+                        value = ""
+                    )
+
+                    InfoChip(
+                        icon = Icons.Default.Tag,
+                        label = "No.",
+                        value = surah.id.toString()
+                    )
+                }
             }
         }
     }
@@ -289,27 +421,40 @@ private fun SurahHeaderCard(
 
 @Composable
 private fun InfoChip(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
     value: String
 ) {
     Surface(
-        shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 4.dp
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+        tonalElevation = 2.dp,
+        modifier = Modifier.animateContentSize()
     ) {
-        Column(
+        Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = MaterialTheme.colorScheme.primary
             )
+
+            if (value.isNotEmpty()) {
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
             Text(
                 text = label,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -318,55 +463,85 @@ private fun InfoChip(
 
 @Composable
 private fun BismillahCard() {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
+        colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
     ) {
-        Text(
-            text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(20.dp),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
-            fontSize = 24.sp
-        )
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = Icons.Default.Star,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                fontSize = 24.sp,
+                lineHeight = 36.sp
+            )
+        }
     }
 }
 
 @Composable
 private fun AyahCard(
-    ayah: com.example.quranapp.data.database.entities.Ayah
+    ayah: com.example.quranapp.data.database.entities.Ayah,
+    highlight: Boolean = false
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            ),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = if (highlight) {
+                MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f)
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            }
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.elevatedCardElevation(
+            defaultElevation = if (highlight) 4.dp else 2.dp
+        )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp)
+                .padding(16.dp)
         ) {
-            // Ayah number
+            // Ayah number header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Surface(
-                    shape = RoundedCornerShape(20.dp),
+                    shape = CircleShape,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.clip(RoundedCornerShape(20.dp))
+                    modifier = Modifier.clip(CircleShape)
                 ) {
                     Text(
                         text = ayah.id.toString(),
@@ -377,23 +552,41 @@ private fun AyahCard(
                     )
                 }
 
-                Row {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
                     IconButton(
-                        onClick = { /* Handle bookmark */ }
+                        onClick = { /* Handle bookmark */ },
+                        modifier = Modifier.size(36.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.BookmarkBorder,
-                            contentDescription = "Bookmark Ayah",
+                            contentDescription = "Bookmark",
+                            modifier = Modifier.size(20.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
 
                     IconButton(
-                        onClick = { /* Handle copy */ }
+                        onClick = { /* Handle copy */ },
+                        modifier = Modifier.size(36.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.ContentCopy,
-                            contentDescription = "Copy Ayah",
+                            contentDescription = "Copy",
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
+                    IconButton(
+                        onClick = { /* Handle share */ },
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = "Share",
+                            modifier = Modifier.size(20.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -406,47 +599,30 @@ private fun AyahCard(
             Text(
                 text = ayah.text,
                 modifier = Modifier.fillMaxWidth(),
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Normal,
                 textAlign = TextAlign.End,
                 color = MaterialTheme.colorScheme.onSurface,
                 lineHeight = 40.sp,
-                fontSize = 22.sp
+                fontSize = 24.sp
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Translation
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Translation placeholder
             Text(
-                text = ayah.text,
+                text = "Translation will be shown here",
                 modifier = Modifier.fillMaxWidth(),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 lineHeight = 24.sp
             )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Additional info
-            /*Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                if (ayah.juzNumber > 0) {
-                    Text(
-                        text = "Juz ${ayah.juzNumber}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                    )
-                }
-
-                if (ayah.hizbNumber > 0) {
-                    Text(
-                        text = "Hizb ${ayah.hizbNumber}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                    )
-                }
-            }*/
         }
     }
 }
@@ -458,19 +634,19 @@ private fun LoadingContent() {
         contentAlignment = Alignment.Center
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             CircularProgressIndicator(
-                modifier = Modifier.size(48.dp),
+                modifier = Modifier.size(56.dp),
                 color = MaterialTheme.colorScheme.primary,
                 strokeWidth = 4.dp
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
             Text(
                 text = "Loading Surah...",
                 style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -488,16 +664,15 @@ private fun ErrorContent(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(32.dp)
+            modifier = Modifier.padding(32.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.Error,
                 contentDescription = "Error",
-                modifier = Modifier.size(80.dp),
+                modifier = Modifier.size(72.dp),
                 tint = MaterialTheme.colorScheme.error
             )
-
-            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 text = "Failed to Load Surah",
@@ -506,24 +681,23 @@ private fun ErrorContent(
                 color = MaterialTheme.colorScheme.error
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
-
             Text(
                 text = errorMessage,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             FilledTonalButton(
                 onClick = onRetry,
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.Refresh,
-                    contentDescription = "Retry",
+                    contentDescription = null,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -541,16 +715,50 @@ private fun EmptyContent() {
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(32.dp)
+            modifier = Modifier.padding(32.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.MenuBook,
                 contentDescription = "No content",
-                modifier = Modifier.size(80.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                modifier = Modifier.size(72.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "No Ayahs Available",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Text(
+                text = "This surah doesn't have any ayahs loaded yet",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+private fun EmptySearchContent() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(32.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.SearchOff,
+                contentDescription = "No search results",
+                modifier = Modifier.size(72.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+            )
 
             Text(
                 text = "No Ayahs Found",
@@ -559,11 +767,9 @@ private fun EmptyContent() {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
-
             Text(
-                text = "This Surah doesn't have any Ayahs available",
-                style = MaterialTheme.typography.bodyLarge,
+                text = "Try adjusting your search terms",
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                 textAlign = TextAlign.Center
             )
