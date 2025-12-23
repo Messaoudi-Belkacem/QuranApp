@@ -42,9 +42,7 @@ fun HomeScreen(
         onRefresh = {
             viewModel.refreshPrayerTimes()
             scope.launch {
-                isRefreshing = true
                 delay(1000)
-                isRefreshing = false
             }
         },
         state = pullToRefreshState,

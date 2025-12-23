@@ -13,7 +13,8 @@ import com.example.quranapp.presentation.screen.tasbih.TasbihScreen
 @Composable
 fun MainNavGraph(
     navController: NavHostController,
-    innerPadding: PaddingValues
+    innerPadding: PaddingValues,
+    onNavigateToSurahReading: (Int) -> Unit = {}
 ) {
     NavHost(
         navController = navController,
@@ -30,7 +31,12 @@ fun MainNavGraph(
             )
         }
         composable(route = Screen.QuranRoute.route) {
-            QuranScreen()
+            QuranScreen(
+                onSurahClick = { surah ->
+                    // Pass navigation up to parent level where SurahReadingRoute is defined
+                    onNavigateToSurahReading(surah.id)
+                }
+            )
         }
         composable(route = Screen.TasbihRoute.route) {
             TasbihScreen()

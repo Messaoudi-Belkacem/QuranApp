@@ -64,21 +64,21 @@ class QuranDataLoader @Inject constructor(
         try {
             Log.d(tag, ">>> Reading JSON file from assets...")
             val jsonString = readJsonFromAssets("quran_data.json")
-
+            
             if (jsonString.isBlank()) {
                 throw IllegalStateException("JSON file is empty or could not be read")
             }
-
+            
             Log.d(tag, ">>> JSON file read successfully (${jsonString.length} characters)")
             Log.d(tag, ">>> Parsing JSON data...")
-
+            
             val gson = Gson()
             val quranDataArray = gson.fromJson(jsonString, Array<SurahJson>::class.java)
-
+            
             if (quranDataArray == null || quranDataArray.isEmpty()) {
                 throw IllegalStateException("Failed to parse JSON data or data is empty")
             }
-
+            
             val quranData = quranDataArray.toList()
             Log.d(tag, ">>> Parsed ${quranData.size} Surahs from JSON")
 
@@ -93,7 +93,7 @@ class QuranDataLoader @Inject constructor(
                         Log.w(tag, "⚠ Invalid Surah ID: ${surahJson.id}, skipping...")
                         return@forEach
                     }
-
+                    
                     // Convert SurahJson to Surah entity
                     val surah = Surah(
                         id = surahJson.id,
@@ -110,7 +110,7 @@ class QuranDataLoader @Inject constructor(
                             if (ayahJson.text.isBlank()) {
                                 Log.w(tag, "⚠ Empty Ayah text for Surah ${surahJson.id}, Ayah ${ayahJson.id}")
                             }
-
+                            
                             val ayah = Ayah(
                                 id = ayahJson.id,
                                 surahId = surahJson.id,
@@ -121,7 +121,7 @@ class QuranDataLoader @Inject constructor(
                             Log.e(tag, "Error processing Ayah ${ayahJson.id} in Surah ${surahJson.id}", e)
                         }
                     }
-
+                    
                     if (surahJson.id % 20 == 0) {
                         Log.d(tag, ">>> Processed ${surahJson.id}/114 Surahs...")
                     }

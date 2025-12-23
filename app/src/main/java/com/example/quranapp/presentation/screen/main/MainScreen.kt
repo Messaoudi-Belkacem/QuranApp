@@ -21,7 +21,9 @@ import com.example.quranapp.presentation.navigation.MainNavGraph
 import com.example.quranapp.presentation.navigation.Screen
 
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    rootNavController: NavHostController
+) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -32,7 +34,10 @@ fun MainScreen() {
     ) { innerPadding ->
         MainNavGraph(
             navController = navController,
-            innerPadding = innerPadding
+            innerPadding = innerPadding,
+            onNavigateToSurahReading = { surahId ->
+                rootNavController.navigate(Screen.SurahReadingRoute.createRoute(surahId))
+            }
         )
     }
 }

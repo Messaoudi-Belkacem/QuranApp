@@ -66,3 +66,4 @@ class QuranRepositoryImpl @Inject constructor(
         prefs.edit { remove("current_location") }
     }
 }
+

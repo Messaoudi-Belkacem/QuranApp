@@ -50,4 +50,12 @@ class SurahReadingViewModel @Inject constructor(
             }
         }
     }
+
+    fun refreshSurah(surahId: Int) {
+        loadSurah(surahId)
+    }
+
+    fun clearError() {
+        _uiState.value = _uiState.value.copy(errorMessage = null)
+    }
 }

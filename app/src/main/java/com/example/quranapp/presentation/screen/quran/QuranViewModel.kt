@@ -39,7 +39,7 @@ class QuranViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
                 val surahs = quranRepository.getAllSurahs()
-
+                
                 Log.d(tag, ">>> Loaded ${surahs.size} Surahs from JSON")
                 if (surahs.isEmpty()) {
                     Log.w(tag, "⚠ Surahs list is empty!")
@@ -47,7 +47,7 @@ class QuranViewModel @Inject constructor(
                     Log.d(tag, "✓ First Surah: ${surahs.firstOrNull()?.name} (${surahs.firstOrNull()?.transliteration})")
                     Log.d(tag, "✓ Last Surah: ${surahs.lastOrNull()?.name} (${surahs.lastOrNull()?.transliteration})")
                 }
-
+                
                 _uiState.value = _uiState.value.copy(
                     surahs = surahs,
                     isLoading = false,

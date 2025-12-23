@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+PROMPT.md
+temp.md
