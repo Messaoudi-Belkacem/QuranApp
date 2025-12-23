@@ -1,48 +1,21 @@
 package com.example.quranapp.presentation.screen.quran
 
 import android.util.Log
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -59,119 +32,182 @@ fun QuranScreen(
     var isSearchVisible by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableIntStateOf(0) }
 
-    // Log UI state changes
-    androidx.compose.runtime.LaunchedEffect(uiState) {
-        Log.d("QuranScreen", "=== UI State Changed ===")
-        Log.d("QuranScreen", "isLoading: ${uiState.isLoading}")
-        Log.d("QuranScreen", "surahs count: ${uiState.surahs.size}")
-        Log.d("QuranScreen", "errorMessage: ${uiState.errorMessage}")
+    LaunchedEffect(uiState) {
+        Log.d("QuranScreen", "UI State: isLoading=${uiState.isLoading}, surahs=${uiState.surahs.size}, error=${uiState.errorMessage}")
     }
 
     val filteredSurahs = remember(uiState.surahs, searchQuery) {
-        val filtered = if (searchQuery.isEmpty()) {
+        if (searchQuery.isEmpty()) {
             uiState.surahs
         } else {
             uiState.surahs.filter { surah ->
                 surah.transliteration.contains(searchQuery, ignoreCase = true) ||
                 surah.name.contains(searchQuery) ||
-                surah.name.contains(searchQuery, ignoreCase = true) ||
                 surah.id.toString() == searchQuery
             }
         }
-        Log.d("QuranScreen", "Filtered surahs count: ${filtered.size} (searchQuery: '$searchQuery')")
-        filtered
     }
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "QURAN",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { /* Handle menu click */ }) {
-                        Icon(
-                            imageVector = Icons.Default.Menu,
-                            contentDescription = "Menu"
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = {
-                            isSearchVisible = !isSearchVisible
-                            if (!isSearchVisible) {
-                                searchQuery = ""
-                            }
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Search"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary
-                )
+            QuranTopAppBar(
+                isSearchVisible = isSearchVisible,
+                onSearchClick = {
+                    isSearchVisible = !isSearchVisible
+                    if (!isSearchVisible) searchQuery = ""
+                }
             )
         }
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.surface)
-        ) {
-            // Search Section
-            AnimatedVisibility(
-                visible = isSearchVisible,
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                SearchSection(
-                    searchQuery = searchQuery,
-                    onSearchQueryChange = { searchQuery = it }
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.05f),
+                            MaterialTheme.colorScheme.surface
+                        )
+                    )
                 )
-            }
-
-            QuranBar(
-                selectedTab = selectedTab,
-                onTabSelected = { newTab -> selectedTab = newTab }
-            )
-
-            // Content Section
-            when {
-                uiState.isLoading -> {
-                    Log.d("QuranScreen", ">>> Showing LoadingSection")
-                    LoadingSection()
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                // Search Bar
+                AnimatedVisibility(
+                    visible = isSearchVisible,
+                    enter = expandVertically(animationSpec = tween(300)) + fadeIn(),
+                    exit = shrinkVertically(animationSpec = tween(300)) + fadeOut()
+                ) {
+                    SearchSection(
+                        searchQuery = searchQuery,
+                        onSearchQueryChange = { searchQuery = it },
+                        onClearSearch = { searchQuery = "" }
+                    )
                 }
 
-                uiState.errorMessage != null -> {
-                    Log.d("QuranScreen", ">>> Showing ErrorSection: ${uiState.errorMessage}")
-                    ErrorSection(
+                // Tabs
+                QuranBar(
+                    selectedTab = selectedTab,
+                    onTabSelected = { selectedTab = it }
+                )
+
+                // Content
+                when {
+                    uiState.isLoading -> LoadingSection()
+                    uiState.errorMessage != null -> ErrorSection(
                         errorMessage = uiState.errorMessage!!,
                         onRetry = { viewModel.refreshSurahs() }
                     )
-                }
-
-                filteredSurahs.isNotEmpty() -> {
-                    Log.d("QuranScreen", ">>> Showing SurahListSection with ${filteredSurahs.size} surahs")
-                    SurahListSection(
+                    filteredSurahs.isEmpty() && searchQuery.isNotEmpty() -> EmptySearchSection()
+                    filteredSurahs.isNotEmpty() -> SurahListSection(
                         surahs = filteredSurahs,
                         onSurahClick = onSurahClick
                     )
+                    else -> EmptyStateSection()
                 }
+            }
+        }
+    }
+}
 
-                else -> {
-                    Log.d("QuranScreen", ">>> Showing EmptyStateSection (isSearching: ${searchQuery.isNotEmpty()})")
-                    EmptyStateSection(
-                        isSearching = searchQuery.isNotEmpty()
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun QuranTopAppBar(
+    isSearchVisible: Boolean,
+    onSearchClick: () -> Unit
+) {
+    TopAppBar(
+        title = {
+            Text(
+                text = "Quran",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        actions = {
+            IconButton(onClick = onSearchClick) {
+                AnimatedContent(
+                    targetState = isSearchVisible,
+                    transitionSpec = {
+                        scaleIn(animationSpec = tween(200)) + fadeIn() togetherWith
+                                scaleOut(animationSpec = tween(200)) + fadeOut()
+                    },
+                    label = "search_icon"
+                ) { searchVisible ->
+                    Icon(
+                        imageVector = if (searchVisible) Icons.Default.Close else Icons.Default.Search,
+                        contentDescription = if (searchVisible) "Close search" else "Search",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface
+        )
+    )
+}
+
+@Composable
+private fun SearchSection(
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
+    onClearSearch: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        shape = RoundedCornerShape(28.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        tonalElevation = 2.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp)
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            TextField(
+                value = searchQuery,
+                onValueChange = onSearchQueryChange,
+                modifier = Modifier.weight(1f),
+                placeholder = {
+                    Text(
+                        "Search surahs...",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                    unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
+                ),
+                singleLine = true
+            )
+
+            AnimatedVisibility(
+                visible = searchQuery.isNotEmpty(),
+                enter = scaleIn() + fadeIn(),
+                exit = scaleOut() + fadeOut()
+            ) {
+                IconButton(onClick = onClearSearch) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = "Clear search",
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }
@@ -186,19 +222,19 @@ private fun LoadingSection() {
         contentAlignment = Alignment.Center
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             CircularProgressIndicator(
-                modifier = Modifier.size(48.dp),
+                modifier = Modifier.size(56.dp),
                 color = MaterialTheme.colorScheme.primary,
                 strokeWidth = 4.dp
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
             Text(
                 text = "Loading Surahs...",
                 style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -211,32 +247,27 @@ private fun ErrorSection(
     onRetry: () -> Unit,
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
+        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            modifier = Modifier.padding(32.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Icon(
-                imageVector = Icons.Default.Error,
+                imageVector = Icons.Default.ErrorOutline,
                 contentDescription = "Error",
-                modifier = Modifier.size(64.dp),
+                modifier = Modifier.size(72.dp),
                 tint = MaterialTheme.colorScheme.error
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
             Text(
-                text = "Something went wrong",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
+                text = "Something Went Wrong",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.error
             )
-
-            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = errorMessage,
@@ -245,16 +276,17 @@ private fun ErrorSection(
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             FilledTonalButton(
                 onClick = onRetry,
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(12.dp),
+                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.Refresh,
-                    contentDescription = "Retry",
-                    modifier = Modifier.size(18.dp)
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Try Again")
@@ -270,62 +302,89 @@ private fun SurahListSection(
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = 8.dp),
+        contentPadding = PaddingValues(vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(surahs) { surah ->
+        items(
+            items = surahs,
+            key = { surah -> "surah_${surah.id}" }
+        ) { surah ->
             EnhancedSurahItem(
                 surah = surah,
                 onSurahClick = onSurahClick
             )
         }
 
-        // Add some bottom padding for better scrolling experience
-        item {
-            Spacer(modifier = Modifier.height(8.dp))
+        item(key = "bottom_spacer") {
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
 
 @Composable
-private fun EmptyStateSection(
-    isSearching: Boolean,
-) {
+private fun EmptySearchSection() {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
+        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(32.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Icon(
-                imageVector = if (isSearching) Icons.Default.Search else Icons.AutoMirrored.Filled.MenuBook,
-                contentDescription = if (isSearching) "No search results" else "No Surahs",
-                modifier = Modifier.size(64.dp),
+                imageVector = Icons.Default.SearchOff,
+                contentDescription = "No search results",
+                modifier = Modifier.size(72.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
             Text(
-                text = if (isSearching) "No Surahs Found" else "No Surahs Available",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold,
+                text = "No Surahs Found",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Try searching with different keywords",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+private fun EmptyStateSection() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(32.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.MenuBook,
+                contentDescription = "No content",
+                modifier = Modifier.size(72.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+            )
 
             Text(
-                text = if (isSearching) {
-                    "Try searching with different keywords"
-                } else {
-                    "Please check back later"
-                },
+                text = "No Surahs Available",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Text(
+                text = "Please check back later",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                 textAlign = TextAlign.Center
             )
         }
