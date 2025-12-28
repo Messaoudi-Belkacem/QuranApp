@@ -27,6 +27,12 @@ sealed class Screen(val route: String, val title: String, val icon: Int? = null)
         icon = R.drawable.ic_tasbih
     )
 
+    data object MoreRoute : Screen(
+        route = "more_screen",
+        title = "More",
+        icon = android.R.drawable.ic_menu_more
+    )
+
 
     data object PermissionRoute : Screen(route = "permission_screen", title = "")
     data object SurahReadingRoute : Screen(route = "surah_reading_screen/{surahId}", title = "") {

@@ -49,7 +49,7 @@ fun BottomBar(navController: NavHostController) {
             Screen.HomeRoute,
             Screen.QuranRoute,
             Screen.QiblaRoute,
-            Screen.TasbihRoute
+            Screen.MoreRoute
         )
     }
     val navBackStackEntry by navController.currentBackStackEntryAsState()

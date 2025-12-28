@@ -6,15 +6,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.quranapp.presentation.screen.home.HomeScreen
+import com.example.quranapp.presentation.screen.more.MoreScreen
 import com.example.quranapp.presentation.screen.qibla.QiblaScreen
 import com.example.quranapp.presentation.screen.quran.QuranScreen
-import com.example.quranapp.presentation.screen.tasbih.TasbihScreen
 
 @Composable
 fun MainNavGraph(
     navController: NavHostController,
     innerPadding: PaddingValues,
-    onNavigateToSurahReading: (Int) -> Unit = {}
+    onNavigateToSurahReading: (Int) -> Unit = {},
 ) {
     NavHost(
         navController = navController,
@@ -38,8 +38,8 @@ fun MainNavGraph(
                 }
             )
         }
-        composable(route = Screen.TasbihRoute.route) {
-            TasbihScreen(
+        composable(route = Screen.MoreRoute.route) {
+            MoreScreen(
                 innerPadding = innerPadding
             )
         }
