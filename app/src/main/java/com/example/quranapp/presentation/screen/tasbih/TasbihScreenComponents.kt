@@ -11,6 +11,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -103,17 +104,22 @@ fun ProgressDisplay(
 fun DhikrDisplay(
     preset: TasbihPreset,
     modifier: Modifier = Modifier,
+    onLongClick: () -> Unit = {},
 ) {
     var isExpanded by remember { mutableStateOf(false) }
 
     ElevatedCard(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = { isExpanded = !isExpanded },
+                onLongClick = onLongClick
+            ),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         ),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
-        onClick = { !isExpanded }
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
     ) {
         Column(
             modifier = Modifier
@@ -259,7 +265,6 @@ fun TasbihCounter(
 @Composable
 fun ActionButtons(
     onUndoClick: () -> Unit,
-    onPresetsClick: () -> Unit,
     canUndo: Boolean,
 ) {
     Row(
@@ -283,24 +288,6 @@ fun ActionButtons(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text("Undo", style = MaterialTheme.typography.labelLarge)
-        }
-
-        ElevatedButton(
-            onClick = onPresetsClick,
-            shape = RoundedCornerShape(12.dp),
-            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp),
-            colors = ButtonDefaults.elevatedButtonColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.LibraryBooks,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Presets", style = MaterialTheme.typography.labelLarge)
         }
     }
 }

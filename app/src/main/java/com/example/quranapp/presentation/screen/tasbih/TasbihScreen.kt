@@ -99,7 +99,10 @@ fun TasbihScreen(
                 // Dhikr Display
                 DhikrDisplay(
                     preset = uiState.selectedPreset,
-                    modifier = Modifier.padding(vertical = 16.dp)
+                    modifier = Modifier.padding(vertical = 16.dp),
+                    onLongClick = {
+                        viewModel.showPresetsDialog(true)
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -131,7 +134,6 @@ fun TasbihScreen(
                 // Action Buttons
                 ActionButtons(
                     onUndoClick = { viewModel.decrementCount() },
-                    onPresetsClick = { viewModel.showPresetsDialog(true) },
                     canUndo = uiState.currentCount > 0
                 )
 
