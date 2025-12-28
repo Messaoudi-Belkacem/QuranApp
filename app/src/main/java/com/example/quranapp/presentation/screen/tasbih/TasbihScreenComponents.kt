@@ -1,11 +1,16 @@
 package com.example.quranapp.presentation.screen.tasbih
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -99,18 +104,21 @@ fun DhikrDisplay(
     preset: TasbihPreset,
     modifier: Modifier = Modifier,
 ) {
+    var isExpanded by remember { mutableStateOf(false) }
+
     ElevatedCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         ),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
+        onClick = { !isExpanded }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -121,23 +129,34 @@ fun DhikrDisplay(
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Spacer(modifier = Modifier.height(4.dp))
 
-            Text(
-                text = preset.name,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
+                    Text(
+                        text = preset.name,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
 
-            Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
 
-            Text(
-                text = preset.translation,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
-                textAlign = TextAlign.Center
-            )
+                    Text(
+                        text = preset.translation,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
         }
     }
 }
