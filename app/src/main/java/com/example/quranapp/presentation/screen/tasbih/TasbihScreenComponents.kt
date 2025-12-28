@@ -6,7 +6,6 @@ import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -37,7 +36,6 @@ import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Autorenew
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
@@ -81,25 +79,12 @@ fun ProgressDisplay(
         color = MaterialTheme.colorScheme.surfaceVariant,
         tonalElevation = 2.dp
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.Flag,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-
-            Text(
-                text = "$count / $target",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        Text(
+            text = "$count / $target",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -173,11 +158,11 @@ fun DhikrDisplay(
 
 @Composable
 fun TasbihCounter(
-    count:  Int,
+    count: Int,
     target: Int,
-    isTargetReached:  Boolean,
-    onTap:  () -> Unit,
-    modifier:  Modifier = Modifier,
+    isTargetReached: Boolean,
+    onTap: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -207,7 +192,7 @@ fun TasbihCounter(
         // Circular Progress Indicator
         CircularProgressIndicator(
             progress = { animatedProgress },
-            modifier = Modifier. size(280.dp),
+            modifier = Modifier.size(280.dp),
             color = if (isTargetReached) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
             strokeWidth = 12.dp,
             trackColor = MaterialTheme.colorScheme.surfaceVariant
@@ -251,7 +236,7 @@ fun TasbihCounter(
                             // Slide down when decreasing
                             (slideInVertically { height -> -height } + fadeIn()).togetherWith(
                                 slideOutVertically { height -> height } + fadeOut())
-                        }. using(
+                        }.using(
                             SizeTransform(clip = false)
                         )
                     },
@@ -259,7 +244,7 @@ fun TasbihCounter(
                 ) { targetCount ->
                     Text(
                         text = targetCount.toString(),
-                        style = MaterialTheme. typography.displayLarge,
+                        style = MaterialTheme.typography.displayLarge,
                         fontWeight = FontWeight.Bold,
                         color = if (isTargetReached) {
                             MaterialTheme.colorScheme.onTertiaryContainer
