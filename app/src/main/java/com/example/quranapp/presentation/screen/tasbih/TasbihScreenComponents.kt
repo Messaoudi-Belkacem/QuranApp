@@ -1,6 +1,8 @@
 package com.example.quranapp.presentation.screen.tasbih
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -11,6 +13,9 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,7 +33,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.LibraryBooks
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Autorenew
@@ -169,23 +173,13 @@ fun DhikrDisplay(
 
 @Composable
 fun TasbihCounter(
-    count: Int,
+    count:  Int,
     target: Int,
-    isTargetReached: Boolean,
-    onTap: () -> Unit,
-    modifier: Modifier = Modifier,
+    isTargetReached:  Boolean,
+    onTap:  () -> Unit,
+    modifier:  Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
-
-    // Animation for count change
-    val animatedCount by animateIntAsState(
-        targetValue = count,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
-        label = "count"
-    )
 
     // Scale animation on tap
     var isPressed by remember { mutableStateOf(false) }
@@ -213,7 +207,7 @@ fun TasbihCounter(
         // Circular Progress Indicator
         CircularProgressIndicator(
             progress = { animatedProgress },
-            modifier = Modifier.size(280.dp),
+            modifier = Modifier. size(280.dp),
             color = if (isTargetReached) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
             strokeWidth = 12.dp,
             trackColor = MaterialTheme.colorScheme.surfaceVariant
@@ -223,7 +217,6 @@ fun TasbihCounter(
         Surface(
             onClick = {
                 onTap()
-                // Reset pressed state after animation
                 coroutineScope.launch {
                     delay(100)
                 }
@@ -246,17 +239,36 @@ fun TasbihCounter(
             Box(
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = animatedCount.toString(),
-                    style = MaterialTheme.typography.displayLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = if (isTargetReached) {
-                        MaterialTheme.colorScheme.onTertiaryContainer
-                    } else {
-                        MaterialTheme.colorScheme.onSecondaryContainer
+                // AnimatedContent with slide animation (POPULAR CHOICE)
+                AnimatedContent(
+                    targetState = count,
+                    transitionSpec = {
+                        if (targetState > initialState) {
+                            // Slide up when increasing
+                            (slideInVertically { height -> height } + fadeIn()).togetherWith(
+                                slideOutVertically { height -> -height } + fadeOut())
+                        } else {
+                            // Slide down when decreasing
+                            (slideInVertically { height -> -height } + fadeIn()).togetherWith(
+                                slideOutVertically { height -> height } + fadeOut())
+                        }. using(
+                            SizeTransform(clip = false)
+                        )
                     },
-                    fontSize = MaterialTheme.typography.displayLarge.fontSize * 1.5f
-                )
+                    label = "count"
+                ) { targetCount ->
+                    Text(
+                        text = targetCount.toString(),
+                        style = MaterialTheme. typography.displayLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = if (isTargetReached) {
+                            MaterialTheme.colorScheme.onTertiaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.onSecondaryContainer
+                        },
+                        fontSize = MaterialTheme.typography.displayLarge.fontSize * 1.5f
+                    )
+                }
             }
         }
     }
