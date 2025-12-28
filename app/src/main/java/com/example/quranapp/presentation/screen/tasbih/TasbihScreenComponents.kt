@@ -80,10 +80,12 @@ fun ProgressDisplay(
         tonalElevation = 2.dp
     ) {
         Text(
-            text = "$count / $target",
+            text = "$count out of $target",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         )
     }
 }
