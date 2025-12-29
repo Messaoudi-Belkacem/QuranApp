@@ -259,6 +259,7 @@ data class HomeUiState(
     val currentLocation: com.example.quranapp.data.model.Location? = null,
     val nextPrayer: PrayerTimeData? = null,
     val lastPrayer: PrayerTimeData? = null,
+    val locationAddress: String? = null,
 )
 
 data class PrayerTimeData(
