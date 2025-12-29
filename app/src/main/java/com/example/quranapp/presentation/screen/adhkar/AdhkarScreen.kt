@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -82,7 +83,7 @@ fun AdhkarScreen(
                 },
                 title = {
                     Text(
-                        text = uiState.selectedCategory?.title ?: "Adhkar",
+                        text = uiState.selectedCategory?.titleEng ?: "Adhkar",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold
                     )
@@ -284,9 +285,6 @@ private fun DhikrCard(
     val progressPercentage = if (dhikr.repeat > 0) progress.toFloat() / dhikr.repeat else 0f
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onTap),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (isCompleted)
@@ -297,7 +295,10 @@ private fun DhikrCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 2.dp,
             pressedElevation = 6.dp
-        )
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onTap),
     ) {
         Box {
             // Progress border
@@ -323,16 +324,16 @@ private fun DhikrCard(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp),
+                    .padding(20.dp)
+                    .background(color = Color.Transparent),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Dhikr text
                 Text(
                     text = dhikr.text,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface,
-                    textAlign = TextAlign.Right,
-                    lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.5f
+                    textAlign = TextAlign.Center
                 )
 
                 // Benefit text
@@ -345,9 +346,9 @@ private fun DhikrCard(
                     ) {
                         Text(
                             text = dhikr.benefit,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            textAlign = TextAlign.Right,
+                            textAlign = TextAlign.Center,
                             modifier = Modifier.padding(12.dp)
                         )
                     }
