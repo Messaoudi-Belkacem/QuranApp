@@ -28,7 +28,7 @@ fun SettingsScreen() {
         Icon(
             imageVector = Icons.Default.Build,
             contentDescription = "Under Development",
-            modifier = Modifier.size(80.dp),
+            modifier = Modifier.size(72.dp),
             tint = MaterialTheme.colorScheme.primary
         )
 
@@ -36,7 +36,7 @@ fun SettingsScreen() {
 
         Text(
             text = "Under Development",
-            style = MaterialTheme.typography.headlineMedium,
+            style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center
@@ -46,7 +46,7 @@ fun SettingsScreen() {
 
         Text(
             text = "This feature is coming soon!",
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )

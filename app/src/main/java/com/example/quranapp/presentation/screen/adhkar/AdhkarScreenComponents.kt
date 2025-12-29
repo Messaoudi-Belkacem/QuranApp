@@ -250,7 +250,7 @@ fun DhikrCard(
                         ) {
                             Text(
                                 text = dhikr.benefit,
-                                style = MaterialTheme.typography.bodyLarge,
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.padding(12.dp)

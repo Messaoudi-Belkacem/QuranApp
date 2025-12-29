@@ -108,7 +108,7 @@ fun MoreScreen(
                     text = group.title,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
                 )
             }

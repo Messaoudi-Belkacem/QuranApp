@@ -286,7 +286,7 @@ fun ActionButtons(
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Undo", style = MaterialTheme.typography.labelLarge)
+            Text("Undo", style = MaterialTheme.typography.labelMedium)
         }
     }
 }
