@@ -333,7 +333,8 @@ private fun DhikrCard(
                     text = dhikr.text,
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    lineHeight = MaterialTheme.typography.titleLarge.lineHeight * 1.2f
                 )
 
                 // Benefit text
