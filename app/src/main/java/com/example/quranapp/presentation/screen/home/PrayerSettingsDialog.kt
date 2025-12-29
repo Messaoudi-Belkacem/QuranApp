@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.example.quranapp.domain.model.AsrCalculationMethod
 import com.example.quranapp.domain.model.HighLatitudeMethod
 import com.example.quranapp.domain.model.PrayerCalculationMethod
+import kotlinx.coroutines.launch
 
 /**
  * Prayer Time Settings Dialog
@@ -34,6 +35,8 @@ fun PrayerSettingsDialog(
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("Method", "Asr", "High Lat")
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -70,19 +73,51 @@ fun PrayerSettingsDialog(
                     .fillMaxWidth()
                     .height(400.dp)
             ) {
-                when (selectedTab) {
-                    0 -> CalculationMethodList(
-                        methods = PrayerCalculationMethod.getAllMethods(),
-                        selectedMethod = currentMethod,
-                        onMethodSelected = onMethodSelected
-                    )
-                    1 -> AsrMethodList(
-                        selectedMethod = currentAsrMethod,
-                        onMethodSelected = onAsrMethodSelected
-                    )
-                    2 -> HighLatitudeMethodList(
-                        selectedMethod = currentHighLatMethod,
-                        onMethodSelected = onHighLatMethodSelected
+                Column {
+                    when (selectedTab) {
+                        0 -> CalculationMethodList(
+                            methods = PrayerCalculationMethod.getAllMethods(),
+                            selectedMethod = currentMethod,
+                            onMethodSelected = {
+                                onMethodSelected(it)
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = "✓ Updated to ${it.displayName}",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
+                            }
+                        )
+                        1 -> AsrMethodList(
+                            selectedMethod = currentAsrMethod,
+                            onMethodSelected = {
+                                onAsrMethodSelected(it)
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = "✓ Asr method updated",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
+                            }
+                        )
+                        2 -> HighLatitudeMethodList(
+                            selectedMethod = currentHighLatMethod,
+                            onMethodSelected = {
+                                onHighLatMethodSelected(it)
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = "✓ High latitude method updated",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
+                            }
+                        )
+                    }
+
+                    // Snackbar for feedback
+                    SnackbarHost(
+                        hostState = snackbarHostState,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
                 }
             }

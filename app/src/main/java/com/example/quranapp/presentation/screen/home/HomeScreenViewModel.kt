@@ -12,10 +12,6 @@ import com.example.quranapp.domain.model.PrayerCalculationMethod
 import com.example.quranapp.util.LocationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dev.kosrat.muslimdata.models.AsrMethod
-import dev.kosrat.muslimdata.models.CalculationMethod
-import dev.kosrat.muslimdata.models.HigherLatitudeMethod
-import dev.kosrat.muslimdata.models.PrayerAttribute
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -161,51 +157,45 @@ class HomeScreenViewModel @Inject constructor(
         longitude: Double,
     ): List<PrayerTimeData> {
         return try {
-            // Create location object for the Muslim Data library
-            val prayerLocation = dev.kosrat.muslimdata.models.Location(
-                id = 1,
-                name = "Current Location",
+            // Get user's prayer calculation preferences from UI state
+            val calculationMethod = _uiState.value.calculationMethod
+            val asrMethod = _uiState.value.asrMethod
+            val highLatMethod = _uiState.value.highLatMethod
+
+            Log.d(tag, "Using calculation method: ${calculationMethod.displayName}, Asr: ${asrMethod.displayName}")
+
+            // Get timezone offset
+            val now = Date()
+            val timezone = com.example.quranapp.util.PrayerTimeCalculator.getTimezoneOffset(now)
+
+            // Create calculator with user preferences
+            val calculator = com.example.quranapp.util.PrayerTimeCalculator(
                 latitude = latitude,
                 longitude = longitude,
-                countryCode = "US",
-                countryName = "United States",
-                hasFixedPrayerTime = false,
-                prayerDependentId = null
+                timezone = timezone,
+                calculationMethod = calculationMethod,
+                asrMethod = asrMethod,
+                highLatMethod = highLatMethod
             )
 
-            val prayerAttribute = PrayerAttribute(
-                calculationMethod = CalculationMethod.MAKKAH,
-                asrMethod = AsrMethod.SHAFII,
-                higherLatitudeMethod = HigherLatitudeMethod.ANGLE_BASED
+            // Calculate prayer times
+            val prayerTimesMap = calculator.getPrayerTimes(now)
+
+            // Convert to list format
+            val prayers = listOf(
+                PrayerTimeData("Fajr", formatTime(prayerTimesMap["Fajr"]), prayerTimesMap["Fajr"]),
+                PrayerTimeData("Sunrise", formatTime(prayerTimesMap["Sunrise"]), prayerTimesMap["Sunrise"]),
+                PrayerTimeData("Dhuhr", formatTime(prayerTimesMap["Dhuhr"]), prayerTimesMap["Dhuhr"]),
+                PrayerTimeData("Asr", formatTime(prayerTimesMap["Asr"]), prayerTimesMap["Asr"]),
+                PrayerTimeData("Maghrib", formatTime(prayerTimesMap["Maghrib"]), prayerTimesMap["Maghrib"]),
+                PrayerTimeData("Isha", formatTime(prayerTimesMap["Isha"]), prayerTimesMap["Isha"])
             )
 
-            // Initialize Muslim Repository and get prayer times
-            val muslimRepository = dev.kosrat.muslimdata.repository.MuslimRepository(context)
-            val prayerTimes = muslimRepository.getPrayerTimes(
-                location = prayerLocation,
-                date = Date(),
-                attribute = prayerAttribute
-            )
+            // Calculate next and previous prayers
+            calculateNextAndPreviousPrayers(prayers)
 
-            // Convert to our data format with null safety
-            if (prayerTimes != null) {
-                val prayers = listOf(
-                    PrayerTimeData("Fajr", formatTime(prayerTimes.fajr), prayerTimes.fajr),
-                    PrayerTimeData("Sunrise", formatTime(prayerTimes.sunrise), prayerTimes.sunrise),
-                    PrayerTimeData("Dhuhr", formatTime(prayerTimes.dhuhr), prayerTimes.dhuhr),
-                    PrayerTimeData("Asr", formatTime(prayerTimes.asr), prayerTimes.asr),
-                    PrayerTimeData("Maghrib", formatTime(prayerTimes.maghrib), prayerTimes.maghrib),
-                    PrayerTimeData("Isha", formatTime(prayerTimes.isha), prayerTimes.isha)
-                )
-
-                // Calculate next and previous prayers
-                calculateNextAndPreviousPrayers(prayers)
-
-                prayers
-            } else {
-                Log.w(tag, "Prayer times calculation returned null")
-                generateMockPrayerTimes()
-            }
+            Log.d(tag, "Prayer times calculated successfully using ${calculationMethod.displayName}")
+            prayers
 
         } catch (e: Exception) {
             Log.e(tag, "Error calculating prayer times", e)
@@ -258,8 +248,10 @@ class HomeScreenViewModel @Inject constructor(
         )
     }
 
-    fun refreshPrayerTimes() {
-        _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+    fun refreshPrayerTimes(showLoading: Boolean = true) {
+        if (showLoading) {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+        }
         loadPrayerTimes()
     }
 
@@ -270,19 +262,56 @@ class HomeScreenViewModel @Inject constructor(
     fun updateCalculationMethod(method: com.example.quranapp.domain.model.PrayerCalculationMethod) {
         prayerSettingsRepository.setCalculationMethod(method)
         _uiState.value = _uiState.value.copy(calculationMethod = method)
-        refreshPrayerTimes()
+        // Recalculate immediately without showing loading spinner
+        recalculatePrayerTimes()
     }
 
     fun updateAsrMethod(method: com.example.quranapp.domain.model.AsrCalculationMethod) {
         prayerSettingsRepository.setAsrMethod(method)
         _uiState.value = _uiState.value.copy(asrMethod = method)
-        refreshPrayerTimes()
+        // Recalculate immediately without showing loading spinner
+        recalculatePrayerTimes()
     }
 
     fun updateHighLatMethod(method: com.example.quranapp.domain.model.HighLatitudeMethod) {
         prayerSettingsRepository.setHighLatitudeMethod(method)
         _uiState.value = _uiState.value.copy(highLatMethod = method)
-        refreshPrayerTimes()
+        // Recalculate immediately without showing loading spinner
+        recalculatePrayerTimes()
+    }
+
+    /**
+     * Recalculate prayer times with current location and updated settings
+     * Does not show loading state for instant updates
+     */
+    private fun recalculatePrayerTimes() {
+        viewModelScope.launch {
+            try {
+                val currentLocation = _uiState.value.currentLocation
+                if (currentLocation != null) {
+                    Log.d(tag, "Recalculating prayer times with updated settings...")
+
+                    val prayerTimes = calculatePrayerTimes(
+                        latitude = currentLocation.latitude.toDouble(),
+                        longitude = currentLocation.longitude.toDouble()
+                    )
+
+                    _uiState.value = _uiState.value.copy(
+                        prayerTimes = prayerTimes,
+                        error = null
+                    )
+
+                    Log.d(tag, "Prayer times recalculated successfully")
+                } else {
+                    Log.w(tag, "No location available to recalculate prayer times")
+                }
+            } catch (e: Exception) {
+                Log.e(tag, "Error recalculating prayer times", e)
+                _uiState.value = _uiState.value.copy(
+                    error = "Failed to update prayer times: ${e.message}"
+                )
+            }
+        }
     }
 }
 
@@ -297,7 +326,7 @@ data class HomeUiState(
     val showPrayerSettings: Boolean = false,
     val calculationMethod: PrayerCalculationMethod = PrayerCalculationMethod.MWL,
     val asrMethod: AsrCalculationMethod = AsrCalculationMethod.SHAFII,
-    val highLatMethod: HighLatitudeMethod = HighLatitudeMethod.ANGLE_BASED
+    val highLatMethod: HighLatitudeMethod = HighLatitudeMethod.ANGLE_BASED,
 )
 
 data class PrayerTimeData(
