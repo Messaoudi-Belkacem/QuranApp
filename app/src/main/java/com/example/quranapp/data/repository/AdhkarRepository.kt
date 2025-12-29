@@ -19,18 +19,21 @@ class AdhkarRepository @Inject constructor(
         AdhkarCategoryItem(
             id = "morning",
             title = "أذكار الصباح",
+            titleEng = "Morning Adhkar",
             fileName = "adhkar_morning.json",
             icon = "🌅"
         ),
         AdhkarCategoryItem(
             id = "evening",
             title = "أذكار المساء",
+            titleEng = "Evening Adhkar",
             fileName = "adhkar_evening.json",
             icon = "🌙"
         ),
         AdhkarCategoryItem(
             id = "post_prayer",
             title = "أذكار بعد الصلاة",
+            titleEng = "Post Prayer Adhkar",
             fileName = "adhkar_post_prayer.json",
             icon = "🕌"
         )

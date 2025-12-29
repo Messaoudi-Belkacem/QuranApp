@@ -1,13 +1,20 @@
 package com.example.quranapp.presentation.screen.adhkar
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
@@ -16,8 +23,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,7 +54,7 @@ import com.example.quranapp.data.model.Dhikr
 fun AdhkarScreen(
     viewModel: AdhkarScreenViewModel = hiltViewModel(),
     innerPadding: PaddingValues = PaddingValues(),
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -50,11 +70,19 @@ fun AdhkarScreen(
                                 tint = MaterialTheme.colorScheme.primary
                             )
                         }
+                    } else {
+                        IconButton(onClick = { onNavigateBack() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 },
                 title = {
                     Text(
-                        text = uiState.selectedCategory?.title ?: "الأذكار",
+                        text = uiState.selectedCategory?.title ?: "Adhkar",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold
                     )
@@ -98,9 +126,11 @@ fun AdhkarScreen(
                 uiState.isLoading -> {
                     LoadingState()
                 }
+
                 uiState.error != null -> {
                     ErrorState(error = uiState.error!!)
                 }
+
                 uiState.selectedCategory != null -> {
                     AdhkarDetailView(
                         adhkar = uiState.selectedCategory!!.content,
@@ -113,6 +143,7 @@ fun AdhkarScreen(
                         }
                     )
                 }
+
                 else -> {
                     CategoriesListView(
                         categories = uiState.categories,
@@ -157,24 +188,14 @@ private fun ErrorState(error: String) {
 @Composable
 private fun CategoriesListView(
     categories: List<AdhkarCategoryItem>,
-    onCategoryClick: (AdhkarCategoryItem) -> Unit
+    onCategoryClick: (AdhkarCategoryItem) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        item {
-            Text(
-                text = "اختر فئة الأذكار",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-        }
-
-        itemsIndexed(categories) { index, category ->
+        itemsIndexed(categories) { _, category ->
             CategoryCard(
                 category = category,
                 onClick = { onCategoryClick(category) }
@@ -186,7 +207,7 @@ private fun CategoriesListView(
 @Composable
 private fun CategoryCard(
     category: AdhkarCategoryItem,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Card(
         modifier = Modifier
@@ -202,36 +223,29 @@ private fun CategoryCard(
         )
     ) {
         Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .padding(16.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = category.icon,
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                }
-
                 Text(
-                    text = category.title,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    text = category.icon,
+                    style = MaterialTheme.typography.titleLarge
                 )
             }
+            Text(
+                text = category.titleEng,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }
@@ -241,7 +255,7 @@ private fun AdhkarDetailView(
     adhkar: List<Dhikr>,
     progress: Map<Int, Int>,
     onDhikrClick: (Int, Int) -> Unit,
-    onResetClick: (Int) -> Unit
+    onResetClick: (Int) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -264,7 +278,7 @@ private fun DhikrCard(
     dhikr: Dhikr,
     progress: Int,
     onTap: () -> Unit,
-    onReset: () -> Unit
+    onReset: () -> Unit,
 ) {
     val isCompleted = progress >= dhikr.repeat
     val progressPercentage = if (dhikr.repeat > 0) progress.toFloat() / dhikr.repeat else 0f

@@ -5,6 +5,8 @@ import com.google.gson.annotations.SerializedName
 data class AdhkarCategory(
     @SerializedName("title")
     val title: String,
+    @SerializedName("title_eng")
+    val titleEng: String,
     @SerializedName("content")
     val content: List<Dhikr>
 )
@@ -21,6 +23,7 @@ data class Dhikr(
 data class AdhkarCategoryItem(
     val id: String,
     val title: String,
+    val titleEng: String,
     val fileName: String,
     val icon: String = "☪️"
 )

@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quranapp.data.model.AdhkarCategory
 import com.example.quranapp.data.model.AdhkarCategoryItem
-import com.example.quranapp.data.model.Dhikr
 import com.example.quranapp.data.repository.AdhkarRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,12 +18,12 @@ data class AdhkarUiState(
     val categories: List<AdhkarCategoryItem> = emptyList(),
     val selectedCategory: AdhkarCategory? = null,
     val dhikrProgress: Map<Int, Int> = emptyMap(),
-    val error: String? = null
+    val error: String? = null,
 )
 
 @HiltViewModel
 class AdhkarScreenViewModel @Inject constructor(
-    private val repository: AdhkarRepository
+    private val repository: AdhkarRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AdhkarUiState())
@@ -64,7 +63,8 @@ class AdhkarScreenViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         selectedCategory = category,
-                        dhikrProgress = category?.content?.indices?.associateWith { 0 } ?: emptyMap(),
+                        dhikrProgress = category?.content?.indices?.associateWith { 0 }
+                            ?: emptyMap(),
                         isLoading = false
                     )
                 }
@@ -100,7 +100,8 @@ class AdhkarScreenViewModel @Inject constructor(
     fun resetAllProgress() {
         _uiState.update { state ->
             state.copy(
-                dhikrProgress = state.selectedCategory?.content?.indices?.associateWith { 0 } ?: emptyMap()
+                dhikrProgress = state.selectedCategory?.content?.indices?.associateWith { 0 }
+                    ?: emptyMap()
             )
         }
     }
