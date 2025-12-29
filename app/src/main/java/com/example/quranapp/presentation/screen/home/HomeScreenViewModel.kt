@@ -24,7 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
     private val quranRepository: QuranRepository,
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -95,7 +95,25 @@ class HomeScreenViewModel @Inject constructor(
 
                 // Step 5: Calculate prayer times with the location
                 if (storedLocation != null) {
-                    Log.d(tag, "✓ Using location: ${storedLocation.latitude}, ${storedLocation.longitude}")
+                    Log.d(
+                        tag,
+                        "✓ Using location: ${storedLocation.latitude}, ${storedLocation.longitude}"
+                    )
+
+                    // Try to get address/city name
+                    val address = try {
+                        locationHelper.getCityName(
+                            storedLocation.latitude,
+                            storedLocation.longitude
+                        )
+                            ?: locationHelper.getAddressFromLocation(
+                                storedLocation.latitude,
+                                storedLocation.longitude
+                            )
+                    } catch (e: Exception) {
+                        Log.w(tag, "Failed to get address: ${e.message}")
+                        null
+                    }
 
                     val prayerTimes = calculatePrayerTimes(
                         latitude = storedLocation.latitude.toDouble(),
@@ -106,9 +124,10 @@ class HomeScreenViewModel @Inject constructor(
                         prayerTimes = prayerTimes,
                         isLoading = false,
                         currentLocation = storedLocation,
+                        locationAddress = address,
                         error = null
                     )
-                    Log.d(tag, "✓ Prayer times calculated successfully")
+                    Log.d(tag, "✓ Prayer times calculated successfully, Address: $address")
                 } else {
                     Log.e(tag, "Location is still null after all attempts")
                     _uiState.value = _uiState.value.copy(
@@ -126,7 +145,10 @@ class HomeScreenViewModel @Inject constructor(
         }
     }
 
-    private suspend fun calculatePrayerTimes(latitude: Double, longitude: Double): List<PrayerTimeData> {
+    private suspend fun calculatePrayerTimes(
+        latitude: Double,
+        longitude: Double,
+    ): List<PrayerTimeData> {
         return try {
             // Create location object for the Muslim Data library
             val prayerLocation = dev.kosrat.muslimdata.models.Location(
@@ -236,11 +258,11 @@ data class HomeUiState(
     val error: String? = null,
     val currentLocation: com.example.quranapp.data.model.Location? = null,
     val nextPrayer: PrayerTimeData? = null,
-    val lastPrayer: PrayerTimeData? = null
+    val lastPrayer: PrayerTimeData? = null,
 )
 
 data class PrayerTimeData(
     val name: String,
     val time: String,
-    val dateTime: Date? = null
+    val dateTime: Date? = null,
 )

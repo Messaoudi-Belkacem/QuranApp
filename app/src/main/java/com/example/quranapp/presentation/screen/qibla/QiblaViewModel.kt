@@ -26,6 +26,7 @@ data class QiblaUiState(
     val locationError: String? = null,
     val hasSensors: Boolean = true,
     val isCalibrated: Boolean = false,
+    val locationAddress: String? = null,
 ) {
     val rotationAngle: Float
         get() = qiblaBearing - deviceAzimuth
@@ -95,6 +96,15 @@ class QiblaViewModel @Inject constructor(
                         lon.toDouble()
                     )
 
+                    // Try to get city name or address
+                    val address = try {
+                        locationHelper.getCityName(lat, lon)
+                            ?: locationHelper.getAddressFromLocation(lat, lon)
+                    } catch (e: Exception) {
+                        Log.w(tag, "Failed to get address: ${e.message}")
+                        null
+                    }
+
                     _uiState.update { state ->
                         state.copy(
                             qiblaBearing = qiblaBearing,
@@ -102,7 +112,8 @@ class QiblaViewModel @Inject constructor(
                             userLongitude = lon.toDouble(),
                             distanceToKaaba = distance,
                             isLoadingLocation = false,
-                            locationError = null
+                            locationError = null,
+                            locationAddress = address
                         )
                     }
 
@@ -113,7 +124,7 @@ class QiblaViewModel @Inject constructor(
                                 "%.2f",
                                 distance
                             )
-                        } km"
+                        } km, Address: $address"
                     )
                 } else {
                     Log.w(tag, "Failed to get location")

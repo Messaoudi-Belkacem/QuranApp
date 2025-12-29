@@ -30,7 +30,7 @@ import java.util.*
 @Composable
 fun HomeScreen(
     innerPadding: PaddingValues,
-    viewModel: HomeScreenViewModel = hiltViewModel()
+    viewModel: HomeScreenViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var isRefreshing by remember { mutableStateOf(false) }
@@ -88,7 +88,7 @@ fun HomeScreen(
 @Composable
 fun PrayerTimeProgress(
     modifier: Modifier = Modifier,
-    uiState: HomeUiState
+    uiState: HomeUiState,
 ) {
     var now by remember { mutableStateOf(Date()) }
 
@@ -272,7 +272,7 @@ private fun formatTimeDifference(millisDiff: Long): String {
 
 @Composable
 fun CurrentTimeDisplay(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val timeFormatter = remember { SimpleDateFormat("hh:mm", Locale.getDefault()) }
     val amPmFormatter = remember { SimpleDateFormat("a", Locale.getDefault()) }
@@ -327,7 +327,7 @@ fun CurrentTimeDisplay(
 fun PrayerTimesComponent(
     modifier: Modifier = Modifier,
     uiState: HomeUiState,
-    onRefresh: () -> Unit = {}
+    onRefresh: () -> Unit = {},
 ) {
     Column(
         modifier = modifier.fillMaxWidth()
@@ -347,7 +347,7 @@ fun PrayerTimesComponent(
             )
 
             // Location indicator
-            if (uiState.currentLocation != null) {
+            if (uiState.currentLocation != null || uiState.locationAddress != null) {
                 Surface(
                     shape = CircleShape,
                     color = MaterialTheme.colorScheme.primaryContainer,
@@ -365,7 +365,7 @@ fun PrayerTimesComponent(
                             modifier = Modifier.size(16.dp)
                         )
                         Text(
-                            text = uiState.currentLocation.toString(),
+                            text = uiState.locationAddress ?: uiState.currentLocation.toString(),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
@@ -451,7 +451,7 @@ fun PrayerTimesComponent(
 
 @Composable
 fun PrayerTimeItem(
-    prayerTimeData: PrayerTimeData
+    prayerTimeData: PrayerTimeData,
 ) {
     // Map prayer names to icons
     val icon = when (prayerTimeData.name) {

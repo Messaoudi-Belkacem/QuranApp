@@ -208,16 +208,21 @@ private fun QiblaCompassContent(
             }
 
             Text(
-                text = "Lat: ${
-                    String.format(
-                        Locale.US,
-                        "%.4f",
-                        uiState.userLatitude
-                    )
-                }, Lon: ${String.format(Locale.US, "%.4f", uiState.userLongitude)}",
+                text = if (uiState.locationAddress != null) {
+                    uiState.locationAddress
+                } else {
+                    "Lat: ${
+                        String.format(
+                            Locale.US,
+                            "%.4f",
+                            uiState.userLatitude
+                        )
+                    }, Lon: ${String.format(Locale.US, "%.4f", uiState.userLongitude)}"
+                },
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                modifier = Modifier.padding(top = 4.dp)
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                modifier = Modifier.padding(top = 4.dp),
+                textAlign = TextAlign.Center
             )
 
             if (!uiState.isCalibrated) {
