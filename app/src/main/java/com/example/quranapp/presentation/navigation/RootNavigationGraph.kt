@@ -15,7 +15,6 @@ import com.example.quranapp.presentation.screen.about.AboutScreen
 import com.example.quranapp.presentation.screen.adhkar.AdhkarScreen
 import com.example.quranapp.presentation.screen.help.HelpScreen
 import com.example.quranapp.presentation.screen.main.MainScreen
-import com.example.quranapp.presentation.screen.permission.PermissionScreen
 import com.example.quranapp.presentation.screen.prayertimes.PrayerTimesScreen
 import com.example.quranapp.presentation.screen.quran.QuranScreen
 import com.example.quranapp.presentation.screen.settings.SettingsScreen
@@ -36,11 +35,6 @@ fun RootNavigationGraph(
         popEnterTransition = { fadeIn(animationSpec = tween(time)) },
         popExitTransition = { fadeOut(animationSpec = tween(time)) }
     ) {
-        composable(route = Screen.PermissionRoute.route) {
-            PermissionScreen(
-                navHostController = navHostController
-            )
-        }
         composable(route = Screen.QuranRoute.route) {
             QuranScreen(
                 onSurahClick = { surah ->

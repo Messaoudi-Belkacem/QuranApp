@@ -33,8 +33,6 @@ sealed class Screen(val route: String, val title: String, val icon: Int? = null)
         icon = android.R.drawable.ic_menu_more
     )
 
-
-    data object PermissionRoute : Screen(route = "permission_screen", title = "")
     data object SurahReadingRoute : Screen(route = "surah_reading_screen/{surahId}", title = "") {
         fun createRoute(surahId: Int) = "surah_reading_screen/$surahId"
     }

@@ -8,7 +8,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -20,7 +19,6 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val tag = MainActivity::class.java.simpleName
-    private val sharedViewModel: SharedViewModel by viewModels()
     private lateinit var navHostController: NavHostController
 
     private val requestMultiplePermissionsLauncher =
@@ -30,14 +28,8 @@ class MainActivity : ComponentActivity() {
 
             if (fineLocationGranted || coarseLocationGranted) {
                 Log.d(tag, "Location permission granted (fine: $fineLocationGranted, coarse: $coarseLocationGranted)")
-                navHostController.navigate(Screen.MainRoute.route) {
-                    popUpTo(0) // Clear back stack
-                }
             } else {
                 Log.d(tag, "Location permissions denied")
-                navHostController.navigate(Screen.PermissionRoute.route) {
-                    popUpTo(0)
-                }
             }
         }
 
@@ -56,9 +48,8 @@ class MainActivity : ComponentActivity() {
             Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
 
-        val startDestination: String = if (hasFineLocation || hasCoarseLocation) {
+        if (hasFineLocation || hasCoarseLocation) {
             Log.d(tag, "Location permission already granted (fine: $hasFineLocation, coarse: $hasCoarseLocation)")
-            Screen.MainRoute.route
         } else {
             Log.d(tag, "Location permissions not granted, requesting...")
             // Request both permissions
@@ -68,7 +59,6 @@ class MainActivity : ComponentActivity() {
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 )
             )
-            Screen.PermissionRoute.route
         }
 
         setContent {
@@ -76,7 +66,7 @@ class MainActivity : ComponentActivity() {
                 navHostController = rememberNavController()
                 RootNavigationGraph(
                     navHostController = navHostController,
-                    startDestination = startDestination
+                    startDestination = Screen.MainRoute.route
                 )
             }
         }
