@@ -136,7 +136,6 @@ fun CategoryCard(
             Text(
                 text = category.titleEng,
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
         }

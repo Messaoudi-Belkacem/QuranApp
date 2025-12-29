@@ -1,5 +1,6 @@
 package com.example.quranapp.presentation.screen.more
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -84,7 +85,10 @@ fun MoreScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(innerPadding)
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 16.dp)
+            .background(
+                MaterialTheme.colorScheme.background
+            ),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
