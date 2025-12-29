@@ -4,7 +4,11 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.quranapp.data.repository.PrayerSettingsRepository
 import com.example.quranapp.data.repository.QuranRepository
+import com.example.quranapp.domain.model.AsrCalculationMethod
+import com.example.quranapp.domain.model.HighLatitudeMethod
+import com.example.quranapp.domain.model.PrayerCalculationMethod
 import com.example.quranapp.util.LocationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -24,6 +28,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
     private val quranRepository: QuranRepository,
+    private val prayerSettingsRepository: PrayerSettingsRepository,
     @ApplicationContext private val context: Context,
 ) : ViewModel() {
 
@@ -33,6 +38,12 @@ class HomeScreenViewModel @Inject constructor(
     private val tag = "HomeScreenViewModel"
 
     init {
+        // Load user's prayer settings
+        _uiState.value = _uiState.value.copy(
+            calculationMethod = prayerSettingsRepository.getCalculationMethod(),
+            asrMethod = prayerSettingsRepository.getAsrMethod(),
+            highLatMethod = prayerSettingsRepository.getHighLatitudeMethod()
+        )
         loadPrayerTimes()
     }
 
@@ -231,7 +242,8 @@ class HomeScreenViewModel @Inject constructor(
         )
     }
 
-    private fun formatTime(date: Date): String {
+    private fun formatTime(date: Date?): String {
+        if (date == null) return "--:--"
         val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
         return timeFormat.format(date)
     }
@@ -250,6 +262,28 @@ class HomeScreenViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(isLoading = true, error = null)
         loadPrayerTimes()
     }
+
+    fun showPrayerSettings(show: Boolean) {
+        _uiState.value = _uiState.value.copy(showPrayerSettings = show)
+    }
+
+    fun updateCalculationMethod(method: com.example.quranapp.domain.model.PrayerCalculationMethod) {
+        prayerSettingsRepository.setCalculationMethod(method)
+        _uiState.value = _uiState.value.copy(calculationMethod = method)
+        refreshPrayerTimes()
+    }
+
+    fun updateAsrMethod(method: com.example.quranapp.domain.model.AsrCalculationMethod) {
+        prayerSettingsRepository.setAsrMethod(method)
+        _uiState.value = _uiState.value.copy(asrMethod = method)
+        refreshPrayerTimes()
+    }
+
+    fun updateHighLatMethod(method: com.example.quranapp.domain.model.HighLatitudeMethod) {
+        prayerSettingsRepository.setHighLatitudeMethod(method)
+        _uiState.value = _uiState.value.copy(highLatMethod = method)
+        refreshPrayerTimes()
+    }
 }
 
 data class HomeUiState(
@@ -260,6 +294,10 @@ data class HomeUiState(
     val nextPrayer: PrayerTimeData? = null,
     val lastPrayer: PrayerTimeData? = null,
     val locationAddress: String? = null,
+    val showPrayerSettings: Boolean = false,
+    val calculationMethod: PrayerCalculationMethod = PrayerCalculationMethod.MWL,
+    val asrMethod: AsrCalculationMethod = AsrCalculationMethod.SHAFII,
+    val highLatMethod: HighLatitudeMethod = HighLatitudeMethod.ANGLE_BASED
 )
 
 data class PrayerTimeData(

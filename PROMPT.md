@@ -1,88 +1,155 @@
-## Improved prompt (clean and precise)
-
-> Create a **MoreScreen** that serves as a secondary navigation hub.
-> The screen should display a structured list of options including **Adhkar**, **Tasbih**, **Settings**, **Help**, and **About**.
-> Each item must be tappable and navigate to its corresponding screen using the app’s navigation system.
-
----
-
-## Enhanced version (better UX thinking)
-
-> Design and implement a **MoreScreen** as a secondary navigation area for non-core features.
-> The screen should present a vertically scrollable list grouped by purpose:
+> Implement Islamic prayer time calculations using geographic coordinates (latitude, longitude), date, timezone, and elevation. allow the user to choose from various established calculation methods and juristic options for Asr prayer. or use the location's default method based on country.
 >
-> **Worship Tools**
+> The system must support multiple **calculation methods** defined by solar depression angles:
 >
-> * Adhkar
-> * Tasbih
+> **Methods**
 >
-> **App & Support**
+> * Muslim World League (MWL): Fajr −18°, Isha −17°
+> * Egyptian Authority: Fajr −19.5°, Isha −17.5°
+> * Umm al-Qura (Makkah): Fajr −18.5°, Isha = Maghrib + 90 min (120 min in Ramadan)
+> * ISNA: Fajr −15°, Isha −15°
+> * Karachi: Fajr −18°, Isha −18°
 >
-> * Settings
-> * Help
-> * About
+> **Asr Juristic Methods**
 >
-> Each list item should include an icon, a title, and optional descriptive text, and should navigate to its respective screen when selected.
+> * Shafi’i/Maliki/Hanbali: shadow factor = 1
+> * Hanafi: shadow factor = 2
+>
+> **High-Latitude Adjustments**
+>
+> * Angle-based night portion
+> * Middle of the night
+> * One-seventh of the night
+>
+> **Calculation Rules**
+>
+> * Dhuhr = solar noon
+> * Sunrise/Sunset when sun altitude = −0.833°
+> * Maghrib = sunset
+> * Fajr/Isha when sun altitude reaches the method’s angle
+>
+> Provide clean, reusable functions and ensure correct handling of high latitudes and time zones.
 
 ---
 
-## Bright ideas to elevate the More screen
+## How These Methods Work (Engineering Explanation)
 
-### 1. Logical grouping (very important)
+### 1. Inputs (Required)
 
-Grouping improves clarity and reduces cognitive load:
-
-* **Ibadah**: Adhkar, Tasbih
-* **Application**: Settings
-* **Support & Info**: Help, About
-
-This mirrors how users *mentally classify* features.
+* Latitude, Longitude
+* Date
+* Timezone
+* Calculation method
+* Asr juristic method
 
 ---
 
-### 2. Add subtle contextual hints
+### 2. Astronomical Core (Shared by All Methods)
 
-Small subtitles increase discoverability:
+All methods rely on computing the **Sun’s position**:
 
-* **Adhkar** – Morning & evening remembrances
-* **Tasbih** – Digital counter for dhikr
-* **Settings** – Language, theme, notifications
-* **Help** – FAQs and guidance
-* **About** – App mission and version
+* **Solar Declination (δ)**
+  Angle between the Sun and Earth’s equator.
 
----
+* **Equation of Time (EoT)**
+  Corrects clock time to true solar time.
 
-### 3. Respect Islamic tone
+* **Solar Noon (Dhuhr)**
 
-* Use calm wording
-* Avoid clutter
-* Prefer simple icons (tasbih beads, book, info circle)
-* Neutral colors consistent with your app’s theme
+  ```
+  Dhuhr = 12:00 + timezone − longitude/15 − EoT
+  ```
 
----
-
-### 4. Optional but valuable additions
-
-If relevant to your app:
-
-* **Share the app**
-* **Feedback**
-* **Privacy Policy**
-* **Version number** at the bottom (small text)
+This is the anchor point for all other prayers.
 
 ---
 
-### 5. UX best practice
+### 3. Sunrise & Sunset
 
-* This screen **must not feel as important as Home**
-* No FAB
-* No heavy animations
-* Simple `LazyColumn` with clear separators
+Computed when:
+
+```
+Sun altitude = −0.833°
+```
+
+(The value accounts for atmospheric refraction and solar radius.)
+
+* **Sunrise** → start of daylight
+* **Sunset** → **Maghrib**
 
 ---
 
-## One-line design rule
+### 4. Fajr & Isha (Method-Dependent)
 
-**MoreScreen = utility, clarity, and calm.**
+Each method defines when twilight begins/ends using a **solar depression angle**:
 
-Remember to read how the apps navigation is structured to ensure seamless integration.
+```
+cos(H) = (sin(angle) − sin(lat)·sin(dec)) / (cos(lat)·cos(dec))
+```
+
+* **Fajr** → Sun reaches Fajr angle before sunrise
+* **Isha** → Sun reaches Isha angle after sunset
+
+Smaller angles = **later Fajr, earlier Isha**.
+
+---
+
+### 5. Asr (Fiqh-Based, Not Astronomical Angle)
+
+Asr is calculated using **shadow length**:
+
+```
+tan(altitude) = 1 / (factor + tan(|lat − declination|))
+```
+
+* Factor = 1 → Shafi’i, Maliki, Hanbali
+* Factor = 2 → Hanafi
+
+This makes Hanafi Asr later.
+
+---
+
+### 6. High-Latitude Handling (Critical)
+
+When Fajr or Isha **never occur** (e.g., near poles):
+
+* **Angle-Based:**
+
+  ```
+  NightPortion = angle / 60
+  ```
+* **Middle of Night:**
+  Night ÷ 2
+* **One-Seventh:**
+  Night ÷ 7
+
+Your app must apply one of these automatically when angles fail.
+
+---
+
+## Minimal Method Set You Should Support (Recommended)
+
+For a production app:
+
+1. **MWL** (global default)
+2. **Umm al-Qura** (Saudi users)
+3. **ISNA** (North America)
+4. **Egyptian** (Africa / Middle East)
+5. **Asr: Standard + Hanafi**
+6. **High-Latitude: Angle-Based**
+
+This covers **95% of users worldwide**.
+
+---
+
+## Architecture Tip (Clean Design)
+
+```kotlin
+data class CalculationMethod(
+    val fajrAngle: Double?,
+    val ishaAngle: Double?,
+    val ishaInterval: Int? // minutes after Maghrib
+)
+```
+
+Keep astronomy **separate** from fiqh logic.

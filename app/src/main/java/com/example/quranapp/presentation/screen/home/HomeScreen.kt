@@ -77,11 +77,25 @@ fun HomeScreen(
             PrayerTimesComponent(
                 uiState = uiState,
                 onRefresh = { viewModel.refreshPrayerTimes() },
+                onSettings = { viewModel.showPrayerSettings(true) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp)
             )
         }
+    }
+
+    // Prayer Settings Dialog
+    if (uiState.showPrayerSettings) {
+        PrayerSettingsDialog(
+            currentMethod = uiState.calculationMethod,
+            currentAsrMethod = uiState.asrMethod,
+            currentHighLatMethod = uiState.highLatMethod,
+            onMethodSelected = { viewModel.updateCalculationMethod(it) },
+            onAsrMethodSelected = { viewModel.updateAsrMethod(it) },
+            onHighLatMethodSelected = { viewModel.updateHighLatMethod(it) },
+            onDismiss = { viewModel.showPrayerSettings(false) }
+        )
     }
 }
 
@@ -328,6 +342,7 @@ fun PrayerTimesComponent(
     modifier: Modifier = Modifier,
     uiState: HomeUiState,
     onRefresh: () -> Unit = {},
+    onSettings: () -> Unit = {},
 ) {
     Column(
         modifier = modifier.fillMaxWidth()
@@ -346,29 +361,46 @@ fun PrayerTimesComponent(
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            // Location indicator
-            if (uiState.currentLocation != null || uiState.locationAddress != null) {
-                Surface(
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    modifier = Modifier.padding(horizontal = 8.dp)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Settings button
+                IconButton(
+                    onClick = { onSettings() },
+                    modifier = Modifier.size(36.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "Prayer Settings",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                // Location indicator
+                if (uiState.currentLocation != null || uiState.locationAddress != null) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primaryContainer
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = "Location",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Text(
-                            text = uiState.locationAddress ?: uiState.currentLocation.toString(),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
+                        Row(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.LocationOn,
+                                contentDescription = "Location",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = uiState.locationAddress ?: uiState.currentLocation.toString(),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
                     }
                 }
             }
