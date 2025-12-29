@@ -12,7 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.quranapp.presentation.screen.about.AboutScreen
-import com.example.quranapp.presentation.screen.adkar.AdkarScreen
+import com.example.quranapp.presentation.screen.adhkar.AdhkarScreen
 import com.example.quranapp.presentation.screen.help.HelpScreen
 import com.example.quranapp.presentation.screen.main.MainScreen
 import com.example.quranapp.presentation.screen.permission.PermissionScreen
@@ -62,7 +62,10 @@ fun RootNavigationGraph(
             PrayerTimesScreen()
         }
         composable(route = Screen.AdkarRoute.route) {
-            AdkarScreen()
+            AdhkarScreen(
+                innerPadding = PaddingValues(0.dp),
+                onNavigateBack = { navHostController.popBackStack() }
+            )
         }
         composable(route = Screen.TasbihRoute.route) {
             TasbihScreen(
