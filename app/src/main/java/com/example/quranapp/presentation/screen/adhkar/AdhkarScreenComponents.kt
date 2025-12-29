@@ -224,7 +224,8 @@ fun DhikrCard(
                     .fillMaxWidth()
                     .padding(20.dp)
                     .background(color = Color.Transparent),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Dhikr text
                 Text(
