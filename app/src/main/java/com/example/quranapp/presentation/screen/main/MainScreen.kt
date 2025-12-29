@@ -35,6 +35,7 @@ fun MainScreen(
         MainNavGraph(
             navController = navController,
             innerPadding = innerPadding,
+            rootNavController = rootNavController,
             onNavigateToSurahReading = { surahId ->
                 rootNavController.navigate(Screen.SurahReadingRoute.createRoute(surahId))
             }

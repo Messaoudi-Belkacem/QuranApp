@@ -3,19 +3,24 @@ package com.example.quranapp.presentation.navigation
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.quranapp.presentation.screen.about.AboutScreen
 import com.example.quranapp.presentation.screen.adkar.AdkarScreen
+import com.example.quranapp.presentation.screen.help.HelpScreen
 import com.example.quranapp.presentation.screen.main.MainScreen
 import com.example.quranapp.presentation.screen.permission.PermissionScreen
 import com.example.quranapp.presentation.screen.prayertimes.PrayerTimesScreen
 import com.example.quranapp.presentation.screen.quran.QuranScreen
 import com.example.quranapp.presentation.screen.settings.SettingsScreen
 import com.example.quranapp.presentation.screen.surah.SurahReadingScreen
+import com.example.quranapp.presentation.screen.tasbih.TasbihScreen
 
 @Composable
 fun RootNavigationGraph(
@@ -59,8 +64,23 @@ fun RootNavigationGraph(
         composable(route = Screen.AdkarRoute.route) {
             AdkarScreen()
         }
+        composable(route = Screen.TasbihRoute.route) {
+            TasbihScreen(
+                innerPadding = PaddingValues(0.dp)
+            )
+        }
         composable(route = Screen.SettingsRoute.route) {
             SettingsScreen()
+        }
+        composable(route = Screen.HelpRoute.route) {
+            HelpScreen(
+                onBackClick = { navHostController.popBackStack() }
+            )
+        }
+        composable(route = Screen.AboutRoute.route) {
+            AboutScreen(
+                onBackClick = { navHostController.popBackStack() }
+            )
         }
         composable(route = Screen.MainRoute.route) {
             MainScreen(rootNavController = navHostController)

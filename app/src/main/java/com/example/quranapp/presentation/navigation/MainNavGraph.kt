@@ -14,6 +14,7 @@ import com.example.quranapp.presentation.screen.quran.QuranScreen
 fun MainNavGraph(
     navController: NavHostController,
     innerPadding: PaddingValues,
+    rootNavController: NavHostController,
     onNavigateToSurahReading: (Int) -> Unit = {},
 ) {
     NavHost(
@@ -40,7 +41,8 @@ fun MainNavGraph(
         }
         composable(route = Screen.MoreRoute.route) {
             MoreScreen(
-                innerPadding = innerPadding
+                innerPadding = innerPadding,
+                navController = rootNavController
             )
         }
     }

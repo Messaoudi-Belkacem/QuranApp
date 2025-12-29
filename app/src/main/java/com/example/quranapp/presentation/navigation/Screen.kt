@@ -42,6 +42,8 @@ sealed class Screen(val route: String, val title: String, val icon: Int? = null)
     data object PrayerTimesRoute : Screen(route = "prayer_times_screen", title = "")
     data object AdkarRoute : Screen(route = "adkar_screen", title = "")
     data object SettingsRoute : Screen(route = "settings_screen", title = "")
+    data object HelpRoute : Screen(route = "help_screen", title = "")
+    data object AboutRoute : Screen(route = "about_screen", title = "")
 
     data object MainRoute : Screen(route = "main_screen", title = "Main")
 
