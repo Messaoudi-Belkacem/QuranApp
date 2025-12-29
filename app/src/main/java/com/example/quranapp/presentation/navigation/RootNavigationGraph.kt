@@ -66,7 +66,8 @@ fun RootNavigationGraph(
         }
         composable(route = Screen.TasbihRoute.route) {
             TasbihScreen(
-                innerPadding = PaddingValues(0.dp)
+                innerPadding = PaddingValues(0.dp),
+                onNavigateBack = { navHostController.popBackStack() }
             )
         }
         composable(route = Screen.SettingsRoute.route) {

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,6 +46,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 fun TasbihScreen(
     viewModel: TasbihViewModel = hiltViewModel(),
     innerPadding: PaddingValues,
+    onNavigateBack: () -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -66,6 +68,7 @@ fun TasbihScreen(
     Scaffold(
         topBar = {
             TasbihTopAppBar(
+                onNavigateBack = onNavigateBack,
                 onResetClick = { viewModel.showResetDialog(true) },
                 onSettingsClick = { viewModel.showSettingsDialog(true) }
             )
@@ -179,10 +182,20 @@ fun TasbihScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TasbihTopAppBar(
+    onNavigateBack: () -> Unit,
     onResetClick: () -> Unit,
     onSettingsClick: () -> Unit,
 ) {
     TopAppBar(
+        navigationIcon = {
+            IconButton(onClick = onNavigateBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+        },
         title = {
             Text(
                 text = "Tasbih",
