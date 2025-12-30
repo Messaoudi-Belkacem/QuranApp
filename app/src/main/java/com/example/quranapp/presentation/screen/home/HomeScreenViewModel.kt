@@ -10,7 +10,6 @@ import com.example.quranapp.domain.model.AsrCalculationMethod
 import com.example.quranapp.domain.model.HighLatitudeMethod
 import com.example.quranapp.domain.model.PrayerCalculationMethod
 import com.example.quranapp.util.LocationHelper
-import com.example.quranapp.util.PrayerTimeCalculator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +17,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
@@ -164,45 +162,57 @@ class HomeScreenViewModel @Inject constructor(
             val asrMethod = _uiState.value.asrMethod
             val highLatMethod = _uiState.value.highLatMethod
 
-            Log.d(tag, "Using calculation method: ${calculationMethod.displayName}, Asr: ${asrMethod.displayName}")
+            Log.d(
+                tag,
+                "Using Adhan library with method: ${calculationMethod.displayName}, Asr: ${asrMethod.displayName}"
+            )
 
-            // Get timezone offset
-            val now = Date()
-            val calendar = Calendar.getInstance().apply { time = now }
-            val offsetMillis = calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET)
-            val timezone = offsetMillis / (1000.0 * 60 * 60) // Convert to hours
-
-            // Create calculator with user preferences
-            val calculator = PrayerTimeCalculator(
+            // Create Adhan calculator with user preferences
+            val calculator = com.example.quranapp.util.AdhanPrayerTimeCalculator(
                 latitude = latitude,
                 longitude = longitude,
-                timezone = timezone,
                 calculationMethod = calculationMethod,
                 asrMethod = asrMethod,
                 highLatMethod = highLatMethod
             )
 
-            // Calculate prayer times
+            // Calculate prayer times using Adhan library
+            val now = Date()
             val prayerTimesMap = calculator.getPrayerTimes(now)
 
             // Convert to list format
             val prayers = listOf(
                 PrayerTimeData("Fajr", formatTime(prayerTimesMap["Fajr"]), prayerTimesMap["Fajr"]),
-                PrayerTimeData("Sunrise", formatTime(prayerTimesMap["Sunrise"]), prayerTimesMap["Sunrise"]),
-                PrayerTimeData("Dhuhr", formatTime(prayerTimesMap["Dhuhr"]), prayerTimesMap["Dhuhr"]),
+                PrayerTimeData(
+                    "Sunrise",
+                    formatTime(prayerTimesMap["Sunrise"]),
+                    prayerTimesMap["Sunrise"]
+                ),
+                PrayerTimeData(
+                    "Dhuhr",
+                    formatTime(prayerTimesMap["Dhuhr"]),
+                    prayerTimesMap["Dhuhr"]
+                ),
                 PrayerTimeData("Asr", formatTime(prayerTimesMap["Asr"]), prayerTimesMap["Asr"]),
-                PrayerTimeData("Maghrib", formatTime(prayerTimesMap["Maghrib"]), prayerTimesMap["Maghrib"]),
+                PrayerTimeData(
+                    "Maghrib",
+                    formatTime(prayerTimesMap["Maghrib"]),
+                    prayerTimesMap["Maghrib"]
+                ),
                 PrayerTimeData("Isha", formatTime(prayerTimesMap["Isha"]), prayerTimesMap["Isha"])
             )
 
             // Calculate next and previous prayers
             calculateNextAndPreviousPrayers(prayers)
 
-            Log.d(tag, "Prayer times calculated successfully using ${calculationMethod.displayName}")
+            Log.d(
+                tag,
+                "Prayer times calculated successfully using Adhan library with ${calculationMethod.displayName}"
+            )
             prayers
 
         } catch (e: Exception) {
-            Log.e(tag, "Error calculating prayer times", e)
+            Log.e(tag, "Error calculating prayer times with Adhan library", e)
             generateMockPrayerTimes()
         }
     }

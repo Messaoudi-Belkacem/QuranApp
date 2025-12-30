@@ -135,6 +135,10 @@ dependencies {
     // Google Play Services Location
     implementation(libs.play.services.location)
 
+    // Adhan library for accurate prayer times
+    implementation("com.batoulapps.adhan:adhan2:0.0.6")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
+
     // Muslim Data
     implementation("dev.kosrat:muslimdata:2.7.1")
 }
