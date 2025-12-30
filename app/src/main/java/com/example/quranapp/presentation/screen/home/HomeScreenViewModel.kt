@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
@@ -153,7 +154,7 @@ class HomeScreenViewModel @Inject constructor(
         }
     }
 
-    private suspend fun calculatePrayerTimes(
+    private fun calculatePrayerTimes(
         latitude: Double,
         longitude: Double,
     ): List<PrayerTimeData> {
@@ -167,7 +168,9 @@ class HomeScreenViewModel @Inject constructor(
 
             // Get timezone offset
             val now = Date()
-            val timezone = PrayerTimeCalculator.getTimezoneOffset(now)
+            val calendar = Calendar.getInstance().apply { time = now }
+            val offsetMillis = calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET)
+            val timezone = offsetMillis / (1000.0 * 60 * 60) // Convert to hours
 
             // Create calculator with user preferences
             val calculator = PrayerTimeCalculator(
@@ -260,21 +263,21 @@ class HomeScreenViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(showPrayerSettings = show)
     }
 
-    fun updateCalculationMethod(method: com.example.quranapp.domain.model.PrayerCalculationMethod) {
+    fun updateCalculationMethod(method: PrayerCalculationMethod) {
         prayerSettingsRepository.setCalculationMethod(method)
         _uiState.value = _uiState.value.copy(calculationMethod = method)
         // Recalculate immediately without showing loading spinner
         recalculatePrayerTimes()
     }
 
-    fun updateAsrMethod(method: com.example.quranapp.domain.model.AsrCalculationMethod) {
+    fun updateAsrMethod(method: AsrCalculationMethod) {
         prayerSettingsRepository.setAsrMethod(method)
         _uiState.value = _uiState.value.copy(asrMethod = method)
         // Recalculate immediately without showing loading spinner
         recalculatePrayerTimes()
     }
 
-    fun updateHighLatMethod(method: com.example.quranapp.domain.model.HighLatitudeMethod) {
+    fun updateHighLatMethod(method: HighLatitudeMethod) {
         prayerSettingsRepository.setHighLatitudeMethod(method)
         _uiState.value = _uiState.value.copy(highLatMethod = method)
         // Recalculate immediately without showing loading spinner
