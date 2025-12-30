@@ -70,11 +70,11 @@ class PrayerTimeCalculator(
     }
 
     private fun midDay(): Double {
-        return fixHour(12.0 - equationOfTime(jDate))
+        return fixHour(12.0 - equationOfTime(jDate + 0.5))
     }
 
     private fun sunAngleTime(angle: Double, beforeNoon: Boolean): Double {
-        val decl = sunDeclination(jDate)
+        val decl = sunDeclination(jDate + 0.5)
         val noon = midDay()
 
         val cosH = (
@@ -89,7 +89,7 @@ class PrayerTimeCalculator(
     }
 
     private fun asrTime(): Double {
-        val decl = sunDeclination(jDate)
+        val decl = sunDeclination(jDate + 0.5)
         val factor = asrMethod.shadowFactor
         val angle = arccot(factor + tan(deg2rad(abs(latitude - decl))))
         return sunAngleTime(angle, false)
