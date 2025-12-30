@@ -10,6 +10,7 @@ import com.example.quranapp.domain.model.AsrCalculationMethod
 import com.example.quranapp.domain.model.HighLatitudeMethod
 import com.example.quranapp.domain.model.PrayerCalculationMethod
 import com.example.quranapp.util.LocationHelper
+import com.example.quranapp.util.PrayerTimeCalculator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -166,10 +167,10 @@ class HomeScreenViewModel @Inject constructor(
 
             // Get timezone offset
             val now = Date()
-            val timezone = com.example.quranapp.util.PrayerTimeCalculator.getTimezoneOffset(now)
+            val timezone = PrayerTimeCalculator.getTimezoneOffset(now)
 
             // Create calculator with user preferences
-            val calculator = com.example.quranapp.util.PrayerTimeCalculator(
+            val calculator = PrayerTimeCalculator(
                 latitude = latitude,
                 longitude = longitude,
                 timezone = timezone,
