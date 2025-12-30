@@ -135,6 +135,9 @@ dependencies {
     // Google Play Services Location
     implementation(libs.play.services.location)
 
+    // WorkManager for widget updates
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+
     // Adhan library for accurate prayer times
     implementation("com.batoulapps.adhan:adhan2:0.0.6")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")

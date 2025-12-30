@@ -327,6 +327,17 @@ class HomeScreenViewModel @Inject constructor(
             }
         }
     }
+
+    /**
+     * Update home screen widget with latest prayer times
+     */
+    private fun updateWidget() {
+        try {
+            com.example.quranapp.widget.PrayerTimesWidgetProvider.requestWidgetUpdate(context)
+        } catch (e: Exception) {
+            Log.e(tag, "Error updating widget", e)
+        }
+    }
 }
 
 data class HomeUiState(

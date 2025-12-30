@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Muwahid</string>
+    <string name="widget_description">Shows time remaining until next prayer and time passed since last prayer</string>
 </resources>
