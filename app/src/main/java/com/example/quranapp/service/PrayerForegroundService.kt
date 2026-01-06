@@ -5,9 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
-import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -19,10 +17,13 @@ import com.example.quranapp.data.repository.PrayerSettingsRepository
 import com.example.quranapp.data.repository.QuranRepository
 import com.example.quranapp.util.AdhanPrayerTimeCalculator
 import dagger.hilt.android.AndroidEntryPoint
-import java.text.SimpleDateFormat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.Date
-import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -49,16 +50,17 @@ class PrayerForegroundService : Service() {
     private lateinit var updateRunnable: Runnable
     private var isRunning = false
 
+    // Coroutine scope for async operations
+    private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
+
     companion object {
         private const val TAG = "PrayerForegroundService"
         private const val NOTIFICATION_ID = 1001
         private const val CHANNEL_ID = "prayer_countdown_channel"
         private const val CHANNEL_NAME = "Prayer Time Countdown"
 
-        // Update intervals
+        // Update interval
         private const val UPDATE_INTERVAL_NORMAL = 60_000L // 1 minute
-        private const val UPDATE_INTERVAL_NEAR = 30_000L // 30 seconds when < 10 minutes
-        private const val NEAR_PRAYER_THRESHOLD_MINUTES = 10
     }
 
     override fun onCreate() {
@@ -88,6 +90,7 @@ class PrayerForegroundService : Service() {
         Log.d(TAG, "Service destroyed")
         isRunning = false
         handler.removeCallbacks(updateRunnable)
+        serviceScope.cancel() // Cancel all coroutines
         super.onDestroy()
     }
 
@@ -99,41 +102,32 @@ class PrayerForegroundService : Service() {
             }
         }
 
-        // Calculate update interval based on remaining time
-        val updateInterval = calculateUpdateInterval()
-        handler.postDelayed(updateRunnable, updateInterval)
-    }
-
-    private fun calculateUpdateInterval(): Long {
-        val nextPrayer = getNextPrayerInfo()
-        val remainingMinutes = nextPrayer.second / 60_000 // Convert ms to minutes
-
-        return if (remainingMinutes <= NEAR_PRAYER_THRESHOLD_MINUTES) {
-            UPDATE_INTERVAL_NEAR
-        } else {
-            UPDATE_INTERVAL_NORMAL
-        }
+        // Use normal update interval - the notification will show accurate time regardless
+        handler.postDelayed(updateRunnable, UPDATE_INTERVAL_NORMAL)
     }
 
     private fun updateNotification() {
-        try {
-            val nextPrayer = getNextPrayerInfo()
-            val prayerName = nextPrayer.first
-            val remainingTime = formatRemainingTime(nextPrayer.second)
+        serviceScope.launch {
+            try {
+                val nextPrayer = getNextPrayerInfo()
+                val prayerName = nextPrayer.first
+                val remainingTime = formatRemainingTime(nextPrayer.second)
 
-            val text = if (prayerName.isNotEmpty()) {
-                "Next prayer: $prayerName in $remainingTime"
-            } else {
-                "Calculating next prayer..."
+                val text = if (prayerName.isNotEmpty()) {
+                    "Next prayer: $prayerName in $remainingTime"
+                } else {
+                    "Calculating next prayer..."
+                }
+
+                val notification = buildNotification(text)
+                val notificationManager =
+                    getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.notify(NOTIFICATION_ID, notification)
+
+                Log.d(TAG, "Notification updated: $text")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error updating notification", e)
             }
-
-            val notification = buildNotification(text)
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.notify(NOTIFICATION_ID, notification)
-
-            Log.d(TAG, "Notification updated: $text")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error updating notification", e)
         }
     }
 
@@ -141,7 +135,7 @@ class PrayerForegroundService : Service() {
      * Get next prayer info
      * @return Pair of (prayer name, remaining time in milliseconds)
      */
-    private fun getNextPrayerInfo(): Pair<String, Long> {
+    private suspend fun getNextPrayerInfo(): Pair<String, Long> {
         try {
             // Get current location
             val location = quranRepository.getCurrentLocation() ?: return Pair("", 0L)
@@ -240,21 +234,20 @@ class PrayerForegroundService : Service() {
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_LOW // Low importance = no sound/vibration
-            ).apply {
-                description = "This notification stays visible to continuously show the remaining time until the next prayer."
-                setShowBadge(false)
-            }
-
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-
-            Log.d(TAG, "Notification channel created")
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_LOW // Low importance = no sound/vibration
+        ).apply {
+            description =
+                "This notification stays visible to continuously show the remaining time until the next prayer."
+            setShowBadge(false)
         }
+
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+
+        Log.d(TAG, "Notification channel created")
     }
 }
 
