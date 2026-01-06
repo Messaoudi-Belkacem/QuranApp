@@ -24,6 +24,7 @@ class PrayerSettingsRepository @Inject constructor(
         private const val KEY_ASR_METHOD = "asr_method"
         private const val KEY_HIGH_LAT_METHOD = "high_latitude_method"
         private const val KEY_COUNTRY_CODE = "country_code"
+        private const val KEY_NOTIFICATION_ENABLED = "prayer_notification_enabled"
     }
 
     /**
@@ -115,5 +116,18 @@ class PrayerSettingsRepository @Inject constructor(
     fun resetToDefaults() {
         prefs.edit().clear().apply()
     }
-}
 
+    /**
+     * Check if prayer countdown notification is enabled
+     */
+    fun isPrayerNotificationEnabled(): Boolean {
+        return prefs.getBoolean(KEY_NOTIFICATION_ENABLED, false)
+    }
+
+    /**
+     * Set prayer countdown notification enabled state
+     */
+    fun setPrayerNotificationEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_NOTIFICATION_ENABLED, enabled).apply()
+    }
+}

@@ -94,7 +94,8 @@ fun HomeScreen(
             onMethodSelected = { viewModel.updateCalculationMethod(it) },
             onAsrMethodSelected = { viewModel.updateAsrMethod(it) },
             onHighLatMethodSelected = { viewModel.updateHighLatMethod(it) },
-            onDismiss = { viewModel.showPrayerSettings(false) }
+            onDismiss = { viewModel.showPrayerSettings(false) },
+            prayerSettingsRepository = viewModel.getPrayerSettingsRepository()
         )
     }
 }

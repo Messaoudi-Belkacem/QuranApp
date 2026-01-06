@@ -94,6 +94,9 @@ dependencies {
     // System UI controller
     implementation(libs.accompanist.systemuicontroller)
 
+    // Accompanist Permissions
+    implementation(libs.accompanist.permissions)
+
     // Compose navigation
     implementation(libs.androidx.navigation.compose)
 

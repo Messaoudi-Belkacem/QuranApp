@@ -59,9 +59,10 @@ fun PrayerSettingsDialog(
     onAsrMethodSelected: (AsrCalculationMethod) -> Unit,
     onHighLatMethodSelected: (HighLatitudeMethod) -> Unit,
     onDismiss: () -> Unit,
+    prayerSettingsRepository: com.example.quranapp.data.repository.PrayerSettingsRepository,
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Method", "Asr", "High Lat")
+    val tabs = listOf("Method", "Asr", "High Lat", "Notif")
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -141,6 +142,14 @@ fun PrayerSettingsDialog(
                                 }
                             }
                         )
+
+                        3 -> Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            PrayerNotificationToggle(
+                                prayerSettingsRepository = prayerSettingsRepository
+                            )
+                        }
                     }
 
                     // Snackbar for feedback

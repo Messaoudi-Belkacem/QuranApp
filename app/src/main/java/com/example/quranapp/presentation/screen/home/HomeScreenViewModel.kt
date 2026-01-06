@@ -338,6 +338,13 @@ class HomeScreenViewModel @Inject constructor(
             Log.e(tag, "Error updating widget", e)
         }
     }
+
+    /**
+     * Expose prayer settings repository for notification toggle
+     */
+    fun getPrayerSettingsRepository(): PrayerSettingsRepository {
+        return prayerSettingsRepository
+    }
 }
 
 data class HomeUiState(
