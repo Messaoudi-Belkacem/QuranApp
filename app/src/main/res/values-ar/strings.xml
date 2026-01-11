@@ -33,5 +33,13 @@
     <string name="asr_prayer">صلاة العصر</string>
     <string name="maghrib_prayer">صلاة المغرب</string>
     <string name="isha_prayer">صلاة العشاء</string>
+
+    <!-- Navigation Screen Titles -->
+    <string name="home">الرئيسية</string>
+    <string name="quran">القرآن</string>
+    <string name="qibla">القبلة</string>
+    <string name="tasbih">التسبيح</string>
+    <string name="more">المزيد</string>
+    <string name="main">الرئيسية</string>
 </resources>
 

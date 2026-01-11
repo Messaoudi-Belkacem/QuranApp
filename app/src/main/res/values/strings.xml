@@ -32,4 +32,12 @@
     <string name="asr_prayer">Asr prayer</string>
     <string name="maghrib_prayer">Maghrib prayer</string>
     <string name="isha_prayer">Isha prayer</string>
+
+    <!-- Navigation Screen Titles -->
+    <string name="home">Home</string>
+    <string name="quran">Quran</string>
+    <string name="qibla">Qibla</string>
+    <string name="tasbih">Tasbih</string>
+    <string name="more">More</string>
+    <string name="main">Main</string>
 </resources>
