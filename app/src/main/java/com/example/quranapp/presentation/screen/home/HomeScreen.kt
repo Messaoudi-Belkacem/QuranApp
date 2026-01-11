@@ -17,10 +17,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.quranapp.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -156,12 +158,12 @@ fun PrayerTimeProgress(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = uiState.lastPrayer.name,
+                            text = getLocalizedPrayerName(uiState.lastPrayer.name),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = uiState.nextPrayer.name,
+                            text = getLocalizedPrayerName(uiState.nextPrayer.name),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -187,18 +189,18 @@ fun PrayerTimeProgress(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Next Prayer",
+                            text = stringResource(R.string.next_prayer),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = uiState.nextPrayer.name,
+                            text = getLocalizedPrayerName(uiState.nextPrayer.name),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Text(
-                            text = "at ${uiState.nextPrayer.time}",
+                            text = "${stringResource(R.string.at)} ${uiState.nextPrayer.time}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -211,7 +213,7 @@ fun PrayerTimeProgress(
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = "remaining",
+                            text = stringResource(R.string.remaining),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -237,18 +239,18 @@ fun PrayerTimeProgress(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Last Prayer",
+                            text = stringResource(R.string.last_prayer),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = uiState.lastPrayer.name,
+                            text = getLocalizedPrayerName(uiState.lastPrayer.name),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                         Text(
-                            text = "at ${uiState.lastPrayer.time}",
+                            text = "${stringResource(R.string.at)} ${uiState.lastPrayer.time}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -261,7 +263,7 @@ fun PrayerTimeProgress(
                             color = MaterialTheme.colorScheme.secondary
                         )
                         Text(
-                            text = "passed",
+                            text = stringResource(R.string.passed),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -282,6 +284,19 @@ private fun formatTimeDifference(millisDiff: Long): String {
         hours > 0 -> String.format(Locale.getDefault(), "%dh %02dm", hours, minutes)
         minutes > 0 -> String.format(Locale.getDefault(), "%dm %02ds", minutes, seconds)
         else -> String.format(Locale.getDefault(), "%ds", seconds)
+    }
+}
+
+@Composable
+private fun getLocalizedPrayerName(prayerName: String): String {
+    return when (prayerName) {
+        "Fajr" -> stringResource(R.string.fajr)
+        "Sunrise" -> stringResource(R.string.sunrise)
+        "Dhuhr" -> stringResource(R.string.dhuhr)
+        "Asr" -> stringResource(R.string.asr)
+        "Maghrib" -> stringResource(R.string.maghrib)
+        "Isha" -> stringResource(R.string.isha)
+        else -> prayerName
     }
 }
 
@@ -356,7 +371,7 @@ fun PrayerTimesComponent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Prayer Times",
+                text = stringResource(R.string.prayer_times),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -373,7 +388,7 @@ fun PrayerTimesComponent(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Settings,
-                        contentDescription = "Prayer Settings",
+                        contentDescription = stringResource(R.string.prayer_settings),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp)
                     )
@@ -392,7 +407,7 @@ fun PrayerTimesComponent(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.LocationOn,
-                                contentDescription = "Location",
+                                contentDescription = stringResource(R.string.location),
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(16.dp)
                             )
@@ -424,7 +439,7 @@ fun PrayerTimesComponent(
                             strokeWidth = 3.dp
                         )
                         Text(
-                            text = "Loading prayer times...",
+                            text = stringResource(R.string.loading_prayer_times),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -442,7 +457,7 @@ fun PrayerTimesComponent(
                 ) {
                     Icon(
                         imageVector = Icons.Default.ErrorOutline,
-                        contentDescription = "Error",
+                        contentDescription = stringResource(R.string.error),
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(48.dp)
                     )
@@ -462,7 +477,7 @@ fun PrayerTimesComponent(
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Retry")
+                        Text(stringResource(R.string.retry))
                     }
                 }
             }
@@ -486,6 +501,9 @@ fun PrayerTimesComponent(
 fun PrayerTimeItem(
     prayerTimeData: PrayerTimeData,
 ) {
+    // Get localized prayer name
+    val localizedName = getLocalizedPrayerName(prayerTimeData.name)
+
     // Map prayer names to icons
     val icon = when (prayerTimeData.name) {
         "Fajr" -> Icons.Default.WbTwilight
@@ -495,6 +513,17 @@ fun PrayerTimeItem(
         "Maghrib" -> Icons.Default.WbShade
         "Isha" -> Icons.Default.NightsStay
         else -> Icons.Default.WbSunny
+    }
+
+    // Get content description
+    val contentDesc = when (prayerTimeData.name) {
+        "Fajr" -> stringResource(R.string.fajr_prayer)
+        "Sunrise" -> stringResource(R.string.sunrise_prayer)
+        "Dhuhr" -> stringResource(R.string.dhuhr_prayer)
+        "Asr" -> stringResource(R.string.asr_prayer)
+        "Maghrib" -> stringResource(R.string.maghrib_prayer)
+        "Isha" -> stringResource(R.string.isha_prayer)
+        else -> prayerTimeData.name
     }
 
     Card(
@@ -514,13 +543,13 @@ fun PrayerTimeItem(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = "${prayerTimeData.name} prayer",
+                contentDescription = contentDesc,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(32.dp)
             )
 
             Text(
-                text = prayerTimeData.name,
+                text = localizedName,
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface

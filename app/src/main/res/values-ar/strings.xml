@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">موحد</string>
+    <string name="widget_description">يعرض الوقت المتبقي حتى الصلاة التالية والوقت الذي مضى منذ الصلاة الأخيرة</string>
+
+    <!-- Home Screen -->
+    <string name="prayer_times">أوقات الصلاة</string>
+    <string name="prayer_settings">إعدادات الصلاة</string>
+    <string name="location">الموقع</string>
+    <string name="loading_prayer_times">جاري تحميل أوقات الصلاة…</string>
+    <string name="retry">إعادة المحاولة</string>
+    <string name="error">خطأ</string>
+
+    <!-- Prayer Time Progress -->
+    <string name="next_prayer">الصلاة القادمة</string>
+    <string name="last_prayer">الصلاة الأخيرة</string>
+    <string name="remaining">متبقي</string>
+    <string name="passed">مضى</string>
+    <string name="at">في</string>
+
+    <!-- Prayer Names -->
+    <string name="fajr">الفجر</string>
+    <string name="sunrise">الشروق</string>
+    <string name="dhuhr">الظهر</string>
+    <string name="asr">العصر</string>
+    <string name="maghrib">المغرب</string>
+    <string name="isha">العشاء</string>
+
+    <!-- Content Descriptions -->
+    <string name="fajr_prayer">صلاة الفجر</string>
+    <string name="sunrise_prayer">الشروق</string>
+    <string name="dhuhr_prayer">صلاة الظهر</string>
+    <string name="asr_prayer">صلاة العصر</string>
+    <string name="maghrib_prayer">صلاة المغرب</string>
+    <string name="isha_prayer">صلاة العشاء</string>
+</resources>
+

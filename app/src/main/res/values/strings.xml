@@ -1,4 +1,35 @@
 <resources>
     <string name="app_name">Muwahid</string>
     <string name="widget_description">Shows time remaining until next prayer and time passed since last prayer</string>
+
+    <!-- Home Screen -->
+    <string name="prayer_times">Prayer Times</string>
+    <string name="prayer_settings">Prayer Settings</string>
+    <string name="location">Location</string>
+    <string name="loading_prayer_times">Loading prayer times…</string>
+    <string name="retry">Retry</string>
+    <string name="error">Error</string>
+
+    <!-- Prayer Time Progress -->
+    <string name="next_prayer">Next Prayer</string>
+    <string name="last_prayer">Last Prayer</string>
+    <string name="remaining">remaining</string>
+    <string name="passed">passed</string>
+    <string name="at">at</string>
+
+    <!-- Prayer Names -->
+    <string name="fajr">Fajr</string>
+    <string name="sunrise">Sunrise</string>
+    <string name="dhuhr">Dhuhr</string>
+    <string name="asr">Asr</string>
+    <string name="maghrib">Maghrib</string>
+    <string name="isha">Isha</string>
+
+    <!-- Content Descriptions -->
+    <string name="fajr_prayer">Fajr prayer</string>
+    <string name="sunrise_prayer">Sunrise</string>
+    <string name="dhuhr_prayer">Dhuhr prayer</string>
+    <string name="asr_prayer">Asr prayer</string>
+    <string name="maghrib_prayer">Maghrib prayer</string>
+    <string name="isha_prayer">Isha prayer</string>
 </resources>
