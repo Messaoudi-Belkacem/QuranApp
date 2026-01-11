@@ -102,4 +102,41 @@
     <string name="auto_reset_description">Reset counter when target is reached</string>
     <string name="custom_target">Custom Target</string>
     <string name="save">Save</string>
+
+    <!-- About Screen -->
+    <string name="about_title">About</string>
+    <string name="app_icon">App Icon</string>
+    <string name="quran_app">Quran App</string>
+    <string name="version">Version 1.0.0</string>
+    <string name="mission">Mission</string>
+    <string name="mission_text">Our mission is to provide Muslims worldwide with a comprehensive and accessible tool for their daily worship. This app brings together essential Islamic resources including the Holy Quran, prayer times, Qibla direction, and daily Adhkar.</string>
+    <string name="features">Features</string>
+    <string name="quran_reading">Quran Reading</string>
+    <string name="quran_reading_desc">Read the complete Holy Quran with easy navigation</string>
+    <string name="prayer_times_feature">Prayer Times</string>
+    <string name="prayer_times_desc">Accurate prayer times based on your location</string>
+    <string name="qibla_direction_feature">Qibla Direction</string>
+    <string name="qibla_direction_desc">Find the direction of Kaaba from anywhere</string>
+    <string name="tasbih_counter">Tasbih Counter</string>
+    <string name="tasbih_counter_desc">Digital counter for your daily dhikr</string>
+    <string name="daily_adhkar">Daily Adhkar</string>
+    <string name="daily_adhkar_desc">Morning and evening remembrances</string>
+    <string name="may_allah_accept">May Allah accept from us and from you</string>
+    <string name="copyright">© 2025 Quran App. All rights reserved.</string>
+
+    <!-- Help Screen -->
+    <string name="help_title">Help</string>
+    <string name="faq">Frequently Asked Questions</string>
+    <string name="qibla_question">How do I find the Qibla direction?</string>
+    <string name="qibla_answer">Navigate to the Qibla tab from the bottom navigation bar. The compass will automatically point towards the Qibla direction. Make sure to allow location permissions for accurate results.</string>
+    <string name="prayer_times_question">How do prayer times work?</string>
+    <string name="prayer_times_answer">Prayer times are calculated based on your current location. Ensure location permissions are granted for accurate prayer time calculations.</string>
+    <string name="tasbih_question">How do I use the Tasbih counter?</string>
+    <string name="tasbih_answer">Go to the Tasbih screen from the More menu. Tap the center to increment the count. You can reset the counter using the reset button.</string>
+    <string name="quran_question">How do I read the Quran?</string>
+    <string name="quran_answer">Navigate to the Quran tab, browse through the list of Surahs, and tap on any Surah to start reading. You can search for specific Ayahs within each Surah.</string>
+    <string name="adhkar_question">What are Adhkar?</string>
+    <string name="adhkar_answer">Adhkar are remembrances and supplications. Access them from the More menu to view morning and evening dhikr.</string>
+    <string name="need_more_help">Need More Help?</string>
+    <string name="contact_support">If you have additional questions or need support, please contact us through the About section.</string>
 </resources>

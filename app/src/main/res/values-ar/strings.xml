@@ -103,5 +103,42 @@
     <string name="auto_reset_description">إعادة تعيين العداد عند الوصول إلى الهدف</string>
     <string name="custom_target">هدف مخصص</string>
     <string name="save">حفظ</string>
+
+    <!-- About Screen -->
+    <string name="about_title">حول</string>
+    <string name="app_icon">أيقونة التطبيق</string>
+    <string name="quran_app">تطبيق القرآن</string>
+    <string name="version">الإصدار 1.0.0</string>
+    <string name="mission">المهمة</string>
+    <string name="mission_text">مهمتنا هي تزويد المسلمين في جميع أنحاء العالم بأداة شاملة ومتاحة لعبادتهم اليومية. يجمع هذا التطبيق الموارد الإسلامية الأساسية بما في ذلك القرآن الكريم وأوقات الصلاة واتجاه القبلة والأذكار اليومية.</string>
+    <string name="features">المميزات</string>
+    <string name="quran_reading">قراءة القرآن</string>
+    <string name="quran_reading_desc">اقرأ القرآن الكريم كاملاً مع سهولة التنقل</string>
+    <string name="prayer_times_feature">أوقات الصلاة</string>
+    <string name="prayer_times_desc">أوقات صلاة دقيقة بناءً على موقعك</string>
+    <string name="qibla_direction_feature">اتجاه القبلة</string>
+    <string name="qibla_direction_desc">اعثر على اتجاه الكعبة من أي مكان</string>
+    <string name="tasbih_counter">عداد التسبيح</string>
+    <string name="tasbih_counter_desc">عداد رقمي للذكر اليومي</string>
+    <string name="daily_adhkar">الأذكار اليومية</string>
+    <string name="daily_adhkar_desc">أذكار الصباح والمساء</string>
+    <string name="may_allah_accept">تقبل الله منا ومنكم</string>
+    <string name="copyright">© 2025 تطبيق القرآن. جميع الحقوق محفوظة.</string>
+
+    <!-- Help Screen -->
+    <string name="help_title">المساعدة</string>
+    <string name="faq">الأسئلة الشائعة</string>
+    <string name="qibla_question">كيف أجد اتجاه القبلة؟</string>
+    <string name="qibla_answer">انتقل إلى تبويب القبلة من شريط التنقل السفلي. ستشير البوصلة تلقائيًا نحو اتجاه القبلة. تأكد من السماح بأذونات الموقع للحصول على نتائج دقيقة.</string>
+    <string name="prayer_times_question">كيف تعمل أوقات الصلاة؟</string>
+    <string name="prayer_times_answer">يتم حساب أوقات الصلاة بناءً على موقعك الحالي. تأكد من منح أذونات الموقع لحسابات دقيقة لأوقات الصلاة.</string>
+    <string name="tasbih_question">كيف أستخدم عداد التسبيح؟</string>
+    <string name="tasbih_answer">انتقل إلى شاشة التسبيح من قائمة المزيد. انقر على الوسط لزيادة العدد. يمكنك إعادة تعيين العداد باستخدام زر إعادة التعيين.</string>
+    <string name="quran_question">كيف أقرأ القرآن؟</string>
+    <string name="quran_answer">انتقل إلى تبويب القرآن، تصفح قائمة السور، وانقر على أي سورة لبدء القراءة. يمكنك البحث عن آيات محددة داخل كل سورة.</string>
+    <string name="adhkar_question">ما هي الأذكار؟</string>
+    <string name="adhkar_answer">الأذكار هي الأدعية والتسبيحات. يمكنك الوصول إليها من قائمة المزيد لعرض أذكار الصباح والمساء.</string>
+    <string name="need_more_help">هل تحتاج المزيد من المساعدة؟</string>
+    <string name="contact_support">إذا كان لديك أسئلة إضافية أو تحتاج إلى دعم، يرجى الاتصال بنا من خلال قسم حول.</string>
 </resources>
 

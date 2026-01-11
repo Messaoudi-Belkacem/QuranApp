@@ -20,8 +20,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.quranapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,12 +33,12 @@ fun HelpScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Help") },
+                title = { Text(stringResource(R.string.help_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 }
@@ -52,7 +54,7 @@ fun HelpScreen(
         ) {
             item {
                 Text(
-                    text = "Frequently Asked Questions",
+                    text = stringResource(R.string.faq),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -60,50 +62,50 @@ fun HelpScreen(
 
             item {
                 HelpItem(
-                    question = "How do I find the Qibla direction?",
-                    answer = "Navigate to the Qibla tab from the bottom navigation bar. The compass will automatically point towards the Qibla direction. Make sure to allow location permissions for accurate results."
+                    question = stringResource(R.string.qibla_question),
+                    answer = stringResource(R.string.qibla_answer)
                 )
             }
 
             item {
                 HelpItem(
-                    question = "How do prayer times work?",
-                    answer = "Prayer times are calculated based on your current location. Ensure location permissions are granted for accurate prayer time calculations."
+                    question = stringResource(R.string.prayer_times_question),
+                    answer = stringResource(R.string.prayer_times_answer)
                 )
             }
 
             item {
                 HelpItem(
-                    question = "How do I use the Tasbih counter?",
-                    answer = "Go to the Tasbih screen from the More menu. Tap the center to increment the count. You can reset the counter using the reset button."
+                    question = stringResource(R.string.tasbih_question),
+                    answer = stringResource(R.string.tasbih_answer)
                 )
             }
 
             item {
                 HelpItem(
-                    question = "How do I read the Quran?",
-                    answer = "Navigate to the Quran tab, browse through the list of Surahs, and tap on any Surah to start reading. You can search for specific Ayahs within each Surah."
+                    question = stringResource(R.string.quran_question),
+                    answer = stringResource(R.string.quran_answer)
                 )
             }
 
             item {
                 HelpItem(
-                    question = "What are Adhkar?",
-                    answer = "Adhkar are remembrances and supplications. Access them from the More menu to view morning and evening dhikr."
+                    question = stringResource(R.string.adhkar_question),
+                    answer = stringResource(R.string.adhkar_answer)
                 )
             }
 
             item {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Need More Help?",
+                    text = stringResource(R.string.need_more_help),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "If you have additional questions or need support, please contact us through the About section.",
+                    text = stringResource(R.string.contact_support),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
