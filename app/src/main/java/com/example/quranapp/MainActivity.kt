@@ -1,6 +1,7 @@
 package com.example.quranapp
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -14,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.quranapp.presentation.navigation.RootNavigationGraph
 import com.example.quranapp.presentation.navigation.Screen
 import com.example.quranapp.presentation.ui.theme.AppTheme
+import com.example.quranapp.util.LanguageManager
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -33,7 +35,15 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+    override fun attachBaseContext(newBase: Context) {
+        LanguageManager.applyLanguage(newBase)
+        super.attachBaseContext(newBase)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Apply saved language before creating the activity
+        LanguageManager.applyLanguage(this)
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 

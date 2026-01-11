@@ -1,9 +1,10 @@
 package com.example.quranapp.util
 
+import android.app.Activity
 import android.content.Context
-import androidx.appcompat.app.AppCompatDelegate
+import android.content.Intent
 import androidx.core.content.edit
-import androidx.core.os.LocaleListCompat
+import java.util.Locale
 
 object LanguageManager {
     private const val PREF_NAME = "app_preferences"
@@ -20,8 +21,12 @@ object LanguageManager {
             putString(KEY_LANGUAGE, languageCode)
         }
 
-        // Apply language
-        applyLanguage(languageCode)
+        // Restart activity to apply language change
+        if (context is Activity) {
+            val intent = context.intent
+            context.finish()
+            context.startActivity(intent)
+        }
     }
 
     fun getCurrentLanguage(context: Context): String {
@@ -29,14 +34,24 @@ object LanguageManager {
         return prefs.getString(KEY_LANGUAGE, LANGUAGE_SYSTEM) ?: LANGUAGE_SYSTEM
     }
 
-    private fun applyLanguage(languageCode: String) {
-        val localeList = when (languageCode) {
-            LANGUAGE_SYSTEM -> LocaleListCompat.getEmptyLocaleList()
-            else -> LocaleListCompat.forLanguageTags(languageCode)
-        }
-        AppCompatDelegate.setApplicationLocales(localeList)
-    }
+    fun applyLanguage(context: Context) {
+        val languageCode = getCurrentLanguage(context)
 
+        if (languageCode == LANGUAGE_SYSTEM) {
+            // Use system default
+            return
+        }
+
+        val locale = Locale(languageCode)
+        Locale.setDefault(locale)
+
+        val config = context.resources.configuration
+        config.setLocale(locale)
+        config.setLayoutDirection(locale)
+
+        @Suppress("DEPRECATION")
+        context.resources.updateConfiguration(config, context.resources.displayMetrics)
+    }
 
     fun getLanguageDisplayName(languageCode: String): String {
         return when (languageCode) {
