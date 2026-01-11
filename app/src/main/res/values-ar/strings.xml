@@ -65,5 +65,19 @@
     <string name="calibrate_compass">⚠ قم بمعايرة البوصلة للحصول على دقة أفضل</string>
     <string name="error_get_location_permissions">تعذر الحصول على الموقع. يرجى التحقق من الأذونات وتفعيل GPS.</string>
     <string name="error_format">خطأ: %s</string>
+
+    <!-- More Screen -->
+    <string name="worship_tools">أدوات العبادة</string>
+    <string name="application">التطبيق</string>
+    <string name="support_info">الدعم والمعلومات</string>
+    <string name="adhkar">الأذكار</string>
+    <string name="adhkar_description">أذكار الصباح والمساء</string>
+    <string name="tasbih_description">عداد رقمي للذكر</string>
+    <string name="settings">الإعدادات</string>
+    <string name="settings_description">اللغة، المظهر، الإشعارات</string>
+    <string name="help">المساعدة</string>
+    <string name="help_description">الأسئلة الشائعة والإرشادات</string>
+    <string name="about">حول</string>
+    <string name="about_description">مهمة التطبيق والإصدار</string>
 </resources>
 

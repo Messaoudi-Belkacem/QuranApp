@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -31,18 +32,18 @@ fun MoreScreen(
     val menuGroups = remember {
         listOf(
             MenuGroup(
-                title = "Worship Tools",
+                titleResId = R.string.worship_tools,
                 items = listOf(
                     MenuItem(
-                        title = "Adhkar",
-                        description = "Morning & evening remembrances",
+                        titleResId = R.string.adhkar,
+                        descriptionResId = R.string.adhkar_description,
                         icon = null,
                         iconRes = R.drawable.mosque_vector,
                         route = Screen.AdkarRoute.route
                     ),
                     MenuItem(
-                        title = "Tasbih",
-                        description = "Digital counter for dhikr",
+                        titleResId = R.string.tasbih,
+                        descriptionResId = R.string.tasbih_description,
                         icon = null,
                         iconRes = R.drawable.ic_tasbih,
                         route = Screen.TasbihRoute.route
@@ -50,11 +51,11 @@ fun MoreScreen(
                 )
             ),
             MenuGroup(
-                title = "Application",
+                titleResId = R.string.application,
                 items = listOf(
                     MenuItem(
-                        title = "Settings",
-                        description = "Language, theme, notifications",
+                        titleResId = R.string.settings,
+                        descriptionResId = R.string.settings_description,
                         icon = Icons.Default.Settings,
                         iconRes = null,
                         route = Screen.SettingsRoute.route
@@ -62,18 +63,18 @@ fun MoreScreen(
                 )
             ),
             MenuGroup(
-                title = "Support & Info",
+                titleResId = R.string.support_info,
                 items = listOf(
                     MenuItem(
-                        title = "Help",
-                        description = "FAQs and guidance",
+                        titleResId = R.string.help,
+                        descriptionResId = R.string.help_description,
                         icon = Icons.Default.Info,
                         iconRes = null,
                         route = Screen.HelpRoute.route
                     ),
                     MenuItem(
-                        title = "About",
-                        description = "App mission and version",
+                        titleResId = R.string.about,
+                        descriptionResId = R.string.about_description,
                         icon = Icons.Default.Info,
                         iconRes = null,
                         route = Screen.AboutRoute.route
@@ -105,7 +106,7 @@ fun MoreScreen(
         menuGroups.forEach { group ->
             item {
                 Text(
-                    text = group.title,
+                    text = stringResource(id = group.titleResId),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -132,6 +133,9 @@ private fun MoreMenuItem(
     item: MenuItem,
     onClick: () -> Unit
 ) {
+    val title = stringResource(id = item.titleResId)
+    val description = item.descriptionResId?.let { stringResource(id = it) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -155,14 +159,14 @@ private fun MoreMenuItem(
             if (item.icon != null) {
                 Icon(
                     imageVector = item.icon,
-                    contentDescription = item.title,
+                    contentDescription = title,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(28.dp)
                 )
             } else if (item.iconRes != null) {
                 Icon(
                     painter = painterResource(id = item.iconRes),
-                    contentDescription = item.title,
+                    contentDescription = title,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(28.dp)
                 )
@@ -175,15 +179,15 @@ private fun MoreMenuItem(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = item.title,
+                    text = title,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                if (item.description != null) {
+                if (description != null) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = item.description,
+                        text = description,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -194,13 +198,13 @@ private fun MoreMenuItem(
 }
 
 private data class MenuGroup(
-    val title: String,
+    val titleResId: Int,
     val items: List<MenuItem>
 )
 
 private data class MenuItem(
-    val title: String,
-    val description: String? = null,
+    val titleResId: Int,
+    val descriptionResId: Int? = null,
     val icon: ImageVector? = null,
     val iconRes: Int? = null,
     val route: String
