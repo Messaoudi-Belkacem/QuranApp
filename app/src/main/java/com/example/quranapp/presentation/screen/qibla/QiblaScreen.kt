@@ -37,6 +37,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -157,7 +158,7 @@ private fun QiblaCompassContent(
             // Compass background
             Image(
                 painter = painterResource(id = R.drawable.compass),
-                contentDescription = "Compass Background",
+                contentDescription = stringResource(R.string.compass_background),
                 modifier = Modifier
                     .fillMaxSize()
                     .alpha(0.8f)
@@ -168,7 +169,7 @@ private fun QiblaCompassContent(
             // Azimuth arrow (points to direction device is facing)
             Image(
                 painter = painterResource(id = R.drawable.compass_needle),
-                contentDescription = "point Direction",
+                contentDescription = stringResource(R.string.point_direction),
                 modifier = Modifier
                     .fillMaxSize(),
                 contentScale = ContentScale.Fit
@@ -177,7 +178,7 @@ private fun QiblaCompassContent(
             // Qibla arrow (points to Kaaba)
             Image(
                 painter = painterResource(id = R.drawable.kaaba_needle),
-                contentDescription = "Qibla Direction",
+                contentDescription = stringResource(R.string.qibla_direction),
                 modifier = Modifier
                     .fillMaxSize()
                     .rotate(smoothRotation)
@@ -200,22 +201,20 @@ private fun QiblaCompassContent(
             ) {
                 Icon(
                     imageVector = Icons.Default.Refresh,
-                    contentDescription = "Refresh Location",
+                    contentDescription = stringResource(R.string.refresh_location),
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Refresh Location")
+                Text(stringResource(R.string.refresh_location))
             }
 
             Text(
                 text = uiState.locationAddress
-                    ?: "Lat: ${
-                        String.format(
-                            Locale.US,
-                            "%.4f",
-                            uiState.userLatitude
-                        )
-                    }, Lon: ${String.format(Locale.US, "%.4f", uiState.userLongitude)}",
+                    ?: stringResource(
+                        R.string.lat_lon_format,
+                        String.format(Locale.US, "%.4f", uiState.userLatitude),
+                        String.format(Locale.US, "%.4f", uiState.userLongitude)
+                    ),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 modifier = Modifier.padding(top = 4.dp),
@@ -224,7 +223,7 @@ private fun QiblaCompassContent(
 
             if (!uiState.isCalibrated) {
                 Text(
-                    text = "⚠ Calibrate your compass for better accuracy",
+                    text = stringResource(R.string.calibrate_compass),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(top = 4.dp),
@@ -247,7 +246,7 @@ private fun LoadingContent() {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Getting your location...",
+            text = stringResource(R.string.getting_location),
             style = MaterialTheme.typography.bodyLarge
         )
     }
@@ -271,7 +270,7 @@ private fun ErrorContent(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Location Error",
+            text = stringResource(R.string.location_error_title),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
@@ -286,10 +285,10 @@ private fun ErrorContent(
         FilledTonalButton(onClick = onRetry) {
             Icon(
                 imageVector = Icons.Default.Refresh,
-                contentDescription = "Retry"
+                contentDescription = stringResource(R.string.retry)
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Retry")
+            Text(stringResource(R.string.retry))
         }
     }
 }
@@ -311,21 +310,21 @@ private fun PermissionDeniedContent(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Location Permission Required",
+            text = stringResource(R.string.location_permission_required),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "We need your location to calculate the direction to Kaaba.",
+            text = stringResource(R.string.location_permission_message),
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
         )
         Spacer(modifier = Modifier.height(24.dp))
         FilledTonalButton(onClick = onRetry) {
-            Text("Grant Permission")
+            Text(stringResource(R.string.grant_permission))
         }
     }
 }
@@ -345,14 +344,14 @@ private fun NoSensorContent() {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Compass Not Available",
+            text = stringResource(R.string.compass_not_available),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Your device doesn't have the required sensors for compass functionality.",
+            text = stringResource(R.string.compass_sensor_message),
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)

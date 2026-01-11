@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.quranapp.R
 import com.example.quranapp.util.CompassSensorManager
 import com.example.quranapp.util.LocationHelper
 import com.example.quranapp.util.QiblaCalculator
@@ -38,6 +39,7 @@ class QiblaViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
 
     private val tag = "QiblaViewModel"
+    private val context = application.applicationContext
     private val locationHelper = LocationHelper(application)
     private val compassSensorManager = CompassSensorManager(application)
 
@@ -131,7 +133,7 @@ class QiblaViewModel @Inject constructor(
                     _uiState.update { state ->
                         state.copy(
                             isLoadingLocation = false,
-                            locationError = "Unable to get location. Please check permissions and GPS."
+                            locationError = context.getString(R.string.error_get_location_permissions)
                         )
                     }
                 }
@@ -140,7 +142,7 @@ class QiblaViewModel @Inject constructor(
                 _uiState.update { state ->
                     state.copy(
                         isLoadingLocation = false,
-                        locationError = "Error: ${e.localizedMessage}"
+                        locationError = context.getString(R.string.error_format, e.localizedMessage ?: "Unknown error")
                     )
                 }
             }

@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -79,7 +80,7 @@ fun AnimatedQiblaCard(isAligned: Boolean) {
         ) { aligned ->
             if (aligned) {
                 Text(
-                    text = "✓ Aligned with Qibla",
+                    text = stringResource(R.string.aligned_with_qibla),
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
@@ -87,7 +88,7 @@ fun AnimatedQiblaCard(isAligned: Boolean) {
                 )
             } else {
                 Text(
-                    text = "Rotate your device to align with Qibla",
+                    text = stringResource(R.string.rotate_to_align),
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
@@ -155,7 +156,7 @@ fun AnimatedKaabaIcon(isAligned: Boolean) {
 
             Image(
                 painter = painterResource(id = R.drawable.kaaba_selected),
-                contentDescription = "Kaaba",
+                contentDescription = stringResource(R.string.kaaba),
                 modifier = Modifier
                     .size(36.dp)
                     .graphicsLayer {
@@ -224,7 +225,7 @@ fun QiblaInfoCard(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Direction to Kaaba",
+                    text = stringResource(R.string.direction_to_kaaba),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -238,7 +239,7 @@ fun QiblaInfoCard(
                 )
 
                 Text(
-                    text = "from North",
+                    text = stringResource(R.string.from_north),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -257,7 +258,10 @@ fun QiblaInfoCard(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Distance: ${String.format(Locale.US, "%.0f", distanceToKaaba)} km",
+                        text = stringResource(
+                            R.string.distance_format,
+                            String.format(Locale.US, "%.0f", distanceToKaaba)
+                        ),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -265,7 +269,10 @@ fun QiblaInfoCard(
                     Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
-                        text = "Device: ${String.format(Locale.US, "%.1f", deviceAzimuth)}°",
+                        text = stringResource(
+                            R.string.device_format,
+                            String.format(Locale.US, "%.1f", deviceAzimuth)
+                        ),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

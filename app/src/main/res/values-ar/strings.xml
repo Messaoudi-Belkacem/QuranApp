@@ -41,5 +41,29 @@
     <string name="tasbih">التسبيح</string>
     <string name="more">المزيد</string>
     <string name="main">الرئيسية</string>
+
+    <!-- Qibla Screen -->
+    <string name="compass_background">خلفية البوصلة</string>
+    <string name="point_direction">اتجاه النقطة</string>
+    <string name="qibla_direction">اتجاه القبلة</string>
+    <string name="refresh_location">تحديث الموقع</string>
+    <string name="getting_location">جاري تحديد موقعك…</string>
+    <string name="location_error_title">خطأ في الموقع</string>
+    <string name="location_permission_required">إذن الموقع مطلوب</string>
+    <string name="location_permission_message">نحتاج إلى موقعك لحساب الاتجاه إلى الكعبة.</string>
+    <string name="grant_permission">منح الإذن</string>
+    <string name="compass_not_available">البوصلة غير متاحة</string>
+    <string name="compass_sensor_message">جهازك لا يحتوي على المستشعرات المطلوبة لوظيفة البوصلة.</string>
+    <string name="aligned_with_qibla">✓ متوافق مع القبلة</string>
+    <string name="rotate_to_align">قم بتدوير جهازك للتوافق مع القبلة</string>
+    <string name="kaaba">الكعبة</string>
+    <string name="direction_to_kaaba">الاتجاه إلى الكعبة</string>
+    <string name="from_north">من الشمال</string>
+    <string name="distance_format">المسافة: %s كم</string>
+    <string name="device_format">الجهاز: %s°</string>
+    <string name="lat_lon_format">خط العرض: %s، خط الطول: %s</string>
+    <string name="calibrate_compass">⚠ قم بمعايرة البوصلة للحصول على دقة أفضل</string>
+    <string name="error_get_location_permissions">تعذر الحصول على الموقع. يرجى التحقق من الأذونات وتفعيل GPS.</string>
+    <string name="error_format">خطأ: %s</string>
 </resources>
 

@@ -40,4 +40,28 @@
     <string name="tasbih">Tasbih</string>
     <string name="more">More</string>
     <string name="main">Main</string>
+
+    <!-- Qibla Screen -->
+    <string name="compass_background">Compass Background</string>
+    <string name="point_direction">Point Direction</string>
+    <string name="qibla_direction">Qibla Direction</string>
+    <string name="refresh_location">Refresh Location</string>
+    <string name="getting_location">Getting your location…</string>
+    <string name="location_error_title">Location Error</string>
+    <string name="location_permission_required">Location Permission Required</string>
+    <string name="location_permission_message">We need your location to calculate the direction to Kaaba.</string>
+    <string name="grant_permission">Grant Permission</string>
+    <string name="compass_not_available">Compass Not Available</string>
+    <string name="compass_sensor_message">Your device doesn\'t have the required sensors for compass functionality.</string>
+    <string name="aligned_with_qibla">✓ Aligned with Qibla</string>
+    <string name="rotate_to_align">Rotate your device to align with Qibla</string>
+    <string name="kaaba">Kaaba</string>
+    <string name="direction_to_kaaba">Direction to Kaaba</string>
+    <string name="from_north">from North</string>
+    <string name="distance_format">Distance: %s km</string>
+    <string name="device_format">Device: %s°</string>
+    <string name="lat_lon_format">Lat: %s, Lon: %s</string>
+    <string name="calibrate_compass">⚠ Calibrate your compass for better accuracy</string>
+    <string name="error_get_location_permissions">Unable to get location. Please check permissions and GPS.</string>
+    <string name="error_format">Error: %s</string>
 </resources>
