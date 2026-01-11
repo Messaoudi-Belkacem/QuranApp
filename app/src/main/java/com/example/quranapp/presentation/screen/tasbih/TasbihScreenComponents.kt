@@ -62,9 +62,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.quranapp.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.min
@@ -80,7 +82,7 @@ fun ProgressDisplay(
         tonalElevation = 2.dp
     ) {
         Text(
-            text = "$count out of $target",
+            text = stringResource(R.string.progress_format, count, target),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -286,7 +288,7 @@ fun ActionButtons(
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Undo", style = MaterialTheme.typography.labelMedium)
+            Text(stringResource(R.string.undo), style = MaterialTheme.typography.labelMedium)
         }
     }
 }
@@ -307,24 +309,24 @@ fun ResetConfirmationDialog(
         },
         title = {
             Text(
-                text = "Reset Counter?",
+                text = stringResource(R.string.reset_counter_title),
                 style = MaterialTheme.typography.titleLarge
             )
         },
         text = {
             Text(
-                text = "This will reset your current count to 0. This action cannot be undone.",
+                text = stringResource(R.string.reset_counter_message),
                 style = MaterialTheme.typography.bodyMedium
             )
         },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text("Reset", color = MaterialTheme.colorScheme.error)
+                Text(stringResource(R.string.reset), color = MaterialTheme.colorScheme.error)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         },
         shape = RoundedCornerShape(20.dp)
@@ -342,7 +344,7 @@ fun PresetsDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Select Dhikr",
+                text = stringResource(R.string.select_dhikr),
                 style = MaterialTheme.typography.titleLarge
             )
         },
@@ -361,7 +363,7 @@ fun PresetsDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Close")
+                Text(stringResource(R.string.close))
             }
         },
         shape = RoundedCornerShape(20.dp)
@@ -418,7 +420,7 @@ fun PresetItem(
                     }
                 )
                 Text(
-                    text = "Target: ${preset.defaultTarget}",
+                    text = stringResource(R.string.target_format, preset.defaultTarget),
                     style = MaterialTheme.typography.bodySmall,
                     color = if (isSelected) {
                         MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
@@ -431,7 +433,7 @@ fun PresetItem(
             if (isSelected) {
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
-                    contentDescription = "Selected",
+                    contentDescription = stringResource(R.string.item_selected),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
                 )
@@ -455,7 +457,7 @@ fun SettingsDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Settings",
+                text = stringResource(R.string.settings_title),
                 style = MaterialTheme.typography.titleLarge
             )
         },
@@ -466,8 +468,8 @@ fun SettingsDialog(
                 // Haptic Feedback
                 SettingsRow(
                     icon = Icons.Default.Vibration,
-                    title = "Haptic Feedback",
-                    description = "Vibrate on tap and target completion",
+                    title = stringResource(R.string.haptic_feedback),
+                    description = stringResource(R.string.haptic_feedback_description),
                     checked = localSettings.hapticFeedback,
                     onCheckedChange = {
                         localSettings = localSettings.copy(hapticFeedback = it)
@@ -479,8 +481,8 @@ fun SettingsDialog(
                 // Sound Feedback
                 SettingsRow(
                     icon = Icons.AutoMirrored.Filled.VolumeUp,
-                    title = "Sound Feedback",
-                    description = "Play sound on tap",
+                    title = stringResource(R.string.sound_feedback),
+                    description = stringResource(R.string.sound_feedback_description),
                     checked = localSettings.soundFeedback,
                     onCheckedChange = {
                         localSettings = localSettings.copy(soundFeedback = it)
@@ -492,8 +494,8 @@ fun SettingsDialog(
                 // Auto Reset
                 SettingsRow(
                     icon = Icons.Default.Autorenew,
-                    title = "Auto Reset",
-                    description = "Reset counter when target is reached",
+                    title = stringResource(R.string.auto_reset),
+                    description = stringResource(R.string.auto_reset_description),
                     checked = localSettings.autoReset,
                     onCheckedChange = {
                         localSettings = localSettings.copy(autoReset = it)
@@ -510,7 +512,7 @@ fun SettingsDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Custom Target",
+                            text = stringResource(R.string.custom_target),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
@@ -538,12 +540,12 @@ fun SettingsDialog(
                     onDismiss()
                 }
             ) {
-                Text("Save")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         },
         shape = RoundedCornerShape(20.dp)

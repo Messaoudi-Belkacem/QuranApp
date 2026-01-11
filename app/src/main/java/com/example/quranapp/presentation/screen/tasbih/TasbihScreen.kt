@@ -37,9 +37,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.quranapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,7 +61,7 @@ fun TasbihScreen(
                 triggerHapticFeedback(context, true)
             }
             snackbarHostState.showSnackbar(
-                message = "Target completed! 🎉",
+                message = context.getString(R.string.target_completed),
                 duration = SnackbarDuration.Short
             )
         }
@@ -191,14 +193,14 @@ private fun TasbihTopAppBar(
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.back),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
         },
         title = {
             Text(
-                text = "Tasbih",
+                text = stringResource(R.string.tasbih),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
@@ -207,14 +209,14 @@ private fun TasbihTopAppBar(
             IconButton(onClick = onResetClick) {
                 Icon(
                     imageVector = Icons.Default.RestartAlt,
-                    contentDescription = "Reset counter",
+                    contentDescription = stringResource(R.string.reset_counter),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
             IconButton(onClick = onSettingsClick) {
                 Icon(
                     imageVector = Icons.Default.Settings,
-                    contentDescription = "Settings",
+                    contentDescription = stringResource(R.string.settings),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }

@@ -79,5 +79,29 @@
     <string name="help_description">الأسئلة الشائعة والإرشادات</string>
     <string name="about">حول</string>
     <string name="about_description">مهمة التطبيق والإصدار</string>
+
+    <!-- Tasbih Screen -->
+    <string name="back">رجوع</string>
+    <string name="reset_counter">إعادة تعيين العداد</string>
+    <string name="target_completed">تم إكمال الهدف! 🎉</string>
+    <string name="progress_format">%1$d من %2$d</string>
+    <string name="undo">تراجع</string>
+    <string name="reset">إعادة تعيين</string>
+    <string name="cancel">إلغاء</string>
+    <string name="reset_counter_title">إعادة تعيين العداد؟</string>
+    <string name="reset_counter_message">سيؤدي هذا إلى إعادة تعيين العداد الحالي إلى 0. لا يمكن التراجع عن هذا الإجراء.</string>
+    <string name="select_dhikr">اختر الذكر</string>
+    <string name="close">إغلاق</string>
+    <string name="item_selected">محدد</string>
+    <string name="target_format">الهدف: %d</string>
+    <string name="settings_title">الإعدادات</string>
+    <string name="haptic_feedback">اهتزاز اللمس</string>
+    <string name="haptic_feedback_description">الاهتزاز عند اللمس وإكمال الهدف</string>
+    <string name="sound_feedback">صوت اللمس</string>
+    <string name="sound_feedback_description">تشغيل صوت عند اللمس</string>
+    <string name="auto_reset">إعادة التعيين التلقائي</string>
+    <string name="auto_reset_description">إعادة تعيين العداد عند الوصول إلى الهدف</string>
+    <string name="custom_target">هدف مخصص</string>
+    <string name="save">حفظ</string>
 </resources>
 
