@@ -21,8 +21,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.quranapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,7 +43,7 @@ fun AdhkarScreen(
                         IconButton(onClick = { viewModel.clearSelectedCategory() }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
+                                contentDescription = stringResource(R.string.back),
                                 tint = MaterialTheme.colorScheme.primary
                             )
                         }
@@ -49,7 +51,7 @@ fun AdhkarScreen(
                         IconButton(onClick = { onNavigateBack() }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
+                                contentDescription = stringResource(R.string.back),
                                 tint = MaterialTheme.colorScheme.primary
                             )
                         }
@@ -57,7 +59,7 @@ fun AdhkarScreen(
                 },
                 title = {
                     Text(
-                        text = uiState.selectedCategory?.titleEng ?: "Adhkar",
+                        text = uiState.selectedCategory?.titleEng ?: stringResource(R.string.adhkar),
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold
                     )
@@ -67,7 +69,7 @@ fun AdhkarScreen(
                         IconButton(onClick = { viewModel.resetAllProgress() }) {
                             Icon(
                                 imageVector = Icons.Default.Refresh,
-                                contentDescription = "Reset all",
+                                contentDescription = stringResource(R.string.reset_all),
                                 tint = MaterialTheme.colorScheme.primary
                             )
                         }

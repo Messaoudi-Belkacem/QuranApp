@@ -149,4 +149,8 @@
     <string name="arabic">العربية</string>
     <string name="language_description">Choose your preferred language</string>
     <string name="restart_required">App will restart to apply language changes</string>
+
+    <!-- Adhkar Screen -->
+    <string name="reset_all">Reset all</string>
+    <string name="completed">Completed</string>
 </resources>

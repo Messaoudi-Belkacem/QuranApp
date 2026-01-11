@@ -44,9 +44,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.quranapp.R
 import com.example.quranapp.data.model.AdhkarCategoryItem
 import com.example.quranapp.data.model.Dhikr
 
@@ -273,7 +275,7 @@ fun DhikrCard(
                         if (isCompleted) {
                             Icon(
                                 imageVector = Icons.Default.Check,
-                                contentDescription = "Completed",
+                                contentDescription = stringResource(R.string.completed),
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -294,11 +296,11 @@ fun DhikrCard(
                         TextButton(onClick = onReset) {
                             Icon(
                                 imageVector = Icons.Default.Refresh,
-                                contentDescription = "Reset",
+                                contentDescription = stringResource(R.string.reset),
                                 modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("إعادة")
+                            Text(stringResource(R.string.reset))
                         }
                     }
                 }

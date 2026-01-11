@@ -2,7 +2,6 @@ package com.example.quranapp.util
 
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import androidx.core.content.edit
 import java.util.Locale
 
