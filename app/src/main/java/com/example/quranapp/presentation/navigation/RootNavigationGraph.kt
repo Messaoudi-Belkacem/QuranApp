@@ -68,7 +68,9 @@ fun RootNavigationGraph(
             )
         }
         composable(route = Screen.SettingsRoute.route) {
-            SettingsScreen()
+            SettingsScreen(
+                onNavigateBack = { navHostController.popBackStack() }
+            )
         }
         composable(route = Screen.HelpRoute.route) {
             HelpScreen(

@@ -140,5 +140,15 @@
     <string name="adhkar_answer">الأذكار هي الأدعية والتسبيحات. يمكنك الوصول إليها من قائمة المزيد لعرض أذكار الصباح والمساء.</string>
     <string name="need_more_help">هل تحتاج المزيد من المساعدة؟</string>
     <string name="contact_support">إذا كان لديك أسئلة إضافية أو تحتاج إلى دعم، يرجى الاتصال بنا من خلال قسم حول.</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_screen_title">الإعدادات</string>
+    <string name="language_settings">إعدادات اللغة</string>
+    <string name="select_language">اختر اللغة</string>
+    <string name="system_default">افتراضي النظام</string>
+    <string name="english">English</string>
+    <string name="arabic">العربية</string>
+    <string name="language_description">اختر لغتك المفضلة</string>
+    <string name="restart_required">سيتم إعادة تشغيل التطبيق لتطبيق تغييرات اللغة</string>
 </resources>
 

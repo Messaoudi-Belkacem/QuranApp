@@ -139,4 +139,14 @@
     <string name="adhkar_answer">Adhkar are remembrances and supplications. Access them from the More menu to view morning and evening dhikr.</string>
     <string name="need_more_help">Need More Help?</string>
     <string name="contact_support">If you have additional questions or need support, please contact us through the About section.</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_screen_title">Settings</string>
+    <string name="language_settings">Language Settings</string>
+    <string name="select_language">Select Language</string>
+    <string name="system_default">System Default</string>
+    <string name="english">English</string>
+    <string name="arabic">العربية</string>
+    <string name="language_description">Choose your preferred language</string>
+    <string name="restart_required">App will restart to apply language changes</string>
 </resources>
