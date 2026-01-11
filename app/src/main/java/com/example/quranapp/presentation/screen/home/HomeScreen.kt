@@ -40,7 +40,7 @@ fun HomeScreen(
     PullToRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = {
-            viewModel.refreshPrayerTimes()
+            viewModel.refreshLocationAndPrayerTimes()
             scope.launch {
                 delay(1000)
             }

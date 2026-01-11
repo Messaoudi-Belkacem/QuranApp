@@ -340,6 +340,110 @@ class HomeScreenViewModel @Inject constructor(
     }
 
     /**
+     * Get fresh location directly from GPS without using stored location
+     * @return Pair of (latitude, longitude) or null if location cannot be obtained
+     */
+    suspend fun getFreshLocation(): Pair<Double, Double>? {
+        return try {
+            Log.d(tag, "=== Getting fresh location (bypassing storage) ===")
+
+            // Check location permission
+            if (!locationHelper.hasLocationPermission()) {
+                Log.e(tag, "Location permission not granted")
+                _uiState.value = _uiState.value.copy(
+                    error = "Location permission is required. Please grant permission in settings."
+                )
+                return null
+            }
+
+            // Check if location services are enabled
+            if (!locationHelper.isLocationEnabled()) {
+                Log.e(tag, "Location services are disabled")
+                _uiState.value = _uiState.value.copy(
+                    error = "Location services are disabled. Please enable GPS in your device settings."
+                )
+                return null
+            }
+
+            // Get fresh location from GPS
+            val freshLocation = locationHelper.getCurrentLocation()
+
+            if (freshLocation != null) {
+                val (latitude, longitude) = freshLocation
+                Log.d(tag, "✓ Fresh location obtained: $latitude, $longitude")
+                Pair(latitude.toDouble(), longitude.toDouble())
+            } else {
+                Log.e(tag, "Failed to get fresh location from GPS")
+                _uiState.value = _uiState.value.copy(
+                    error = "Unable to get your location. Please check:\n" +
+                            "1. GPS is enabled\n" +
+                            "2. Location permission is granted\n" +
+                            "3. Try moving to an open area"
+                )
+                null
+            }
+        } catch (e: Exception) {
+            Log.e(tag, "Error getting fresh location", e)
+            _uiState.value = _uiState.value.copy(
+                error = "Failed to get location: ${e.message}"
+            )
+            null
+        }
+    }
+
+    /**
+     * Update location with fresh GPS data and recalculate prayer times
+     * Sets the location in both storage and UI state
+     */
+    fun refreshLocationAndPrayerTimes() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+
+            val freshLocation = getFreshLocation()
+
+            if (freshLocation != null) {
+                val (latitude, longitude) = freshLocation
+
+                // Store the new location in repository (convert Double to Float)
+                quranRepository.setCurrentLocation(latitude.toFloat(), longitude.toFloat())
+
+                // Get the stored location object from repository
+                val storedLocation = quranRepository.getCurrentLocation()
+
+                // Get address (convert Double to Float)
+                val address = try {
+                    locationHelper.getCityName(latitude.toFloat(), longitude.toFloat())
+                        ?: locationHelper.getAddressFromLocation(latitude.toFloat(), longitude.toFloat())
+                } catch (e: Exception) {
+                    Log.w(tag, "Failed to get address: ${e.message}")
+                    null
+                }
+
+                // Calculate prayer times with fresh location
+                val prayerTimes = calculatePrayerTimes(latitude, longitude)
+
+                // Update UI state with new location, address, and prayer times
+                _uiState.value = _uiState.value.copy(
+                    prayerTimes = prayerTimes,
+                    isLoading = false,
+                    currentLocation = storedLocation,
+                    locationAddress = address,
+                    error = null
+                )
+
+                // Update widget with new prayer times
+                updateWidget()
+
+                Log.d(tag, "✓ Location and prayer times refreshed successfully")
+                Log.d(tag, "✓ Location stored: ${storedLocation?.latitude}, ${storedLocation?.longitude}")
+                Log.d(tag, "✓ Address: $address")
+            } else {
+                _uiState.value = _uiState.value.copy(isLoading = false)
+            }
+        }
+    }
+
+    /**
      * Expose prayer settings repository for notification toggle
      */
     fun getPrayerSettingsRepository(): PrayerSettingsRepository {
