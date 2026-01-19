@@ -1,7 +1,7 @@
 [versions]
 accompanistSystemuicontroller = "0.36.0"
 accompanistPermissions = "0.36.0"
-agp = "8.13.2"
+agp = "9.0.0"
 appcompat = "1.7.1"
 coilCompose = "2.7.0"
 constraintlayoutCompose = "1.1.1"
@@ -28,7 +28,7 @@ playServicesLocation = "21.3.0"
 retrofit = "3.0.0"
 roomKtx = "2.8.4"
 roomRuntime = "2.8.4"
-ksp = "2.2.10-2.0.2"
+ksp = "2.3.2"
 
 [libraries]
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanistSystemuicontroller" }
