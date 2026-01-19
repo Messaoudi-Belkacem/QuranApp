@@ -122,8 +122,7 @@ fun DhikrDisplay(
                     showHint = false
                     onLongClick()
                 }
-            )
-            .animateContentSize(),
+            ),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer

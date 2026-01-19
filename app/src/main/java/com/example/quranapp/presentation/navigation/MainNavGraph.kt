@@ -1,5 +1,8 @@
 package com.example.quranapp.presentation.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -17,9 +20,14 @@ fun MainNavGraph(
     rootNavController: NavHostController,
     onNavigateToSurahReading: (Int) -> Unit = {},
 ) {
+    val time = 250
     NavHost(
         navController = navController,
-        startDestination = Screen.HomeRoute.route
+        startDestination = Screen.HomeRoute.route,
+        enterTransition = { fadeIn(animationSpec = tween(time)) },
+        exitTransition = { fadeOut(animationSpec = tween(time)) },
+        popEnterTransition = { fadeIn(animationSpec = tween(time)) },
+        popExitTransition = { fadeOut(animationSpec = tween(time)) }
     ) {
         composable(route = Screen.HomeRoute.route) {
             HomeScreen(
