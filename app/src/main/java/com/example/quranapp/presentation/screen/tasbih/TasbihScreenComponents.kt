@@ -3,9 +3,14 @@ package com.example.quranapp.presentation.screen.tasbih
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -53,6 +58,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -100,14 +106,24 @@ fun DhikrDisplay(
     onLongClick: () -> Unit = {},
 ) {
     var isExpanded by remember { mutableStateOf(false) }
+    var showHint by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        delay(5000)
+        showHint = false
+    }
 
     ElevatedCard(
         modifier = modifier
             .fillMaxWidth()
             .combinedClickable(
                 onClick = { isExpanded = !isExpanded },
-                onLongClick = onLongClick
-            ),
+                onLongClick = {
+                    showHint = false
+                    onLongClick()
+                }
+            )
+            .animateContentSize(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
@@ -155,6 +171,29 @@ fun DhikrDisplay(
                         textAlign = TextAlign.Center
                     )
                 }
+            }
+            // Animated hint - positioned over the card
+            AnimatedVisibility(
+                visible = showHint,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+                val alpha by infiniteTransition.animateFloat(
+                    initialValue = 0.4f,
+                    targetValue = 1f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(1000),
+                        repeatMode = RepeatMode.Reverse
+                    ),
+                    label = "alpha"
+                )
+                Text(
+                    text = stringResource(R.string.long_press_to_change),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = alpha),
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                )
             }
         }
     }

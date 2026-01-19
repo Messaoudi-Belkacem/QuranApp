@@ -103,6 +103,7 @@
     <string name="auto_reset_description">إعادة تعيين العداد عند الوصول إلى الهدف</string>
     <string name="custom_target">هدف مخصص</string>
     <string name="save">حفظ</string>
+    <string name="long_press_to_change">اضغط مطولاً للتغيير</string>
 
     <!-- About Screen -->
     <string name="about_title">حول</string>
