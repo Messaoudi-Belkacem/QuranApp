@@ -20,7 +20,7 @@ fun MainNavGraph(
     rootNavController: NavHostController,
     onNavigateToSurahReading: (Int) -> Unit = {},
 ) {
-    val time = 250
+    val time = 300
     NavHost(
         navController = navController,
         startDestination = Screen.HomeRoute.route,

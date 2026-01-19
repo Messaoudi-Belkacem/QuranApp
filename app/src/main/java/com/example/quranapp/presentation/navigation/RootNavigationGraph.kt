@@ -26,7 +26,7 @@ fun RootNavigationGraph(
     navHostController: NavHostController,
     startDestination: String,
 ) {
-    val time = 250
+    val time = 300
     NavHost(
         navController = navHostController,
         startDestination = startDestination,
