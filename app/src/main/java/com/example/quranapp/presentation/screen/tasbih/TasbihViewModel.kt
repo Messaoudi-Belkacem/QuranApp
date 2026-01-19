@@ -2,6 +2,7 @@ package com.example.quranapp.presentation.screen.tasbih
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.quranapp.data.repository.TasbihPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,13 +15,13 @@ data class TasbihPreset(
     val name: String,
     val arabicText: String,
     val translation: String,
-    val defaultTarget: Int
+    val defaultTarget: Int,
 )
 
 data class TasbihSettings(
     val hapticFeedback: Boolean = true,
     val soundFeedback: Boolean = false,
-    val autoReset: Boolean = false
+    val autoReset: Boolean = false,
 )
 
 data class TasbihUiState(
@@ -32,7 +33,7 @@ data class TasbihUiState(
     val isTargetReached: Boolean = false,
     val showResetDialog: Boolean = false,
     val showPresetsDialog: Boolean = false,
-    val showSettingsDialog: Boolean = false
+    val showSettingsDialog: Boolean = false,
 )
 
 private fun getDefaultPresets(): List<TasbihPreset> = listOf(
@@ -74,10 +75,37 @@ private fun getDefaultPresets(): List<TasbihPreset> = listOf(
 )
 
 @HiltViewModel
-class TasbihViewModel @Inject constructor() : ViewModel() {
+class TasbihViewModel @Inject constructor(
+    private val preferencesRepository: TasbihPreferencesRepository,
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TasbihUiState())
     val uiState: StateFlow<TasbihUiState> = _uiState.asStateFlow()
+
+    init {
+        loadPreferences()
+    }
+
+    private fun loadPreferences() {
+        viewModelScope.launch {
+            val savedPresetId = preferencesRepository.getSelectedPresetId()
+            val savedCount = preferencesRepository.getCurrentCount()
+            val savedTarget = preferencesRepository.getTargetCount()
+            val savedSettings = preferencesRepository.getSettings()
+
+            val presets = getDefaultPresets()
+            val selectedPreset = savedPresetId?.let { id ->
+                presets.find { it.id == id }
+            } ?: presets[0]
+
+            _uiState.value = _uiState.value.copy(
+                currentCount = savedCount,
+                targetCount = savedTarget,
+                selectedPreset = selectedPreset,
+                settings = savedSettings
+            )
+        }
+    }
 
     fun incrementCount() {
         viewModelScope.launch {
@@ -85,10 +113,15 @@ class TasbihViewModel @Inject constructor() : ViewModel() {
             val newCount = currentState.currentCount + 1
             val targetReached = newCount == currentState.targetCount
 
+            val finalCount = if (currentState.settings.autoReset && targetReached) 0 else newCount
+
             _uiState.value = currentState.copy(
-                currentCount = if (currentState.settings.autoReset && targetReached) 0 else newCount,
+                currentCount = finalCount,
                 isTargetReached = targetReached
             )
+
+            // Save to DataStore
+            preferencesRepository.setCurrentCount(finalCount)
 
             // Reset target reached flag after animation
             if (targetReached && !currentState.settings.autoReset) {
@@ -102,33 +135,46 @@ class TasbihViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             val currentState = _uiState.value
             if (currentState.currentCount > 0) {
-                _uiState.value = currentState.copy(
-                    currentCount = currentState.currentCount - 1
-                )
+                val newCount = currentState.currentCount - 1
+                _uiState.value = currentState.copy(currentCount = newCount)
+                preferencesRepository.setCurrentCount(newCount)
             }
         }
     }
 
     fun resetCount() {
-        _uiState.value = _uiState.value.copy(
-            currentCount = 0,
-            isTargetReached = false
-        )
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                currentCount = 0,
+                isTargetReached = false
+            )
+            preferencesRepository.setCurrentCount(0)
+        }
     }
 
     fun updateTarget(target: Int) {
-        _uiState.value = _uiState.value.copy(targetCount = target)
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(targetCount = target)
+            preferencesRepository.setTargetCount(target)
+        }
     }
 
     fun selectPreset(preset: TasbihPreset) {
-        _uiState.value = _uiState.value.copy(
-            selectedPreset = preset,
-            targetCount = preset.defaultTarget
-        )
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                selectedPreset = preset,
+                targetCount = preset.defaultTarget
+            )
+            preferencesRepository.setSelectedPresetId(preset.id)
+            preferencesRepository.setTargetCount(preset.defaultTarget)
+        }
     }
 
     fun updateSettings(settings: TasbihSettings) {
-        _uiState.value = _uiState.value.copy(settings = settings)
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(settings = settings)
+            preferencesRepository.setSettings(settings)
+        }
     }
 
     fun showResetDialog(show: Boolean) {

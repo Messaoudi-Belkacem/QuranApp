@@ -175,8 +175,8 @@ fun DhikrDisplay(
             // Animated hint - positioned over the card
             AnimatedVisibility(
                 visible = showHint,
-                enter = fadeIn(),
-                exit = fadeOut()
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
             ) {
                 val infiniteTransition = rememberInfiniteTransition(label = "pulse")
                 val alpha by infiniteTransition.animateFloat(
@@ -191,7 +191,7 @@ fun DhikrDisplay(
                 Text(
                     text = stringResource(R.string.long_press_to_change),
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = alpha),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = alpha),
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
             }
