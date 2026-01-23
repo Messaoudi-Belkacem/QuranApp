@@ -16,6 +16,9 @@
       <SelectionState runConfigName="PrayerTimesComponent">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="PrayerTimesScreenNavigationButtons">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>

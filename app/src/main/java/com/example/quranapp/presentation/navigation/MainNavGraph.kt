@@ -18,7 +18,7 @@ fun MainNavGraph(
     navController: NavHostController,
     innerPadding: PaddingValues,
     rootNavController: NavHostController,
-    onNavigateToSurahReading: (Int) -> Unit = {},
+    onNavigateToSurahReading: (Int) -> Unit = {}
 ) {
     val time = 300
     NavHost(
@@ -31,7 +31,16 @@ fun MainNavGraph(
     ) {
         composable(route = Screen.HomeRoute.route) {
             HomeScreen(
-                innerPadding = innerPadding
+                innerPadding = innerPadding,
+                onNavigateToQuran = {
+                    navController.navigate(Screen.QuranRoute.route)
+                },
+                onNavigateToAdhkar = {
+                    rootNavController.navigate(Screen.AdkarRoute.route)
+                },
+                onNavigateToTasbih = {
+                    rootNavController.navigate(Screen.TasbihRoute.route)
+                }
             )
         }
         composable(route = Screen.QiblaRoute.route) {
