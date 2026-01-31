@@ -12,13 +12,20 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+enum class ViewingMode {
+    LIST,
+    MUSHAF
+}
+
 data class SurahReadingUiState(
     val currentSurah: Surah? = null,
     val allAyahs: List<Ayah> = emptyList(),
     val filteredAyahs: List<Ayah> = emptyList(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val searchQuery: String = ""
+    val searchQuery: String = "",
+    val viewingMode: ViewingMode = ViewingMode.LIST,
+    val selectedAyahId: Int? = null
 )
 
 @HiltViewModel
@@ -81,5 +88,18 @@ class SurahReadingViewModel @Inject constructor(
 
     fun clearError() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
+    }
+
+    fun toggleViewingMode() {
+        val newMode = if (_uiState.value.viewingMode == ViewingMode.LIST) {
+            ViewingMode.MUSHAF
+        } else {
+            ViewingMode.LIST
+        }
+        _uiState.value = _uiState.value.copy(viewingMode = newMode)
+    }
+
+    fun selectAyah(ayahId: Int?) {
+        _uiState.value = _uiState.value.copy(selectedAyahId = ayahId)
     }
 }

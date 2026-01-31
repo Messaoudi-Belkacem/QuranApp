@@ -11,9 +11,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,11 +23,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.quranapp.data.database.entities.Ayah
+import com.example.quranapp.data.database.entities.Surah
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,7 +70,9 @@ fun SurahReadingScreen(
                 onBackClick = onBackClick,
                 isLoading = uiState.isLoading,
                 onSearchClick = { isSearchVisible = !isSearchVisible },
-                isSearchVisible = isSearchVisible
+                isSearchVisible = isSearchVisible,
+                viewingMode = uiState.viewingMode,
+                onViewingModeToggle = { viewModel.toggleViewingMode() }
             )
         },
         floatingActionButton = {
@@ -124,12 +134,27 @@ fun SurahReadingScreen(
                         if (uiState.filteredAyahs.isEmpty() && uiState.searchQuery.isNotBlank()) {
                             EmptySearchContent()
                         } else {
-                            SurahContent(
-                                surah = uiState.currentSurah!!,
-                                ayahs = uiState.filteredAyahs,
-                                listState = listState,
-                                searchQuery = uiState.searchQuery
-                            )
+                            // Switch between viewing modes
+                            when (uiState.viewingMode) {
+                                ViewingMode.LIST -> {
+                                    SurahContent(
+                                        surah = uiState.currentSurah!!,
+                                        ayahs = uiState.filteredAyahs,
+                                        listState = listState,
+                                        searchQuery = uiState.searchQuery
+                                    )
+                                }
+                                ViewingMode.MUSHAF -> {
+                                    SurahContentText(
+                                        surah = uiState.currentSurah!!,
+                                        ayahs = uiState.filteredAyahs,
+                                        listState = listState,
+                                        searchQuery = uiState.searchQuery,
+                                        selectedAyahId = uiState.selectedAyahId,
+                                        onAyahClick = { ayahId -> viewModel.selectAyah(ayahId) }
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -149,7 +174,9 @@ private fun SurahTopAppBar(
     onBackClick: () -> Unit,
     isLoading: Boolean,
     onSearchClick: () -> Unit,
-    isSearchVisible: Boolean
+    isSearchVisible: Boolean,
+    viewingMode: ViewingMode = ViewingMode.LIST,
+    onViewingModeToggle: () -> Unit = {}
 ) {
     TopAppBar(
         title = {
@@ -188,6 +215,20 @@ private fun SurahTopAppBar(
             }
         },
         actions = {
+            // Viewing mode toggle
+            IconButton(onClick = onViewingModeToggle) {
+                Icon(
+                    imageVector = if (viewingMode == ViewingMode.MUSHAF)
+                        Icons.AutoMirrored.Filled.ViewList
+                    else
+                        Icons.AutoMirrored.Filled.MenuBook,
+                    contentDescription = if (viewingMode == ViewingMode.MUSHAF)
+                        "Switch to List View"
+                    else
+                        "Switch to Mushaf View"
+                )
+            }
+
             IconButton(onClick = onSearchClick) {
                 AnimatedContent(
                     targetState = isSearchVisible,
@@ -273,8 +314,8 @@ private fun SearchBar(
 
 @Composable
 private fun SurahContent(
-    surah: com.example.quranapp.data.database.entities.Surah,
-    ayahs: List<com.example.quranapp.data.database.entities.Ayah>,
+    surah: Surah,
+    ayahs: List<Ayah>,
     listState: LazyListState,
     searchQuery: String
 ) {
@@ -315,8 +356,247 @@ private fun SurahContent(
 }
 
 @Composable
+private fun SurahContentText(
+    surah: Surah,
+    ayahs: List<Ayah>,
+    listState: LazyListState,
+    searchQuery: String,
+    selectedAyahId: Int? = null,
+    onAyahClick: (Int) -> Unit = {}
+) {
+    LazyColumn(
+        state = listState,
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // Surah Header
+        item(key = "header") {
+            SurahHeaderCard(surah = surah)
+        }
+
+        // Bismillah (except for Surah At-Tawbah and when searching)
+        if (surah.id != 9 && searchQuery.isBlank()) {
+            item(key = "bismillah") {
+                BismillahCard()
+            }
+        }
+
+        // Mushaf-style continuous text
+        item(key = "mushaf_text") {
+            MushafTextCard(
+                ayahs = ayahs,
+                selectedAyahId = selectedAyahId,
+                onAyahClick = onAyahClick
+            )
+        }
+
+        // Bottom spacer
+        item(key = "bottom_spacer") {
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+@Suppress("DEPRECATION")
+private fun MushafTextCard(
+    ayahs: List<Ayah>,
+    selectedAyahId: Int? = null,
+    onAyahClick: (Int) -> Unit = {}
+) {
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
+        ) {
+            // Build annotated string with ayah annotations
+            val annotatedText = remember(ayahs, selectedAyahId) {
+                buildAnnotatedString {
+                    ayahs.forEach { ayah ->
+                        // Add annotation for this ayah
+                        pushStringAnnotation(
+                            tag = "AYAH",
+                            annotation = ayah.id.toString()
+                        )
+
+                        // Apply styling based on selection
+                        val isSelected = ayah.id == selectedAyahId
+                        withStyle(
+                            style = SpanStyle(
+                                fontSize = 22.sp,
+                                letterSpacing = 0.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = if (isSelected) {
+                                    androidx.compose.ui.graphics.Color(0xFF1976D2)
+                                } else {
+                                    androidx.compose.ui.graphics.Color.Unspecified
+                                },
+                                background = if (isSelected) {
+                                    androidx.compose.ui.graphics.Color(0xFFE3F2FD)
+                                } else {
+                                    androidx.compose.ui.graphics.Color.Transparent
+                                }
+                            )
+                        ) {
+                            append(ayah.text)
+
+                            // Add ayah number marker in a decorative format
+                            withStyle(
+                                style = SpanStyle(
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = androidx.compose.ui.graphics.Color(0xFF1976D2)
+                                )
+                            ) {
+                                append(" ${convertToArabicNumerals(ayah.id)}۝ ")
+                            }
+                        }
+
+                        pop()
+                    }
+                }
+            }
+
+            // Display the clickable text
+            ClickableText(
+                text = annotatedText,
+                style = TextStyle(
+                    textAlign = TextAlign.Justify,
+                    lineHeight = 40.sp,
+                    fontSize = 22.sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { offset ->
+                    // Find which ayah was clicked
+                    annotatedText
+                        .getStringAnnotations("AYAH", offset, offset)
+                        .firstOrNull()
+                        ?.let { annotation ->
+                            val ayahId = annotation.item.toIntOrNull()
+                            if (ayahId != null) {
+                                // Toggle selection
+                                if (selectedAyahId == ayahId) {
+                                    onAyahClick(-1) // Deselect
+                                } else {
+                                    onAyahClick(ayahId)
+                                }
+                            }
+                        }
+                }
+            )
+
+            // Show ayah actions when an ayah is selected
+            if (selectedAyahId != null && selectedAyahId != -1) {
+                Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                AyahActions(
+                    ayahId = selectedAyahId,
+                    onDismiss = { onAyahClick(-1) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AyahActions(
+    ayahId: Int,
+    onDismiss: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Ayah $ayahId",
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            IconButton(
+                onClick = { /* Handle bookmark */ },
+                modifier = Modifier.size(36.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.BookmarkBorder,
+                    contentDescription = "Bookmark",
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            IconButton(
+                onClick = { /* Handle copy */ },
+                modifier = Modifier.size(36.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ContentCopy,
+                    contentDescription = "Copy",
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            IconButton(
+                onClick = { /* Handle share */ },
+                modifier = Modifier.size(36.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Share,
+                    contentDescription = "Share",
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            IconButton(
+                onClick = onDismiss,
+                modifier = Modifier.size(36.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Close",
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+// Helper function to convert numbers to Arabic numerals
+private fun convertToArabicNumerals(number: Int): String {
+    val arabicNumerals = mapOf(
+        '0' to '٠', '1' to '١', '2' to '٢', '3' to '٣', '4' to '٤',
+        '5' to '٥', '6' to '٦', '7' to '٧', '8' to '٨', '9' to '٩'
+    )
+    return number.toString().map { arabicNumerals[it] ?: it }.joinToString("")
+}
+
+@Composable
 private fun SurahHeaderCard(
-    surah: com.example.quranapp.data.database.entities.Surah
+    surah: Surah
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "header_shimmer")
     val alpha by infiniteTransition.animateFloat(
