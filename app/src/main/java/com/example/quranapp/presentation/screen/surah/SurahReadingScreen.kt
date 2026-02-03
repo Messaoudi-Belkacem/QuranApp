@@ -20,6 +20,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,7 +56,6 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -88,6 +88,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -160,7 +163,9 @@ fun SurahReadingScreen(
                 surah = uiState.currentSurah,
                 onBackClick = onBackClick,
                 isLoading = uiState.isLoading,
-                onSearchClick = { isSearchVisible = !isSearchVisible }, // Fix: Toggle search visibility
+                onSearchClick = {
+                    isSearchVisible = !isSearchVisible
+                }, // Fix: Toggle search visibility
                 isSearchVisible = isSearchVisible,
                 viewingMode = uiState.viewingMode,
                 onViewingModeToggle = { viewModel.toggleViewingMode() }
@@ -213,8 +218,16 @@ fun SurahReadingScreen(
                         // Search Bar (shown/hidden with animation)
                         AnimatedVisibility(
                             visible = isSearchVisible,
-                            enter = expandVertically(animationSpec = tween(ANIMATION_DURATION_STANDARD)) + fadeIn(),
-                            exit = shrinkVertically(animationSpec = tween(ANIMATION_DURATION_STANDARD)) + fadeOut()
+                            enter = expandVertically(
+                                animationSpec = tween(
+                                    ANIMATION_DURATION_STANDARD
+                                )
+                            ) + fadeIn(),
+                            exit = shrinkVertically(
+                                animationSpec = tween(
+                                    ANIMATION_DURATION_STANDARD
+                                )
+                            ) + fadeOut()
                         ) {
                             SearchBar(
                                 searchQuery = uiState.searchQuery,
@@ -416,8 +429,8 @@ private fun SearchBar(
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                     unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
-                    unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
                 ),
                 singleLine = true
             )
@@ -635,7 +648,7 @@ private fun MushafTextCard(
  */
 private fun buildMushafAnnotatedString(
     ayahs: List<Ayah>,
-    selectedAyahId: Int?
+    selectedAyahId: Int?,
 ) = buildAnnotatedString {
     ayahs.forEach { ayah ->
         // Add annotation for click detection
@@ -654,12 +667,12 @@ private fun buildMushafAnnotatedString(
                 color = if (isSelected) {
                     androidx.compose.ui.graphics.Color(0xFF1976D2)
                 } else {
-                    androidx.compose.ui.graphics.Color.Unspecified
+                    Color.Unspecified
                 },
                 background = if (isSelected) {
                     androidx.compose.ui.graphics.Color(0xFFE3F2FD)
                 } else {
-                    androidx.compose.ui.graphics.Color.Transparent
+                    Color.Transparent
                 }
             )
         ) {
@@ -686,10 +699,10 @@ private fun buildMushafAnnotatedString(
  * Detects which ayah was clicked and toggles its selection.
  */
 private fun handleAyahClick(
-    annotatedText: androidx.compose.ui.text.AnnotatedString,
+    annotatedText: AnnotatedString,
     offset: Int,
     selectedAyahId: Int?,
-    onAyahClick: (Int) -> Unit
+    onAyahClick: (Int) -> Unit,
 ) {
     annotatedText
         .getStringAnnotations("AYAH", offset, offset)
@@ -853,11 +866,15 @@ private fun SurahHeaderCard(
         ),
         label = "alpha"
     )
+    var isExpanded by remember { mutableStateOf(false) }
 
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .animateContentSize(),
+            .animateContentSize()
+            .clickable(
+                onClick = { isExpanded = !isExpanded }
+            ),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
@@ -869,7 +886,6 @@ private fun SurahHeaderCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
                     .background(
                         brush = Brush.verticalGradient(
                             colors = listOf(
@@ -895,49 +911,66 @@ private fun SurahHeaderCard(
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Transliteration
-                Text(
-                    text = surah.transliteration,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Divider
-                HorizontalDivider(
-                    modifier = Modifier.width(80.dp),
-                    thickness = 2.dp,
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Info chips
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                AnimatedVisibility(
+                    visible = isExpanded,
+                    enter = fadeIn(animationSpec = tween(300)) + expandVertically(
+                        animationSpec = tween(300)
+                    ),
+                    exit = fadeOut(animationSpec = tween(300)) + shrinkVertically(
+                        animationSpec = tween(300)
+                    )
                 ) {
-                    InfoChip(
-                        icon = Icons.Default.Book,
-                        label = "Ayahs",
-                        value = surah.totalVerses.toString()
-                    )
 
-                    InfoChip(
-                        icon = Icons.Default.LocationOn,
-                        label = surah.type.replaceFirstChar { it.uppercase() },
-                        value = ""
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                    InfoChip(
-                        icon = Icons.Default.Tag,
-                        label = "No.",
-                        value = surah.id.toString()
-                    )
+                        // Transliteration
+                        Text(
+                            text = surah.transliteration,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Divider
+                        HorizontalDivider(
+                            modifier = Modifier.width(80.dp),
+                            thickness = 2.dp,
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Info chips
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            InfoChip(
+                                icon = Icons.Default.Book,
+                                label = "Ayahs",
+                                value = surah.totalVerses.toString()
+                            )
+
+                            InfoChip(
+                                icon = Icons.Default.LocationOn,
+                                label = surah.type.replaceFirstChar { it.uppercase() },
+                                value = ""
+                            )
+
+                            InfoChip(
+                                icon = Icons.Default.Tag,
+                                label = "No.",
+                                value = surah.id.toString()
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -950,7 +983,7 @@ private fun SurahHeaderCard(
  */
 @Composable
 private fun InfoChip(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     label: String,
     value: String,
 ) {
@@ -1006,21 +1039,12 @@ private fun BismillahCard() {
         ),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.Default.Star,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp),
-                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
             Text(
                 text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
                 style = MaterialTheme.typography.headlineMedium,
