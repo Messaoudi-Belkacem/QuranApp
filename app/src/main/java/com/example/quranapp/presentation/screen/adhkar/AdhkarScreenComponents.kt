@@ -149,7 +149,6 @@ fun AdhkarDetailView(
     adhkar: List<Dhikr>,
     progress: Map<Int, Int>,
     onDhikrClick: (Int, Int) -> Unit,
-    onResetClick: (Int) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -160,8 +159,7 @@ fun AdhkarDetailView(
             DhikrCard(
                 dhikr = dhikr,
                 progress = progress[index] ?: 0,
-                onTap = { onDhikrClick(index, dhikr.repeat) },
-                onReset = { onResetClick(index) }
+                onTap = { onDhikrClick(index, dhikr.repeat) }
             )
         }
     }
@@ -172,8 +170,9 @@ fun DhikrCard(
     dhikr: Dhikr,
     progress: Int,
     onTap: () -> Unit,
-    onReset: () -> Unit,
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val hapticFeedback = androidx.compose.ui.platform.LocalHapticFeedback.current
     val isCompleted = progress >= dhikr.repeat
     val progressPercentage = if (dhikr.repeat > 0) progress.toFloat() / dhikr.repeat else 0f
 
@@ -195,35 +194,67 @@ fun DhikrCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .combinedClickable(
-                onClick = { onTap() },
+                onClick = {
+                    if (progress < dhikr.repeat) {
+                        // Trigger light vibration
+                        hapticFeedback.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                        onTap()
+                    }
+                },
                 onLongClick = { isExpanded = !isExpanded }
             )
     ) {
         Box {
-            // Progress border
-            Box(
+            // Circular progress border around the card perimeter
+            androidx.compose.foundation.Canvas(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(4.dp)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .height(if (isExpanded && dhikr.benefit.isNotEmpty()) 300.dp else 200.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(progressPercentage)
-                        .fillMaxHeight()
-                        .background(
-                            if (isCompleted)
-                                MaterialTheme.colorScheme.primary
-                            else
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
-                        )
+                val strokeWidth = 4.dp.toPx()
+                val sweepAngle = 360f * progressPercentage
+
+                // Background arc (full circle)
+                drawArc(
+                    color = androidx.compose.ui.graphics.Color.LightGray.copy(alpha = 0.3f),
+                    startAngle = -90f,
+                    sweepAngle = 360f,
+                    useCenter = false,
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth),
+                    topLeft = androidx.compose.ui.geometry.Offset(strokeWidth / 2, strokeWidth / 2),
+                    size = androidx.compose.ui.geometry.Size(
+                        size.width - strokeWidth,
+                        size.height - strokeWidth
+                    )
                 )
+
+                // Progress arc
+                if (progressPercentage > 0f) {
+                    drawArc(
+                        color = if (isCompleted)
+                            androidx.compose.ui.graphics.Color(0xFF4CAF50) // Green for completed
+                        else
+                            androidx.compose.ui.graphics.Color(0xFF2196F3), // Blue for in progress
+                        startAngle = -90f,
+                        sweepAngle = sweepAngle,
+                        useCenter = false,
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(
+                            width = strokeWidth,
+                            cap = androidx.compose.ui.graphics.StrokeCap.Round
+                        ),
+                        topLeft = androidx.compose.ui.geometry.Offset(strokeWidth / 2, strokeWidth / 2),
+                        size = androidx.compose.ui.geometry.Size(
+                            size.width - strokeWidth,
+                            size.height - strokeWidth
+                        )
+                    )
+                }
             }
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)
+                    .padding(24.dp)
                     .background(color = Color.Transparent),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -264,7 +295,7 @@ fun DhikrCard(
                 // Progress section
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // Counter display
@@ -289,19 +320,6 @@ fun DhikrCard(
                             else
                                 MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                    }
-
-                    // Reset button
-                    if (progress > 0) {
-                        TextButton(onClick = onReset) {
-                            Icon(
-                                imageVector = Icons.Default.Refresh,
-                                contentDescription = stringResource(R.string.reset),
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(stringResource(R.string.reset))
-                        }
                     }
                 }
             }
