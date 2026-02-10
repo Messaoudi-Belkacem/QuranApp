@@ -35,7 +35,7 @@ fun EnhancedSurahItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                Log.d("QuranScreen", "Surah clicked: id=${surah.id}, name=${surah.transliteration}")
+                Log.d("QuranScreen", "Surah clicked: id=${surah.id}, name=${surah.nameEnglish}")
                 onSurahClick(surah)
             }
             .padding(horizontal = 20.dp, vertical = 12.dp),
@@ -64,7 +64,7 @@ fun EnhancedSurahItem(
             modifier = Modifier.weight(1f)
         ) {
             Text(
-                text = surah.transliteration,
+                text = surah.nameEnglish,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -77,7 +77,7 @@ fun EnhancedSurahItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = surah.type.replaceFirstChar { it.uppercase() },
+                    text = "Juzz ${surah.startJuzz}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Medium
@@ -99,7 +99,7 @@ fun EnhancedSurahItem(
 
         // Arabic Name
         Text(
-            text = surah.name,
+            text = surah.nameArabic,
             style = MaterialTheme.typography.headlineSmall.copy(
                 fontFamily = uthmaniFont
             ),

@@ -316,12 +316,12 @@ private fun SurahTopAppBar(
                 if (targetSurah != null) {
                     Column {
                         Text(
-                            text = targetSurah.name,
+                            text = targetSurah.nameArabic,
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = targetSurah.transliteration,
+                            text = targetSurah.nameEnglish,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -907,7 +907,7 @@ private fun SurahHeaderCard(
             ) {
                 // Arabic name
                 Text(
-                    text = surah.name,
+                    text = surah.nameArabic,
                     style = MaterialTheme.typography.displaySmall.copy(
                         fontFamily = uthmaniFont
                     ),
@@ -933,9 +933,9 @@ private fun SurahHeaderCard(
                     ) {
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // Transliteration
+                        // English name
                         Text(
-                            text = surah.transliteration,
+                            text = surah.nameEnglish,
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -965,8 +965,8 @@ private fun SurahHeaderCard(
 
                             InfoChip(
                                 icon = Icons.Default.LocationOn,
-                                label = surah.type.replaceFirstChar { it.uppercase() },
-                                value = ""
+                                label = "Juzz",
+                                value = surah.startJuzz.toString()
                             )
 
                             InfoChip(

@@ -6,8 +6,9 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "surahs")
 data class Surah(
     @PrimaryKey val id: Int,
-    val name: String,
-    val transliteration: String,
-    val type: String,
+    val nameArabic: String,
+    val nameEnglish: String,
     val totalVerses: Int,
+    val startPage: Int = 1,
+    val startJuzz: Int = 1
 )
