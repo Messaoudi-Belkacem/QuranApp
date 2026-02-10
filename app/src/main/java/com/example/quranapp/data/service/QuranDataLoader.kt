@@ -6,7 +6,7 @@ import com.example.quranapp.data.database.dao.AyahDao
 import com.example.quranapp.data.database.dao.SurahDao
 import com.example.quranapp.data.database.entities.Ayah
 import com.example.quranapp.data.database.entities.Surah
-import com.example.quranapp.data.model.SurahJson
+import com.example.quranapp.data.model.QuranAyahJson
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -73,60 +73,76 @@ class QuranDataLoader @Inject constructor(
             Log.d(tag, ">>> Parsing JSON data...")
             
             val gson = Gson()
-            val quranDataArray = gson.fromJson(jsonString, Array<SurahJson>::class.java)
-            
-            if (quranDataArray == null || quranDataArray.isEmpty()) {
+            val quranDataArray = gson.fromJson(jsonString, Array<QuranAyahJson>::class.java)
+
+            if (quranDataArray == null || quranDataArray.size == 0) {
                 throw IllegalStateException("Failed to parse JSON data or data is empty")
             }
             
-            val quranData = quranDataArray.toList()
-            Log.d(tag, ">>> Parsed ${quranData.size} Surahs from JSON")
+            val quranData: List<QuranAyahJson> = quranDataArray.toList()
+            Log.d(tag, ">>> Parsed ${quranData.size} Ayahs from JSON")
 
             Log.d(tag, ">>> Converting and preparing data for database insertion...")
+
+            // Group ayahs by surah number
+            val ayahsBySurah = quranData.groupBy { it.surahNumber }
+            Log.d(tag, ">>> Found ${ayahsBySurah.size} Surahs")
+
             val surahs = mutableListOf<Surah>()
             val ayahs = mutableListOf<Ayah>()
 
-            quranData.forEach { surahJson ->
+            ayahsBySurah.forEach { (surahNumber, ayahList) ->
                 try {
-                    // Validate Surah data
-                    if (surahJson.id < 1 || surahJson.id > 114) {
-                        Log.w(tag, "⚠ Invalid Surah ID: ${surahJson.id}, skipping...")
+                    // Validate Surah number
+                    if (surahNumber < 1 || surahNumber > 114) {
+                        Log.w(tag, "⚠ Invalid Surah number: $surahNumber, skipping...")
                         return@forEach
                     }
                     
-                    // Convert SurahJson to Surah entity
+                    // Get surah info from the first ayah of this surah
+                    val firstAyah = ayahList.firstOrNull() ?: run {
+                        Log.w(tag, "⚠ No ayahs found for Surah $surahNumber, skipping...")
+                        return@forEach
+                    }
+
+                    // Create Surah entity
                     val surah = Surah(
-                        id = surahJson.id,
-                        name = surahJson.name.trim(),
-                        transliteration = surahJson.transliteration.trim(),
-                        type = surahJson.type.trim(),
-                        totalVerses = surahJson.verses.size
+                        id = surahNumber,
+                        nameArabic = firstAyah.surahNameAr.trim(),
+                        nameEnglish = firstAyah.surahNameEn.trim(),
+                        totalVerses = ayahList.size,
+                        startPage = firstAyah.page.toIntOrNull() ?: 1,
+                        startJuzz = firstAyah.juzz
                     )
                     surahs.add(surah)
 
-                    // Convert AyahJson to Ayah entities
-                    surahJson.verses.forEach { ayahJson ->
+                    // Convert QuranAyahJson to Ayah entities
+                    ayahList.forEach { ayahJson ->
                         try {
-                            if (ayahJson.text.isBlank()) {
-                                Log.w(tag, "⚠ Empty Ayah text for Surah ${surahJson.id}, Ayah ${ayahJson.id}")
+                            if (ayahJson.ayahText.isBlank()) {
+                                Log.w(tag, "⚠ Empty Ayah text for Surah $surahNumber, Ayah ${ayahJson.ayahNumber}")
                             }
                             
                             val ayah = Ayah(
-                                id = ayahJson.id,
-                                surahId = surahJson.id,
-                                text = ayahJson.text.trim()
+                                id = ayahJson.ayahNumber,
+                                surahId = surahNumber,
+                                text = ayahJson.ayahText.trim(),
+                                juzz = ayahJson.juzz,
+                                page = ayahJson.page.toIntOrNull() ?: 1,
+                                lineStart = ayahJson.lineStart,
+                                lineEnd = ayahJson.lineEnd
                             )
                             ayahs.add(ayah)
                         } catch (e: Exception) {
-                            Log.e(tag, "Error processing Ayah ${ayahJson.id} in Surah ${surahJson.id}", e)
+                            Log.e(tag, "Error processing Ayah ${ayahJson.ayahNumber} in Surah $surahNumber", e)
                         }
                     }
                     
-                    if (surahJson.id % 20 == 0) {
-                        Log.d(tag, ">>> Processed ${surahJson.id}/114 Surahs...")
+                    if (surahNumber % 20 == 0) {
+                        Log.d(tag, ">>> Processed $surahNumber/114 Surahs...")
                     }
                 } catch (e: Exception) {
-                    Log.e(tag, "Error processing Surah ${surahJson.id}", e)
+                    Log.e(tag, "Error processing Surah $surahNumber", e)
                 }
             }
 

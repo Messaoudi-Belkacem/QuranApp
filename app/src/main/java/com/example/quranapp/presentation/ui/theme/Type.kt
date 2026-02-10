@@ -29,8 +29,7 @@ val displayFontFamily = FontFamily(
 
 // Uthmani font family for Arabic Quran text
 val uthmaniFont = FontFamily(
-    Font(R.font.uthmani_font, FontWeight.Normal),
-    Font(R.font.uthmani_font_bold, FontWeight.Bold)
+    Font(R.font.uthmanic_warsh_font, FontWeight.Normal)
 )
 
 // Default Material 3 typography values

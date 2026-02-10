@@ -44,8 +44,8 @@ class QuranViewModel @Inject constructor(
                 if (surahs.isEmpty()) {
                     Log.w(tag, "⚠ Surahs list is empty!")
                 } else {
-                    Log.d(tag, "✓ First Surah: ${surahs.firstOrNull()?.name} (${surahs.firstOrNull()?.transliteration})")
-                    Log.d(tag, "✓ Last Surah: ${surahs.lastOrNull()?.name} (${surahs.lastOrNull()?.transliteration})")
+                    Log.d(tag, "✓ First Surah: ${surahs.firstOrNull()?.nameEnglish} (${surahs.firstOrNull()?.nameArabic})")
+                    Log.d(tag, "✓ Last Surah: ${surahs.lastOrNull()?.nameEnglish} (${surahs.lastOrNull()?.nameArabic})")
                 }
                 
                 _uiState.value = _uiState.value.copy(
