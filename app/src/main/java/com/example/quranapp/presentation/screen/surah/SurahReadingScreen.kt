@@ -102,6 +102,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.quranapp.data.database.entities.Ayah
 import com.example.quranapp.data.database.entities.Surah
+import com.example.quranapp.presentation.ui.theme.uthmaniFont
 import kotlinx.coroutines.launch
 
 // ========================================
@@ -661,9 +662,10 @@ private fun buildMushafAnnotatedString(
         val isSelected = ayah.id == selectedAyahId
         withStyle(
             style = SpanStyle(
-                fontSize = 22.sp,
+                fontSize = 26.sp,
                 letterSpacing = 0.sp,
                 fontWeight = FontWeight.Normal,
+                fontFamily = uthmaniFont,
                 color = if (isSelected) {
                     androidx.compose.ui.graphics.Color(0xFF1976D2)
                 } else {
@@ -681,8 +683,9 @@ private fun buildMushafAnnotatedString(
             // Add ayah number marker in Arabic numerals
             withStyle(
                 style = SpanStyle(
-                    fontSize = 16.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
+                    fontFamily = uthmaniFont,
                     color = androidx.compose.ui.graphics.Color(0xFF1976D2)
                 )
             ) {
@@ -905,7 +908,9 @@ private fun SurahHeaderCard(
                 // Arabic name
                 Text(
                     text = surah.name,
-                    style = MaterialTheme.typography.displaySmall,
+                    style = MaterialTheme.typography.displaySmall.copy(
+                        fontFamily = uthmaniFont
+                    ),
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center
@@ -1047,12 +1052,14 @@ private fun BismillahCard() {
         ) {
             Text(
                 text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontFamily = uthmaniFont
+                ),
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
-                fontSize = 24.sp,
-                lineHeight = 36.sp
+                fontSize = 28.sp,
+                lineHeight = 42.sp
             )
         }
     }
@@ -1163,12 +1170,14 @@ private fun AyahCard(
             Text(
                 text = ayah.text,
                 modifier = Modifier.fillMaxWidth(),
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontFamily = uthmaniFont
+                ),
                 fontWeight = FontWeight.Normal,
                 textAlign = TextAlign.End,
                 color = MaterialTheme.colorScheme.onSurface,
-                lineHeight = 40.sp,
-                fontSize = 24.sp
+                lineHeight = 48.sp,
+                fontSize = 28.sp
             )
 
             Spacer(modifier = Modifier.height(16.dp))

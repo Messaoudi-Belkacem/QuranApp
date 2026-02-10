@@ -22,7 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.quranapp.data.database.entities.Surah
+import com.example.quranapp.presentation.ui.theme.uthmaniFont
 
 @Composable
 fun EnhancedSurahItem(
@@ -98,9 +100,12 @@ fun EnhancedSurahItem(
         // Arabic Name
         Text(
             text = surah.name,
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.headlineSmall.copy(
+                fontFamily = uthmaniFont
+            ),
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
+            fontSize = 24.sp
         )
     }
 }

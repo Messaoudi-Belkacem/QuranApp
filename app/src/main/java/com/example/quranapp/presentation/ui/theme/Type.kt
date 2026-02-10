@@ -1,8 +1,9 @@
 package com.example.quranapp.presentation.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.googlefonts.GoogleFont
 import com.example.quranapp.R
 
@@ -13,17 +14,23 @@ val provider = GoogleFont.Provider(
 )
 
 val bodyFontFamily = FontFamily(
-    Font(
+    androidx.compose.ui.text.googlefonts.Font(
         googleFont = GoogleFont("Poppins"),
         fontProvider = provider,
     )
 )
 
 val displayFontFamily = FontFamily(
-    Font(
+    androidx.compose.ui.text.googlefonts.Font(
         googleFont = GoogleFont("Poppins"),
         fontProvider = provider,
     )
+)
+
+// Uthmani font family for Arabic Quran text
+val uthmaniFont = FontFamily(
+    Font(R.font.uthmani_font, FontWeight.Normal),
+    Font(R.font.uthmani_font_bold, FontWeight.Bold)
 )
 
 // Default Material 3 typography values
