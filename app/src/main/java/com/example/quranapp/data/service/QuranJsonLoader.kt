@@ -21,6 +21,7 @@ class QuranJsonLoader @Inject constructor(
     // Cache the loaded data in memory
     private var cachedSurahs: List<Surah>? = null
     private var cachedAyahs: Map<Int, List<Ayah>>? = null
+    private var cachedAllAyahs: List<Ayah>? = null
 
     suspend fun loadAllSurahs(): List<Surah> {
         return withContext(Dispatchers.IO) {
@@ -107,6 +108,7 @@ class QuranJsonLoader @Inject constructor(
         // Cache the data
         cachedSurahs = surahs
         cachedAyahs = ayahsMap
+        cachedAllAyahs = ayahsMap.values.flatten()
 
         Log.d(tag, "✓✓✓ Data loaded and cached successfully!")
         Log.d(tag, "✓ Total Surahs: ${surahs.size}")
@@ -127,6 +129,24 @@ class QuranJsonLoader @Inject constructor(
                 loadAllSurahs()
             }
             cachedAyahs?.get(surahId) ?: emptyList()
+        }
+    }
+
+    suspend fun getAyahsByPage(page: Int): List<Ayah> {
+        return withContext(Dispatchers.IO) {
+            if (cachedAllAyahs == null) {
+                loadAllSurahs()
+            }
+            cachedAllAyahs?.filter { it.page == page } ?: emptyList()
+        }
+    }
+
+    suspend fun getAllPageNumbers(): List<Int> {
+        return withContext(Dispatchers.IO) {
+            if (cachedAllAyahs == null) {
+                loadAllSurahs()
+            }
+            cachedAllAyahs?.map { it.page }?.distinct()?.sorted() ?: emptyList()
         }
     }
 

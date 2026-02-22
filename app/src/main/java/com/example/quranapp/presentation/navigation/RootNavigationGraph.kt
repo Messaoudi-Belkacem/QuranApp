@@ -15,6 +15,7 @@ import com.example.quranapp.presentation.screen.about.AboutScreen
 import com.example.quranapp.presentation.screen.adhkar.AdhkarScreen
 import com.example.quranapp.presentation.screen.help.HelpScreen
 import com.example.quranapp.presentation.screen.main.MainScreen
+import com.example.quranapp.presentation.screen.page.PageReadingScreen
 import com.example.quranapp.presentation.screen.prayertimes.PrayerTimesScreen
 import com.example.quranapp.presentation.screen.quran.QuranScreen
 import com.example.quranapp.presentation.screen.settings.SettingsScreen
@@ -39,6 +40,9 @@ fun RootNavigationGraph(
             QuranScreen(
                 onSurahClick = { surah ->
                     navHostController.navigate(Screen.SurahReadingRoute.createRoute(surah.id))
+                },
+                onPageClick = { pageNumber ->
+                    navHostController.navigate(Screen.PageReadingRoute.createRoute(pageNumber))
                 }
             )
         }
@@ -49,6 +53,16 @@ fun RootNavigationGraph(
             val surahId = backStackEntry.arguments?.getInt("surahId") ?: 1
             SurahReadingScreen(
                 surahId = surahId,
+                onBackClick = { navHostController.popBackStack() }
+            )
+        }
+        composable(
+            route = Screen.PageReadingRoute.route,
+            arguments = listOf(navArgument("pageNumber") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val pageNumber = backStackEntry.arguments?.getInt("pageNumber") ?: 1
+            PageReadingScreen(
+                pageNumber = pageNumber,
                 onBackClick = { navHostController.popBackStack() }
             )
         }
