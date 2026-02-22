@@ -4,19 +4,12 @@ import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,7 +23,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -53,7 +45,6 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -64,6 +55,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -75,14 +67,15 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -316,11 +309,6 @@ private fun PageContent(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Page header
-        item(key = "page_header") {
-            PageHeaderCard(pageNumber = pageNumber)
-        }
-
         // Render each surah group
         surahGroups.forEach { group ->
             val surah = group.surah
@@ -361,81 +349,6 @@ private fun PageContent(
         item(key = "page_footer") {
             PageFooter(pageNumber = pageNumber)
         }
-
-        // Bottom spacer
-        item(key = "bottom_spacer") {
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-    }
-}
-
-// ========================================
-// Page Header Card
-// ========================================
-
-@Composable
-private fun PageHeaderCard(pageNumber: Int) {
-    val infiniteTransition = rememberInfiniteTransition(label = "page_header_shimmer")
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.7f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "alpha"
-    )
-
-    ElevatedCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .animateContentSize(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        ),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
-    ) {
-        Box {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.primary.copy(alpha = alpha * 0.1f),
-                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0f)
-                            )
-                        )
-                    )
-            )
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = convertToArabicNumerals(pageNumber),
-                    style = MaterialTheme.typography.displaySmall.copy(
-                        fontFamily = uthmaniFont
-                    ),
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = "Page $pageNumber",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
-        }
     }
 }
 
@@ -445,40 +358,42 @@ private fun PageHeaderCard(pageNumber: Int) {
 
 @Composable
 private fun SurahNameHeader(surah: Surah) {
-    ElevatedCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .animateContentSize(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.tertiaryContainer
-        ),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 3.dp)
-    ) {
-        Column(
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+        ElevatedCard(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .animateContentSize(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer
+            ),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 3.dp)
         ) {
-            Text(
-                text = surah.nameArabic,
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    fontFamily = uthmaniFont
-                ),
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onTertiaryContainer,
-                textAlign = TextAlign.Center
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = surah.nameArabic,
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        fontFamily = uthmaniFont
+                    ),
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer,
+                    textAlign = TextAlign.Center
+                )
 
-            Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-            Text(
-                text = "${surah.nameEnglish} • ${surah.totalVerses} Ayahs",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f),
-                textAlign = TextAlign.Center
-            )
+                Text(
+                    text = "${surah.nameEnglish} • ${surah.totalVerses} Ayahs",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f),
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }
@@ -489,33 +404,35 @@ private fun SurahNameHeader(surah: Surah) {
 
 @Composable
 private fun BismillahCard() {
-    ElevatedCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .animateContentSize(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
-        ),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
-    ) {
-        Box(
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+        ElevatedCard(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp),
-            contentAlignment = Alignment.Center
+                .animateContentSize(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer
+            ),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
         ) {
-            Text(
-                text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    fontFamily = uthmaniFont
-                ),
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                fontSize = 28.sp,
-                lineHeight = 42.sp
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        fontFamily = uthmaniFont
+                    ),
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    fontSize = 28.sp,
+                    lineHeight = 42.sp
+                )
+            }
         }
     }
 }
@@ -532,76 +449,80 @@ private fun PageMushafTextCard(
     selectedAyahId: Int? = null,
     onAyahClick: (Int) -> Unit = {},
 ) {
-    Box(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        ElevatedCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .animateContentSize(),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            ),
-            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+        Box(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Column(
+            ElevatedCard(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)
+                    .animateContentSize(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.elevatedCardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                ),
+                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
             ) {
-                val annotatedText = remember(ayahs, selectedAyahId) {
-                    buildPageMushafAnnotatedString(ayahs, selectedAyahId)
-                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
+                ) {
+                    val annotatedText = remember(ayahs, selectedAyahId) {
+                        buildPageMushafAnnotatedString(ayahs, selectedAyahId)
+                    }
 
-                ClickableText(
-                    text = annotatedText,
-                    style = TextStyle(
-                        textAlign = TextAlign.Justify,
-                        lineHeight = 40.sp,
-                        fontSize = 22.sp,
-                        color = MaterialTheme.colorScheme.onSurface
-                    ),
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = { offset ->
-                        annotatedText
-                            .getStringAnnotations("AYAH", offset, offset)
-                            .firstOrNull()
-                            ?.let { annotation ->
-                                val ayahId = annotation.item.toIntOrNull()
-                                if (ayahId != null) {
-                                    if (selectedAyahId == ayahId) {
-                                        onAyahClick(-1)
-                                    } else {
-                                        onAyahClick(ayahId)
+                    ClickableText(
+                        text = annotatedText,
+                        style = TextStyle(
+                            textAlign = TextAlign.Justify,
+                            lineHeight = 40.sp,
+                            fontSize = 22.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { offset ->
+                            annotatedText
+                                .getStringAnnotations("AYAH", offset, offset)
+                                .firstOrNull()
+                                ?.let { annotation ->
+                                    val ayahId = annotation.item.toIntOrNull()
+                                    if (ayahId != null) {
+                                        if (selectedAyahId == ayahId) {
+                                            onAyahClick(-1)
+                                        } else {
+                                            onAyahClick(ayahId)
+                                        }
                                     }
                                 }
-                            }
-                    }
-                )
+                        }
+                    )
+                }
             }
-        }
 
-        // Ayah actions tooltip
-        AnimatedVisibility(
-            visible = selectedAyahId != null && selectedAyahId != -1,
-            enter = fadeIn(animationSpec = tween(ANIMATION_DURATION_FAST)) + scaleIn(
-                animationSpec = tween(ANIMATION_DURATION_FAST),
-                initialScale = 0.8f
-            ),
-            exit = fadeOut(animationSpec = tween(ANIMATION_DURATION_VERY_FAST)) + scaleOut(
-                animationSpec = tween(ANIMATION_DURATION_VERY_FAST),
-                targetScale = 0.8f
-            ),
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 8.dp)
-        ) {
-            if (selectedAyahId != null && selectedAyahId != -1) {
-                AyahActionsTooltip(
-                    ayahId = selectedAyahId,
-                    onDismiss = { onAyahClick(-1) }
-                )
+            // Ayah actions tooltip — keep LTR so icon order stays conventional
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                AnimatedVisibility(
+                    visible = selectedAyahId != null && selectedAyahId != -1,
+                    enter = fadeIn(animationSpec = tween(ANIMATION_DURATION_FAST)) + scaleIn(
+                        animationSpec = tween(ANIMATION_DURATION_FAST),
+                        initialScale = 0.8f
+                    ),
+                    exit = fadeOut(animationSpec = tween(ANIMATION_DURATION_VERY_FAST)) + scaleOut(
+                        animationSpec = tween(ANIMATION_DURATION_VERY_FAST),
+                        targetScale = 0.8f
+                    ),
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 8.dp)
+                ) {
+                    if (selectedAyahId != null && selectedAyahId != -1) {
+                        AyahActionsTooltip(
+                            ayahId = selectedAyahId,
+                            onDismiss = { onAyahClick(-1) }
+                        )
+                    }
+                }
             }
         }
     }
@@ -640,20 +561,8 @@ private fun buildPageMushafAnnotatedString(
                 }
             )
         ) {
-            append(ayah.text)
-
-            withStyle(
-                style = SpanStyle(
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = uthmaniFont,
-                    color = Color(0xFF1976D2)
-                )
-            ) {
-                append(" ${convertToArabicNumerals(ayah.id)}۝ ")
-            }
+            append(" ${ayah.text}")
         }
-
         pop()
     }
 }
