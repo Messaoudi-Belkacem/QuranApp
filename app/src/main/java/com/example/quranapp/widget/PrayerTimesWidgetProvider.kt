@@ -10,7 +10,7 @@ import android.widget.RemoteViews
 import com.example.quranapp.MainActivity
 import com.example.quranapp.R
 import com.example.quranapp.data.repository.PrayerSettingsRepository
-import com.example.quranapp.data.repository.QuranRepository
+import com.example.quranapp.data.model.Location
 import com.example.quranapp.util.AdhanPrayerTimeCalculator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -74,10 +74,12 @@ class PrayerTimesWidgetProvider : AppWidgetProvider() {
 
                     // Get location from SharedPreferences
                     val prefs = context.getSharedPreferences("quran_prefs", Context.MODE_PRIVATE)
-                    val latitude = prefs.getFloat("location_latitude", 0f)
-                    val longitude = prefs.getFloat("location_longitude", 0f)
+                    val locationString = prefs.getString("current_location", null)
+                    val location = locationString?.let { Location.fromString(it) }
 
-                    if (latitude != 0f && longitude != 0f) {
+                    if (location != null) {
+                        val latitude = location.latitude
+                        val longitude = location.longitude
                         // Get prayer calculation settings
                         val prayerSettingsRepository = PrayerSettingsRepository(context)
                         val calculationMethod = prayerSettingsRepository.getCalculationMethod()
