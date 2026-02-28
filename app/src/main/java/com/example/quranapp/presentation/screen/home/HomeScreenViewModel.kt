@@ -350,6 +350,9 @@ class HomeScreenViewModel @Inject constructor(
                         error = null
                     )
 
+                    // Keep widget in sync with updated settings
+                    updateWidget()
+
                     Log.d(TAG, "Prayer times recalculated successfully")
                 } else {
                     Log.w(TAG, "No location available to recalculate prayer times")

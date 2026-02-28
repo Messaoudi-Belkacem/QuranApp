@@ -11,12 +11,12 @@ import com.batoulapps.adhan2.data.DateComponents
 import com.example.quranapp.domain.model.AsrCalculationMethod
 import com.example.quranapp.domain.model.HighLatitudeMethod
 import com.example.quranapp.domain.model.PrayerCalculationMethod
+import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import java.util.Calendar
 import java.util.Date
-import kotlin.time.Instant
 
 /**
  * Prayer Time Calculator using the Adhan library by Batoul Apps
@@ -26,7 +26,6 @@ import kotlin.time.Instant
  *
  * The Adhan library is the most reliable and tested solution for Islamic prayer times.
  */
-@OptIn(kotlin.time.ExperimentalTime::class)
 class AdhanPrayerTimeCalculator(
     private val latitude: Double,
     private val longitude: Double,
@@ -119,6 +118,7 @@ class AdhanPrayerTimeCalculator(
             "isna" -> CalculationMethod.NORTH_AMERICA
             "karachi" -> CalculationMethod.KARACHI
             "moonsighting" -> CalculationMethod.MOON_SIGHTING_COMMITTEE
+            "tehran", "russia" -> CalculationMethod.OTHER
             else -> CalculationMethod.MUSLIM_WORLD_LEAGUE
         }
 
@@ -138,7 +138,20 @@ class AdhanPrayerTimeCalculator(
         val params = adhanMethod.parameters.copy(
             madhab = madhab,
             highLatitudeRule = highLatRule
-        )
+        ).let { baseParams ->
+            // Apply custom angles for methods not natively supported by the Adhan library
+            when (calculationMethod.id) {
+                "tehran" -> baseParams.copy(
+                    fajrAngle = 17.7,
+                    ishaAngle = 14.0
+                )
+                "russia" -> baseParams.copy(
+                    fajrAngle = 16.0,
+                    ishaAngle = 15.0
+                )
+                else -> baseParams
+            }
+        }
 
         Log.d(
             TAG,

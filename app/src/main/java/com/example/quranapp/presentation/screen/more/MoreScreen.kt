@@ -35,6 +35,13 @@ fun MoreScreen(
                 titleResId = R.string.worship_tools,
                 items = listOf(
                     MenuItem(
+                        titleResId = R.string.prayer_times_feature,
+                        descriptionResId = R.string.prayer_times_desc,
+                        icon = null,
+                        iconRes = R.drawable.ic_prayer_time,
+                        route = Screen.PrayerTimesRoute.route
+                    ),
+                    MenuItem(
                         titleResId = R.string.adhkar,
                         descriptionResId = R.string.adhkar_description,
                         icon = null,
