@@ -118,7 +118,7 @@ fun PrayerTimesScreen(
             when {
                 uiState.isLoading -> PrayerTimesLoading()
                 uiState.error != null -> PrayerTimesError(
-                    error = uiState.error!!,
+                    error = uiState.error ?: "",
                     onRetry = { viewModel.refreshPrayerTimes() }
                 )
                 else -> PrayerTimesContent(uiState = uiState)
