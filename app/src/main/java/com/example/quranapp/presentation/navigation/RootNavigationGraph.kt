@@ -53,7 +53,9 @@ fun RootNavigationGraph(
             )
         }
         composable(route = Screen.PrayerTimesRoute.route) {
-            PrayerTimesScreen()
+            PrayerTimesScreen(
+                onNavigateBack = { navHostController.popBackStack() }
+            )
         }
         composable(route = Screen.AdkarRoute.route) {
             AdhkarScreen(
