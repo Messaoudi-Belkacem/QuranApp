@@ -39,6 +39,9 @@ fun MainScreen(
             rootNavController = rootNavController,
             onNavigateToSurahReading = { surahId ->
                 rootNavController.navigate(Screen.SurahReadingRoute.createRoute(surahId))
+            },
+            onNavigateToPageReading = { pageNumber ->
+                rootNavController.navigate(Screen.PageReadingRoute.createRoute(pageNumber))
             }
         )
     }

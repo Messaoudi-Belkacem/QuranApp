@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.quranapp.R
 
@@ -73,6 +74,15 @@ fun AdhkarScreen(
                                 tint = MaterialTheme.colorScheme.primary
                             )
                         }
+                    } else {
+                        // Display total score when viewing categories
+                        Text(
+                            text = stringResource(R.string.score_format, uiState.totalScore),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(end = 16.dp)
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -114,9 +124,6 @@ fun AdhkarScreen(
                         progress = uiState.dhikrProgress,
                         onDhikrClick = { index, maxRepeat ->
                             viewModel.incrementDhikrProgress(index, maxRepeat)
-                        },
-                        onResetClick = { index ->
-                            viewModel.resetDhikrProgress(index)
                         }
                     )
                 }

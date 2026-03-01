@@ -19,4 +19,6 @@ interface QuranRepository {
     suspend fun getCurrentLocation(): Location?
     suspend fun setCurrentLocation(latitude: Float, longitude: Float)
     suspend fun clearCurrentLocation()
+    suspend fun getAyahsByPage(page: Int): List<Ayah>
+    suspend fun getAllPageNumbers(): List<Int>
 }

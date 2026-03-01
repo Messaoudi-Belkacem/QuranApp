@@ -65,5 +65,9 @@ class QuranRepositoryImpl @Inject constructor(
     override suspend fun clearCurrentLocation() {
         prefs.edit { remove("current_location") }
     }
+
+    override suspend fun getAyahsByPage(page: Int): List<Ayah> = quranJsonLoader.getAyahsByPage(page)
+
+    override suspend fun getAllPageNumbers(): List<Int> = quranJsonLoader.getAllPageNumbers()
 }
 

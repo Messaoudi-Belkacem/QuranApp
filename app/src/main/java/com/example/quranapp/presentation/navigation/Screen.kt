@@ -37,6 +37,10 @@ sealed class Screen(val route: String, val titleResId: Int, val icon: Int? = nul
         fun createRoute(surahId: Int) = "surah_reading_screen/$surahId"
     }
 
+    data object PageReadingRoute : Screen(route = "page_reading_screen/{pageNumber}", titleResId = 0) {
+        fun createRoute(pageNumber: Int) = "page_reading_screen/$pageNumber"
+    }
+
     data object PrayerTimesRoute : Screen(route = "prayer_times_screen", titleResId = 0)
     data object AdkarRoute : Screen(route = "adkar_screen", titleResId = 0)
     data object SettingsRoute : Screen(route = "settings_screen", titleResId = 0)

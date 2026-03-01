@@ -18,7 +18,8 @@ fun MainNavGraph(
     navController: NavHostController,
     innerPadding: PaddingValues,
     rootNavController: NavHostController,
-    onNavigateToSurahReading: (Int) -> Unit = {}
+    onNavigateToSurahReading: (Int) -> Unit = {},
+    onNavigateToPageReading: (Int) -> Unit = {}
 ) {
     val time = 300
     NavHost(
@@ -53,6 +54,9 @@ fun MainNavGraph(
                 onSurahClick = { surah ->
                     // Pass navigation up to parent level where SurahReadingRoute is defined
                     onNavigateToSurahReading(surah.id)
+                },
+                onPageClick = { pageNumber ->
+                    onNavigateToPageReading(pageNumber)
                 }
             )
         }

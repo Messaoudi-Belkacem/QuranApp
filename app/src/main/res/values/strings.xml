@@ -154,4 +154,5 @@
     <!-- Adhkar Screen -->
     <string name="reset_all">Reset all</string>
     <string name="completed">Completed</string>
+    <string name="score_format">Score: %d</string>
 </resources>

@@ -155,5 +155,6 @@
     <!-- Adhkar Screen -->
     <string name="reset_all">إعادة الكل</string>
     <string name="completed">مكتمل</string>
+    <string name="score_format">النقاط: %d</string>
 </resources>
 
