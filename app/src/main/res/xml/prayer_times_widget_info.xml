@@ -4,6 +4,8 @@
     android:initialLayout="@layout/prayer_times_widget"
     android:minWidth="250dp"
     android:minHeight="200dp"
+    android:targetCellWidth="3"
+    android:targetCellHeight="3"
     android:previewImage="@drawable/ic_launcher_foreground"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="1800000"
