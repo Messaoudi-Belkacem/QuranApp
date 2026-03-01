@@ -11,7 +11,7 @@ import com.batoulapps.adhan2.data.DateComponents
 import com.example.quranapp.domain.model.AsrCalculationMethod
 import com.example.quranapp.domain.model.HighLatitudeMethod
 import com.example.quranapp.domain.model.PrayerCalculationMethod
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
@@ -26,6 +26,7 @@ import java.util.Date
  *
  * The Adhan library is the most reliable and tested solution for Islamic prayer times.
  */
+@OptIn(kotlin.time.ExperimentalTime::class)
 class AdhanPrayerTimeCalculator(
     private val latitude: Double,
     private val longitude: Double,
