@@ -82,6 +82,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.quranapp.data.database.entities.Ayah
 import com.example.quranapp.data.database.entities.Surah
 import com.example.quranapp.presentation.ui.theme.uthmaniFont
+import com.example.quranapp.util.ArabicNumeralFormatter.convertToArabicNumerals
 import kotlinx.coroutines.launch
 
 // ========================================
@@ -691,17 +692,6 @@ private fun PageFooter(pageNumber: Int) {
     }
 }
 
-// ========================================
-// Helper Functions
-// ========================================
-
-private fun convertToArabicNumerals(number: Int): String {
-    val arabicNumerals = mapOf(
-        '0' to '٠', '1' to '١', '2' to '٢', '3' to '٣', '4' to '٤',
-        '5' to '٥', '6' to '٦', '7' to '٧', '8' to '٨', '9' to '٩'
-    )
-    return number.toString().map { arabicNumerals[it] ?: it }.joinToString("")
-}
 
 // ========================================
 // State Screens (Loading, Error, Empty)
