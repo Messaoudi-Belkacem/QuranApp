@@ -5,16 +5,20 @@ import androidx.work.*
 import java.util.concurrent.TimeUnit
 
 /**
- * WorkManager worker to periodically update the prayer times widget
+ * WorkManager worker to periodically update the prayer times widget.
+ *
+ * Instead of sending a broadcast (the old AppWidgetProvider approach),
+ * this now calls [PrayerTimesWidget.updateAll] which triggers Glance
+ * to re-run [PrayerTimesWidget.provideGlance] for every widget instance.
  */
 class WidgetUpdateWorker(
     context: Context,
     params: WorkerParameters
-) : Worker(context, params) {
+) : CoroutineWorker(context, params) {
 
-    override fun doWork(): Result {
+    override suspend fun doWork(): Result {
         return try {
-            PrayerTimesWidgetProvider.requestWidgetUpdate(applicationContext)
+            PrayerTimesWidget().updateAll(applicationContext)
             Result.success()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -54,4 +58,3 @@ class WidgetUpdateWorker(
         }
     }
 }
-

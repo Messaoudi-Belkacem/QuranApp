@@ -8,26 +8,27 @@ QuranApp exposes a single Android home-screen widget: the **Prayer Times Widget*
 
 1. [Overview](#overview)
 2. [Files Involved](#files-involved)
-3. [Widget Provider — `PrayerTimesWidgetProvider`](#widget-provider--prayertimeswidgetprovider)
-4. [Background Worker — `WidgetUpdateWorker`](#background-worker--widgetupdateworker)
-5. [Layout — `prayer_times_widget.xml`](#layout--prayer_times_widgetxml)
-6. [Widget Metadata — `prayer_times_widget_info.xml`](#widget-metadata--prayer_times_widget_infoxml)
-7. [Background Drawable — `widget_background.xml`](#background-drawable--widget_backgroundxml)
-8. [Manifest Registration](#manifest-registration)
-9. [Data Dependencies](#data-dependencies)
-10. [End-to-End Data Flow](#end-to-end-data-flow)
-11. [Permissions Required](#permissions-required)
+3. [Widget — `PrayerTimesWidget`](#widget--prayertimeswidget)
+4. [Widget Receiver — `PrayerTimesWidgetReceiver`](#widget-receiver--prayertimeswidgetreceiver)
+5. [Background Worker — `WidgetUpdateWorker`](#background-worker--widgetupdateworker)
+6. [Widget Layout — `prayer_times_widget.xml`](#layout--prayer_times_widgetxml)
+7. [Widget Metadata — `prayer_times_widget_info.xml`](#widget-metadata--prayer_times_widget_infoxml)
+8. [Background Drawable — `widget_background.xml`](#background-drawable--widget_backgroundxml)
+9. [Manifest Registration](#manifest-registration)
+10. [Data Dependencies](#data-dependencies)
+11. [End-to-End Data Flow](#end-to-end-data-flow)
+12. [Permissions Required](#permissions-required)
 
 ---
 
 ## Overview
 
-The Prayer Times Widget is an [`AppWidgetProvider`](https://developer.android.com/reference/android/appwidget/AppWidgetProvider)-based home-screen widget that shows:
+The Prayer Times Widget is a [Jetpack Glance](https://developer.android.com/jetpack/androidx/releases/glance) home-screen widget (`GlanceAppWidget`) that shows:
 
 - **Next prayer** — name, scheduled time, and a countdown ("Xh Ym").
 - **Last prayer** — name and elapsed time since it was due ("Xh Ym ago").
 
-The widget recalculates and redraws itself every 15 minutes through a `WorkManager` periodic job. Tapping anywhere on the widget opens `MainActivity`.
+The widget is built with Glance's Compose-like DSL, which handles the `RemoteViews` translation automatically. It recalculates and redraws itself every 15 minutes through a `WorkManager` periodic job. Tapping anywhere on the widget opens `MainActivity`.
 
 ---
 
@@ -35,71 +36,58 @@ The widget recalculates and redraws itself every 15 minutes through a `WorkManag
 
 | Role | Path |
 |------|------|
-| Widget provider | `app/src/main/java/com/example/quranapp/widget/PrayerTimesWidgetProvider.kt` |
+| Glance widget | `app/src/main/java/com/example/quranapp/widget/PrayerTimesWidget.kt` |
+| Widget receiver | `app/src/main/java/com/example/quranapp/widget/PrayerTimesWidgetReceiver.kt` |
 | Periodic update worker | `app/src/main/java/com/example/quranapp/widget/WidgetUpdateWorker.kt` |
-| Widget layout | `app/src/main/res/layout/prayer_times_widget.xml` |
+| Widget initial layout | `app/src/main/res/layout/prayer_times_widget.xml` |
 | Widget metadata | `app/src/main/res/xml/prayer_times_widget_info.xml` |
 | Background drawable | `app/src/main/res/drawable/widget_background.xml` |
 | Manifest declaration | `app/src/main/AndroidManifest.xml` |
 
 ---
 
-## Widget Provider — `PrayerTimesWidgetProvider`
+## Widget — `PrayerTimesWidget`
 
-**File:** `app/src/main/java/com/example/quranapp/widget/PrayerTimesWidgetProvider.kt`
+**File:** `app/src/main/java/com/example/quranapp/widget/PrayerTimesWidget.kt`
 
-`PrayerTimesWidgetProvider` extends `AppWidgetProvider` (itself a `BroadcastReceiver`) and is the central controller for the widget.
+`PrayerTimesWidget` extends `GlanceAppWidget` and is the central class for the widget's data and UI.
 
-### Lifecycle methods
+### `provideGlance()`
+
+The main entry point called by Glance whenever the widget needs to render. It:
+
+1. **Reads the saved location** from `SharedPreferences` (key `"current_location"` in the `"quran_prefs"` store). If no location is present, the widget displays `"No Location"` / `"Enable GPS"` and skips prayer-time calculation.
+2. **Loads prayer settings** from `PrayerSettingsRepository`: calculation method, Asr juristic method, and high-latitude rule.
+3. **Computes today's prayer times** using `AdhanPrayerTimeCalculator` for the six canonical prayers: Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha.
+4. **Finds the next and last prayer** by linearly scanning the time-ordered list against `Date()` (now).
+5. **Passes the computed data** to the Glance composable UI via `provideContent { }`.
+
+### Composable UI
+
+The widget UI is built using Glance's Compose-like DSL (`Column`, `Row`, `Box`, `Text`, `Image`, `Spacer`). The layout mirrors the original XML widget layout:
+
+- **Header:** Mosque icon, "Prayer Times" label, update timestamp.
+- **Next Prayer:** Prayer name (20sp), scheduled time (12-hour format), countdown ("Xh Ym" / "Now" / "Tomorrow").
+- **Last Prayer:** Prayer name (16sp), elapsed time ("Xh Ym" / "Yesterday").
+- **Tap action:** `actionStartActivity<MainActivity>()` opens the app on tap.
+
+### Helper functions
+
+- `calculateTimeDifference(from, to)` — Returns `"Xh Ym"`, `"Xm"`, or `"Now"`.
+- `formatTime(date)` — Returns a 12-hour time string (`"hh:mm a"`).
+
+---
+
+## Widget Receiver — `PrayerTimesWidgetReceiver`
+
+**File:** `app/src/main/java/com/example/quranapp/widget/PrayerTimesWidgetReceiver.kt`
+
+`PrayerTimesWidgetReceiver` extends `GlanceAppWidgetReceiver` and bridges the Android widget system with the Glance widget.
 
 | Method | When called | What it does |
 |--------|-------------|--------------|
-| `onUpdate()` | System-initiated refresh or after `onEnabled()` | Iterates every active widget ID and calls `updateAppWidget()` for each. |
 | `onEnabled()` | First widget instance is added to the launcher | Calls `WidgetUpdateWorker.schedulePeriodicUpdate()` to start the 15-minute refresh cycle. |
 | `onDisabled()` | Last widget instance is removed from the launcher | Calls `WidgetUpdateWorker.cancelPeriodicUpdate()` to stop background work. |
-| `onReceive()` | Any broadcast, including the custom `ACTION_UPDATE_WIDGET` | Delegates to `onUpdate()` when the custom action is received; otherwise passes through to the parent. |
-
-### Custom broadcast action
-
-```kotlin
-const val ACTION_UPDATE_WIDGET = "com.example.quranapp.ACTION_UPDATE_WIDGET"
-```
-
-`WidgetUpdateWorker` triggers this action to force a refresh outside of the system-scheduled cycle.
-
-### `updateAppWidget()` (companion function)
-
-This is the core rendering function. It runs on a `CoroutineScope(Dispatchers.Main)` coroutine and performs the following steps:
-
-1. **Create a `RemoteViews`** instance for `R.layout.prayer_times_widget`.
-2. **Read the saved location** from `SharedPreferences` (key `"current_location"` in the `"quran_prefs"` store). If no location is present, the widget displays `"No Location"` / `"Enable GPS"` and skips prayer-time calculation.
-3. **Load prayer settings** from `PrayerSettingsRepository`: calculation method, Asr juristic method, and high-latitude rule.
-4. **Compute today's prayer times** using `AdhanPrayerTimeCalculator` for the six canonical prayers: Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha.
-5. **Find the next and last prayer** by linearly scanning the time-ordered list against `Date()` (now).
-6. **Populate the views:**
-   - Next prayer: name, scheduled time (12-hour format, e.g. `"12:30 PM"`), and countdown formatted as `"Xh Ym"` or `"Now"`.
-   - Last prayer: name and elapsed time formatted the same way, or `"Yesterday"` when none has occurred today.
-   - Update timestamp: `"Updated: HH:mm"`.
-   - Fallback when next prayer is not found today: shows `"Fajr"` / `"Tomorrow"`.
-   - Fallback when last prayer is not found today: shows `"Isha"` / `"Yesterday"`.
-7. **Attach a `PendingIntent`** on `R.id.widget_container` so tapping the widget opens `MainActivity`.
-8. **Push changes** via `AppWidgetManager.updateAppWidget()`.
-
-#### Helper functions
-
-```kotlin
-private fun calculateTimeDifference(from: Date, to: Date): String
-```
-Returns `"Xh Ym"`, `"Xm"`, or `"Now"` depending on the absolute difference between two `Date` values.
-
-```kotlin
-private fun formatTime(date: Date): String
-```
-Returns a 12-hour time string (`"hh:mm a"`) using the device locale.
-
-### `requestWidgetUpdate()` (companion function)
-
-Sends the `ACTION_UPDATE_WIDGET` broadcast to `PrayerTimesWidgetProvider`. Called by `WidgetUpdateWorker.doWork()`.
 
 ---
 
@@ -107,11 +95,11 @@ Sends the `ACTION_UPDATE_WIDGET` broadcast to `PrayerTimesWidgetProvider`. Calle
 
 **File:** `app/src/main/java/com/example/quranapp/widget/WidgetUpdateWorker.kt`
 
-`WidgetUpdateWorker` extends `androidx.work.Worker` and is responsible for keeping the widget data fresh while the app is not in the foreground.
+`WidgetUpdateWorker` extends `androidx.work.CoroutineWorker` and is responsible for keeping the widget data fresh while the app is not in the foreground.
 
 ### `doWork()`
 
-Calls `PrayerTimesWidgetProvider.requestWidgetUpdate(applicationContext)`. Returns `Result.success()` on success or `Result.retry()` if an exception is thrown.
+Calls `PrayerTimesWidget().updateAll(applicationContext)` which triggers Glance to re-run `provideGlance()` for every widget instance. Returns `Result.success()` on success or `Result.retry()` if an exception is thrown.
 
 ### `schedulePeriodicUpdate(context)`
 
@@ -143,7 +131,7 @@ Cancels the unique work by name `"widget_update_work"`. Called when the last wid
 
 **File:** `app/src/main/res/layout/prayer_times_widget.xml`
 
-The root is a vertical `LinearLayout` (`@+id/widget_container`) that fills the widget area and uses `@drawable/widget_background` for its rounded, gradient background.
+This XML layout serves as the **initial layout** displayed before Glance renders its composable content. Glance replaces it once `provideGlance()` completes.
 
 ### Structure
 
@@ -237,13 +225,12 @@ A rectangular `<shape>` with:
 **File:** `app/src/main/AndroidManifest.xml`
 
 ```xml
-<!-- Prayer Times Widget -->
+<!-- Prayer Times Widget (Glance) -->
 <receiver
-    android:name=".widget.PrayerTimesWidgetProvider"
+    android:name=".widget.PrayerTimesWidgetReceiver"
     android:exported="true">
     <intent-filter>
         <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-        <action android:name="com.example.quranapp.ACTION_UPDATE_WIDGET" />
     </intent-filter>
     <meta-data
         android:name="android.appwidget.provider"
@@ -252,8 +239,8 @@ A rectangular `<shape>` with:
 ```
 
 - `android:exported="true"` is required so the Android launcher can send `APPWIDGET_UPDATE` broadcasts.
-- The custom `ACTION_UPDATE_WIDGET` action is listed so the `WorkManager` broadcast is also received.
-- The `<meta-data>` tag links the provider to its configuration file.
+- The `<meta-data>` tag links the receiver to its configuration file.
+- Glance handles widget updates internally — no custom broadcast action is needed.
 
 ---
 
@@ -289,34 +276,36 @@ Wraps the [Adhan2 library by Batoul Apps](https://github.com/batoulapps/adhan-ja
 1. User adds widget to home screen
         │
         ▼
-2. PrayerTimesWidgetProvider.onEnabled()
+2. PrayerTimesWidgetReceiver.onEnabled()
         │  Calls WidgetUpdateWorker.schedulePeriodicUpdate()
         ▼
 3. WorkManager enqueues "widget_update_work" (every 15 min)
         │
         ▼
 4. WidgetUpdateWorker.doWork()  [runs every 15 min]
-        │  Sends ACTION_UPDATE_WIDGET broadcast
+        │  Calls PrayerTimesWidget().updateAll(context)
         ▼
-5. PrayerTimesWidgetProvider.onReceive()
-        │  Calls onUpdate() → updateAppWidget() for each widget ID
+5. Glance triggers PrayerTimesWidget.provideGlance()
+        │
         ▼
-6. updateAppWidget()
+6. provideGlance()
         ├─ Read location from SharedPreferences ("quran_prefs")
         ├─ Load prayer settings from PrayerSettingsRepository
         ├─ Compute prayer times with AdhanPrayerTimeCalculator
         ├─ Identify next prayer (first prayer after now)
         ├─ Identify last prayer (last prayer before now)
         ├─ Format countdown / elapsed strings
-        ├─ Populate RemoteViews view IDs
-        └─ AppWidgetManager.updateAppWidget() → widget redraws
+        └─ provideContent { } renders Glance composable UI
+                │
+                ▼
+           Glance translates composables → RemoteViews → widget redraws
 
-7. User taps widget → PendingIntent opens MainActivity
+7. User taps widget → actionStartActivity<MainActivity>() opens app
 
 8. User removes last widget
         │
         ▼
-9. PrayerTimesWidgetProvider.onDisabled()
+9. PrayerTimesWidgetReceiver.onDisabled()
         │  Calls WidgetUpdateWorker.cancelPeriodicUpdate()
         ▼
 10. WorkManager cancels "widget_update_work"

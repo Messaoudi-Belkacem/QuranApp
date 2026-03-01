@@ -371,7 +371,9 @@ class HomeScreenViewModel @Inject constructor(
      */
     private fun updateWidget() {
         try {
-            com.example.quranapp.widget.PrayerTimesWidgetProvider.requestWidgetUpdate(context)
+            viewModelScope.launch {
+                com.example.quranapp.widget.PrayerTimesWidget().updateAll(context)
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Error updating widget", e)
         }
