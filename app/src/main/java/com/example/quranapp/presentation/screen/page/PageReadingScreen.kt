@@ -137,7 +137,6 @@ fun PageReadingScreen(
             PageTopAppBar(
                 pageNumber = uiState.pageNumber,
                 totalPages = uiState.totalPages,
-                isLoading = uiState.isLoading,
                 onBackClick = onBackClick,
                 onPreviousPage = { viewModel.previousPage() },
                 onNextPage = { viewModel.nextPage() },
@@ -213,7 +212,6 @@ fun PageReadingScreen(
 private fun PageTopAppBar(
     pageNumber: Int,
     totalPages: Int,
-    isLoading: Boolean,
     onBackClick: () -> Unit,
     onPreviousPage: () -> Unit,
     onNextPage: () -> Unit,
@@ -332,7 +330,6 @@ private fun PageContent(
             item(key = "mushaf_${surah.id}_page_$pageNumber") {
                 PageMushafTextCard(
                     ayahs = ayahs,
-                    surahId = surah.id,
                     selectedAyahId = if (selectedAyahSurahId == surah.id) selectedAyahId else null,
                     onAyahClick = { ayahId ->
                         if (ayahId == -1) {
@@ -445,7 +442,6 @@ private fun BismillahCard() {
 @Suppress("DEPRECATION")
 private fun PageMushafTextCard(
     ayahs: List<Ayah>,
-    surahId: Int,
     selectedAyahId: Int? = null,
     onAyahClick: (Int) -> Unit = {},
 ) {
