@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Android Widgets with Glance</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@300;400;600;700&display=swap');
+
+  :root {
+    --bg: #0b0e14;
+    --surface: #131720;
+    --surface2: #1a2030;
+    --accent: #3ddc84;
+    --accent2: #4facfe;
+    --text: #e8edf5;
+    --muted: #6b7a99;
+    --border: #232d42;
+    --code-bg: #0d1117;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .hero {
+    padding: 80px 40px 60px;
+    max-width: 860px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #3ddc8422, #4facfe22);
+    border: 1px solid #3ddc8455;
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 700;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #e8edf5 30%, #4facfe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 16px;
+    font-weight: 300;
+    max-width: 560px;
+  }
+
+  .content {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 40px 100px;
+  }
+
+  .step {
+    margin-bottom: 60px;
+    position: relative;
+  }
+
+  .step-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .step-num {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: #0b0e14;
+  }
+
+  .step-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    padding-top: 6px;
+  }
+
+  .step-desc {
+    color: var(--muted);
+    margin-bottom: 20px;
+    padding-left: 60px;
+  }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    overflow-x: auto;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    margin-left: 60px;
+    position: relative;
+  }
+
+  pre::before {
+    content: attr(data-lang);
+    position: absolute;
+    top: 10px;
+    right: 16px;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .kw { color: #ff7eb6; }
+  .fn { color: #4facfe; }
+  .str { color: #3ddc84; }
+  .cm { color: #4b5a78; font-style: italic; }
+  .cls { color: #ffd700; }
+  .num { color: #ff9d4d; }
+  .ann { color: #c792ea; }
+
+  .info-box {
+    background: linear-gradient(135deg, #1a2030, #1d2640);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent2);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-left: 60px;
+    margin-top: 16px;
+    font-size: 14px;
+    color: #a0b0cc;
+  }
+
+  .info-box strong { color: var(--accent2); }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 8px 0 60px;
+  }
+
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-left: 60px;
+    margin-bottom: 16px;
+  }
+
+  .tag {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    padding: 3px 10px;
+    border-radius: 4px;
+  }
+
+  .flow {
+    display: flex;
+    gap: 0;
+    margin-left: 60px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .flow-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 10px 18px;
+    font-size: 13px;
+    color: var(--text);
+    position: relative;
+  }
+
+  .flow-item:not(:last-child)::after {
+    content: '→';
+    position: absolute;
+    right: -14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent);
+    font-size: 14px;
+    z-index: 1;
+  }
+
+  .flow-item:first-child { border-radius: 8px 0 0 8px; }
+  .flow-item:last-child { border-radius: 0 8px 8px 0; }
+
+  h2 { display: none; }
+
+  @media (max-width: 600px) {
+    .hero, .content { padding-left: 20px; padding-right: 20px; }
+    pre, .step-desc, .info-box, .tag-row, .flow { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="badge">Android · Kotlin · Jetpack Glance</div>
+  <h1>Building Android Widgets in 2025</h1>
+  <p class="subtitle">The modern approach using Glance — Jetpack's Compose-based API for App Widgets on Android 5+.</p>
+</div>
+
+<div class="content">
+
+  <!-- OVERVIEW -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">00</div>
+      <div class="step-title">How It Works</div>
+    </div>
+    <div class="step-desc">
+      Android widgets still run in a <strong>RemoteViews</strong> context (they live in the launcher process), 
+      but <strong>Glance</strong> lets you write them with a Compose-like DSL and handles the RemoteViews translation automatically.
+    </div>
+    <div class="flow">
+      <div class="flow-item">GlanceAppWidget</div>
+      <div class="flow-item">Composable Content</div>
+      <div class="flow-item">Glance → RemoteViews</div>
+      <div class="flow-item">Launcher renders</div>
+    </div>
+    <div class="info-box">
+      <strong>Key libraries:</strong> <code>androidx.glance:glance-appwidget</code> (stable since 1.0) + <code>glance-material3</code> for theming.
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- STEP 1 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">01</div>
+      <div class="step-title">Add Dependencies</div>
+    </div>
+    <p class="step-desc">Add Glance to your <code>libs.versions.toml</code> and module <code>build.gradle.kts</code>.</p>
+    <pre data-lang="TOML"><span class="cm"># libs.versions.toml</span>
+<span class="str">[versions]</span>
+glance = <span class="str">"1.1.1"</span>
+
+<span class="str">[libraries]</span>
+glance-appwidget = { group = <span class="str">"androidx.glance"</span>, name = <span class="str">"glance-appwidget"</span>, version.ref = <span class="str">"glance"</span> }
+glance-material3 = { group = <span class="str">"androidx.glance"</span>, name = <span class="str">"glance-material3"</span>, version.ref = <span class="str">"glance"</span> }</pre>
+
+    <pre data-lang="Kotlin"><span class="cm">// build.gradle.kts (app)</span>
+dependencies {
+    implementation(libs.glance.appwidget)
+    implementation(libs.glance.material3)
+}</pre>
+  </div>
+
+  <hr class="divider">
+
+  <!-- STEP 2 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">02</div>
+      <div class="step-title">Define Widget Metadata</div>
+    </div>
+    <p class="step-desc">Create an XML provider info file that declares the widget's size, update period, and preview.</p>
+    <pre data-lang="XML"><span class="cm">&lt;!-- res/xml/my_widget_info.xml --&gt;</span>
+&lt;<span class="fn">appwidget-provider</span>
+    xmlns:android=<span class="str">"http://schemas.android.com/apk/res/android"</span>
+    android:minWidth=<span class="str">"250dp"</span>
+    android:minHeight=<span class="str">"110dp"</span>
+    android:targetCellWidth=<span class="str">"3"</span>
+    android:targetCellHeight=<span class="str">"2"</span>
+    android:updatePeriodMillis=<span class="str">"1800000"</span>
+    android:resizeMode=<span class="str">"horizontal|vertical"</span>
+    android:widgetCategory=<span class="str">"home_screen"</span>
+    android:description=<span class="str">"@string/widget_description"</span>
+    android:previewLayout=<span class="str">"@layout/glance_default_loading_layout"</span> /&gt;</pre>
+    <div class="info-box">
+      <strong>Android 12+:</strong> Use <code>targetCellWidth/Height</code> (grid cells) alongside <code>minWidth/Height</code> for precise sizing on modern launchers.
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- STEP 3 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">03</div>
+      <div class="step-title">Register in AndroidManifest</div>
+    </div>
+    <p class="step-desc">Expose the widget receiver so the launcher can discover and bind it.</p>
+    <pre data-lang="XML"><span class="cm">&lt;!-- AndroidManifest.xml --&gt;</span>
+&lt;<span class="fn">receiver</span>
+    android:name=<span class="str">".MyWidgetReceiver"</span>
+    android:exported=<span class="str">"true"</span>&gt;
+    &lt;<span class="fn">intent-filter</span>&gt;
+        &lt;<span class="fn">action</span> android:name=<span class="str">"android.appwidget.action.APPWIDGET_UPDATE"</span> /&gt;
+    &lt;/<span class="fn">intent-filter</span>&gt;
+    &lt;<span class="fn">meta-data</span>
+        android:name=<span class="str">"android.appwidget.provider"</span>
+        android:resource=<span class="str">"@xml/my_widget_info"</span> /&gt;
+&lt;/<span class="fn">receiver</span>&gt;</pre>
+  </div>
+
+  <hr class="divider">
+
+  <!-- STEP 4 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">04</div>
+      <div class="step-title">Create the Widget Receiver</div>
+    </div>
+    <p class="step-desc">The receiver bridges the Android widget system with your Glance widget class.</p>
+    <pre data-lang="Kotlin"><span class="kw">class</span> <span class="cls">MyWidgetReceiver</span> : <span class="cls">GlanceAppWidgetReceiver</span>() {
+    <span class="kw">override val</span> glanceAppWidget: <span class="cls">GlanceAppWidget</span> = <span class="cls">MyWidget</span>()
+}</pre>
+  </div>
+
+  <hr class="divider">
+
+  <!-- STEP 5 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">05</div>
+      <div class="step-title">Build the Widget UI</div>
+    </div>
+    <p class="step-desc">
+      Extend <code>GlanceAppWidget</code> and implement <code>Content()</code> — a Composable using Glance's restricted UI primitives 
+      (<code>Box</code>, <code>Column</code>, <code>Row</code>, <code>Text</code>, <code>Image</code>, <code>Button</code>, <code>LazyColumn</code>).
+    </p>
+    <pre data-lang="Kotlin"><span class="kw">class</span> <span class="cls">MyWidget</span> : <span class="cls">GlanceAppWidget</span>() {
+
+    <span class="ann">@Composable</span>
+    <span class="kw">override fun</span> <span class="fn">Content</span>() {
+        <span class="cm">// GlanceTheme applies Material 3 dynamic color to widgets</span>
+        <span class="fn">GlanceTheme</span> {
+            <span class="fn">MyWidgetContent</span>()
+        }
+    }
+}
+
+<span class="ann">@Composable</span>
+<span class="kw">private fun</span> <span class="fn">MyWidgetContent</span>() {
+    <span class="kw">val</span> context = <span class="fn">LocalContext</span>.current
+    <span class="kw">val</span> count <span class="kw">by</span> <span class="fn">currentState</span>(key = <span class="fn">intPreferencesKey</span>(<span class="str">"count"</span>), defaultValue = <span class="num">0</span>)
+
+    <span class="fn">Column</span>(
+        modifier = <span class="cls">GlanceModifier</span>
+            .<span class="fn">fillMaxSize</span>()
+            .<span class="fn">background</span>(<span class="cls">GlanceTheme</span>.colors.widgetBackground)
+            .<span class="fn">padding</span>(<span class="num">16</span>.dp)
+            .<span class="fn">cornerRadius</span>(<span class="num">16</span>.dp),
+        verticalAlignment = <span class="cls">Alignment</span>.CenterVertically
+    ) {
+        <span class="fn">Text</span>(
+            text = <span class="str">"Taps: $count"</span>,
+            style = <span class="cls">TextStyle</span>(
+                color = <span class="cls">GlanceTheme</span>.colors.onSurface,
+                fontSize = <span class="num">24</span>.sp,
+                fontWeight = <span class="cls">FontWeight</span>.Bold
+            )
+        )
+        <span class="fn">Spacer</span>(modifier = <span class="cls">GlanceModifier</span>.<span class="fn">height</span>(<span class="num">8</span>.dp))
+        <span class="fn">Button</span>(
+            text = <span class="str">"Tap me"</span>,
+            onClick = <span class="fn">actionRunCallback</span>&lt;<span class="cls">IncrementAction</span>&gt;()
+        )
+    }
+}</pre>
+    <div class="info-box">
+      <strong>Note:</strong> Glance uses its own <code>GlanceModifier</code>, not Compose's <code>Modifier</code>. 
+      The APIs look similar but aren't interchangeable. Layouts are also a subset — no <code>LazyRow</code>, no Canvas, etc.
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- STEP 6 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">06</div>
+      <div class="step-title">Handle Actions</div>
+    </div>
+    <p class="step-desc">
+      Widget interactions go through <code>ActionCallback</code>. Use <code>GlanceStateDefinition</code> + <code>DataStore</code> for persistent state.
+    </p>
+    <pre data-lang="Kotlin"><span class="kw">class</span> <span class="cls">IncrementAction</span> : <span class="cls">ActionCallback</span> {
+    <span class="kw">override suspend fun</span> <span class="fn">onAction</span>(
+        context: <span class="cls">Context</span>,
+        glanceId: <span class="cls">GlanceId</span>,
+        parameters: <span class="cls">ActionParameters</span>
+    ) {
+        <span class="cm">// Update DataStore state, then re-render widget</span>
+        <span class="fn">updateAppWidgetState</span>(context, glanceId) { prefs ->
+            <span class="kw">val</span> key = <span class="fn">intPreferencesKey</span>(<span class="str">"count"</span>)
+            prefs[key] = (prefs[key] ?: <span class="num">0</span>) + <span class="num">1</span>
+        }
+        <span class="cls">MyWidget</span>().<span class="fn">update</span>(context, glanceId)
+    }
+}</pre>
+    <div class="info-box">
+      <strong>Other action types:</strong> <code>actionStartActivity&lt;MyActivity&gt;()</code>, 
+      <code>actionSendBroadcast()</code>, <code>actionStartService()</code> — all available as lambdas in <code>onClick</code>.
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- STEP 7 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">07</div>
+      <div class="step-title">Trigger Updates from Your App</div>
+    </div>
+    <p class="step-desc">Push fresh data to all instances of your widget from a ViewModel, WorkManager job, or anywhere with a Context.</p>
+    <pre data-lang="Kotlin"><span class="cm">// From a ViewModel, repository, or Worker:</span>
+<span class="kw">suspend fun</span> <span class="fn">refreshAllWidgets</span>(context: <span class="cls">Context</span>) {
+    <span class="cls">MyWidget</span>().<span class="fn">updateAll</span>(context) <span class="cm">// updates every instance</span>
+}
+
+<span class="cm">// Or target a specific glanceId:</span>
+<span class="fn">GlanceAppWidgetManager</span>(context)
+    .<span class="fn">getGlanceIds</span>(<span class="cls">MyWidget</span>::<span class="kw">class</span>.java)
+    .<span class="fn">forEach</span> { id -> <span class="cls">MyWidget</span>().<span class="fn">update</span>(context, id) }</pre>
+  </div>
+
+  <hr class="divider">
+
+  <!-- STEP 8 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">08</div>
+      <div class="step-title">Size-Adaptive Layouts</div>
+    </div>
+    <p class="step-desc">Use <code>LocalSize</code> to render different layouts based on how large the user has resized the widget.</p>
+    <pre data-lang="Kotlin"><span class="ann">@Composable</span>
+<span class="kw">override fun</span> <span class="fn">Content</span>() {
+    <span class="kw">val</span> size = <span class="fn">LocalSize</span>.current
+    <span class="fn">GlanceTheme</span> {
+        <span class="kw">if</span> (size.width >= <span class="num">250</span>.dp) {
+            <span class="fn">ExpandedLayout</span>()
+        } <span class="kw">else</span> {
+            <span class="fn">CompactLayout</span>()
+        }
+    }
+}
+
+<span class="cm">// Declare supported sizes in GlanceAppWidget subclass:</span>
+<span class="kw">override val</span> sizeMode = <span class="cls">SizeMode</span>.<span class="fn">Responsive</span>(
+    setOf(
+        <span class="cls">DpSize</span>(<span class="num">100</span>.dp, <span class="num">100</span>.dp),   <span class="cm">// small</span>
+        <span class="cls">DpSize</span>(<span class="num">250</span>.dp, <span class="num">110</span>.dp),   <span class="cm">// medium</span>
+        <span class="cls">DpSize</span>(<span class="num">250</span>.dp, <span class="num">220</span>.dp)    <span class="cm">// large</span>
+    )
+)</pre>
+  </div>
+
+  <hr class="divider">
+
+  <!-- TIPS -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">★</div>
+      <div class="step-title">Tips & Gotchas</div>
+    </div>
+    <div class="tag-row">
+      <span class="tag">No State Hoisting</span>
+      <span class="tag">DataStore only</span>
+      <span class="tag">No ViewModel in widgets</span>
+      <span class="tag">Limited Composables</span>
+      <span class="tag">WorkManager for bg updates</span>
+    </div>
+    <div class="info-box" style="border-left-color: var(--accent);">
+      <strong>State:</strong> Don't pass state top-down like normal Compose. Use <code>currentState()</code> to read from DataStore Preferences inside <code>Content()</code>. Glance re-renders on each <code>update()</code> call.<br><br>
+      <strong>Previews:</strong> Use <code>@Preview</code> with <code>LocalContext</code> mocked — Glance supports Compose previews in AS Hedgehog+.<br><br>
+      <strong>Background updates:</strong> Use <code>WorkManager</code> with <code>PeriodicWorkRequest</code> instead of relying on <code>updatePeriodMillis</code> (minimum 30 min on modern Android).<br><br>
+      <strong>Dynamic color:</strong> <code>GlanceTheme</code> automatically uses Material You wallpaper colors on Android 12+, falling back to your app theme on older versions.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
