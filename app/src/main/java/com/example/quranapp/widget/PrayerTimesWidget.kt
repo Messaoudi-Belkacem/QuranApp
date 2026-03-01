@@ -201,7 +201,6 @@ class PrayerTimesWidget : GlanceAppWidget() {
     @androidx.compose.runtime.Composable
     private fun Divider(alpha30: Boolean) {
         val color = if (alpha30) DIVIDER_30 else DIVIDER_20
-        Spacer(modifier = GlanceModifier.height(0.dp)) // top spacing handled by caller
         Box(
             modifier = GlanceModifier
                 .fillMaxWidth()
