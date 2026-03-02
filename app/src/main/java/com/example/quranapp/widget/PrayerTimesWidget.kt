@@ -14,6 +14,7 @@ import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
+import androidx.glance.color.ColorProvider
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -28,7 +29,6 @@ import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.ColorProvider
 import com.example.quranapp.MainActivity
 import com.example.quranapp.R
 import com.example.quranapp.data.model.Location
@@ -71,7 +71,7 @@ class PrayerTimesWidget : GlanceAppWidget() {
         val lastPrayerName: String,
         val timePassed: String,
         val updateTime: String,
-        val hasLocation: Boolean
+        val hasLocation: Boolean,
     )
 
     // ── Compute prayer data (runs inside provideGlance suspend) ─────
@@ -120,7 +120,8 @@ class PrayerTimesWidget : GlanceAppWidget() {
         return PrayerWidgetData(
             nextPrayerName = nextPrayer?.first ?: "Fajr",
             nextPrayerTime = nextPrayer?.let { formatTime(it.second) } ?: "--:--",
-            timeRemaining = nextPrayer?.let { calculateTimeDifference(now, it.second) } ?: "Tomorrow",
+            timeRemaining = nextPrayer?.let { calculateTimeDifference(now, it.second) }
+                ?: "Tomorrow",
             lastPrayerName = lastPrayer?.first ?: "Isha",
             timePassed = lastPrayer?.let { calculateTimeDifference(it.second, now) } ?: "Yesterday",
             updateTime = updateTime,

@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.time.ExperimentalTime::class)
+
 package com.example.quranapp.util
 
 import android.util.Log
@@ -26,7 +28,6 @@ import java.util.Date
  *
  * The Adhan library is the most reliable and tested solution for Islamic prayer times.
  */
-@OptIn(kotlin.time.ExperimentalTime::class)
 class AdhanPrayerTimeCalculator(
     private val latitude: Double,
     private val longitude: Double,

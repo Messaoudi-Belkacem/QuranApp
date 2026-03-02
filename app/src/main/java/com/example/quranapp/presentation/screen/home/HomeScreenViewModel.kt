@@ -2,6 +2,7 @@ package com.example.quranapp.presentation.screen.home
 
 import android.content.Context
 import android.util.Log
+import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quranapp.data.repository.PrayerSettingsRepository
@@ -10,6 +11,7 @@ import com.example.quranapp.domain.model.AsrCalculationMethod
 import com.example.quranapp.domain.model.HighLatitudeMethod
 import com.example.quranapp.domain.model.PrayerCalculationMethod
 import com.example.quranapp.util.LocationHelper
+import com.example.quranapp.widget.PrayerTimesWidget
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -372,7 +374,7 @@ class HomeScreenViewModel @Inject constructor(
     private fun updateWidget() {
         try {
             viewModelScope.launch {
-                com.example.quranapp.widget.PrayerTimesWidget().updateAll(context)
+                PrayerTimesWidget().updateAll(context)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error updating widget", e)
