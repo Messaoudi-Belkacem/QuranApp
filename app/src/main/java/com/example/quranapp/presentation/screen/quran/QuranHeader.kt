@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,9 +34,9 @@ fun QuranHeader(
             .padding(16.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier.Companion
@@ -48,10 +49,10 @@ fun QuranHeader(
                 horizontalAlignment = Alignment.Companion.Start
             ) {
                 Text(
-                    text = "Last Read",
+                    text = stringResource(R.string.quran_last_read),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                    color = MaterialTheme.colorScheme.secondary,
                     letterSpacing = 0.5.sp
                 )
 
@@ -61,24 +62,24 @@ fun QuranHeader(
                     text = surahName,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    color = MaterialTheme.colorScheme.onSurface,
                     letterSpacing = 0.15.sp
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = "Ayah $ayahNumber",
+                    text = stringResource(R.string.quran_ayah_format, ayahNumber),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Normal,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     letterSpacing = 0.1.sp
                 )
             }
 
             Image(
                 painter = painterResource(id = R.drawable.mosque_vector),
-                contentDescription = "Quran Icon",
+                contentDescription = stringResource(R.string.quran_icon),
                 modifier = Modifier.size(128.dp)
             )
         }

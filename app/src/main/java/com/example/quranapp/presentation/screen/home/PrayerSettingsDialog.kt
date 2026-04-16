@@ -1,5 +1,6 @@
 package com.example.quranapp.presentation.screen.home
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,8 +39,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.quranapp.R
 import com.example.quranapp.domain.model.AsrCalculationMethod
 import com.example.quranapp.domain.model.HighLatitudeMethod
 import com.example.quranapp.domain.model.PrayerCalculationMethod
@@ -62,23 +65,33 @@ fun PrayerSettingsDialog(
     prayerSettingsRepository: com.example.quranapp.data.repository.PrayerSettingsRepository,
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Method", "Asr", "High Lat", "Notif")
+    val updatedToPrefix = stringResource(R.string.updated_to_prefix)
+    val asrUpdatedMessage = stringResource(R.string.asr_method_updated)
+    val highLatUpdatedMessage = stringResource(R.string.high_lat_method_updated)
+    val tabs = listOf(
+        stringResource(R.string.tab_method),
+        stringResource(R.string.tab_asr),
+        stringResource(R.string.tab_high_lat),
+        stringResource(R.string.tab_notification)
+    )
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(20.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
         title = {
             Column {
                 Text(
-                    text = "Prayer Time Settings",
+                    text = stringResource(R.string.prayer_time_settings_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 TabRow(
                     selectedTabIndex = selectedTab,
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
                 ) {
                     tabs.forEachIndexed { index, title ->
                         Tab(
@@ -110,7 +123,7 @@ fun PrayerSettingsDialog(
                                 onMethodSelected(it)
                                 scope.launch {
                                     snackbarHostState.showSnackbar(
-                                        message = "✓ Updated to ${it.displayName}",
+                                        message = "$updatedToPrefix ${it.displayName}",
                                         duration = SnackbarDuration.Short
                                     )
                                 }
@@ -123,7 +136,7 @@ fun PrayerSettingsDialog(
                                 onAsrMethodSelected(it)
                                 scope.launch {
                                     snackbarHostState.showSnackbar(
-                                        message = "✓ Asr method updated",
+                                        message = asrUpdatedMessage,
                                         duration = SnackbarDuration.Short
                                     )
                                 }
@@ -136,7 +149,7 @@ fun PrayerSettingsDialog(
                                 onHighLatMethodSelected(it)
                                 scope.launch {
                                     snackbarHostState.showSnackbar(
-                                        message = "✓ High latitude method updated",
+                                        message = highLatUpdatedMessage,
                                         duration = SnackbarDuration.Short
                                     )
                                 }
@@ -162,10 +175,9 @@ fun PrayerSettingsDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Done")
+                Text(stringResource(R.string.done))
             }
         },
-        shape = RoundedCornerShape(20.dp),
         modifier = Modifier.fillMaxWidth()
     )
 }
@@ -197,16 +209,18 @@ private fun MethodItem(
 ) {
     ElevatedCard(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp)),
         colors = CardDefaults.elevatedCardColors(
             containerColor = if (isSelected) {
                 MaterialTheme.colorScheme.primaryContainer
             } else {
-                MaterialTheme.colorScheme.surfaceVariant
+                MaterialTheme.colorScheme.surfaceContainerLow
             }
         ),
         elevation = CardDefaults.elevatedCardElevation(
-            defaultElevation = if (isSelected) 4.dp else 2.dp
+            defaultElevation = if (isSelected) 2.dp else 1.dp
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -245,7 +259,7 @@ private fun MethodItem(
             if (isSelected) {
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
-                    contentDescription = "Selected",
+                    contentDescription = stringResource(R.string.item_selected),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
                 )
@@ -280,16 +294,18 @@ private fun AsrMethodItem(
 ) {
     ElevatedCard(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp)),
         colors = CardDefaults.elevatedCardColors(
             containerColor = if (isSelected) {
                 MaterialTheme.colorScheme.primaryContainer
             } else {
-                MaterialTheme.colorScheme.surfaceVariant
+                MaterialTheme.colorScheme.surfaceContainerLow
             }
         ),
         elevation = CardDefaults.elevatedCardElevation(
-            defaultElevation = if (isSelected) 4.dp else 2.dp
+            defaultElevation = if (isSelected) 2.dp else 1.dp
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -322,7 +338,7 @@ private fun AsrMethodItem(
             if (isSelected) {
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
-                    contentDescription = "Selected",
+                    contentDescription = stringResource(R.string.item_selected),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
                 )
@@ -358,7 +374,7 @@ private fun HighLatitudeMethodList(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Used when sun doesn't reach required angles",
+                    text = stringResource(R.string.high_lat_info),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
@@ -387,16 +403,18 @@ private fun HighLatMethodItem(
 ) {
     ElevatedCard(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp)),
         colors = CardDefaults.elevatedCardColors(
             containerColor = if (isSelected) {
                 MaterialTheme.colorScheme.primaryContainer
             } else {
-                MaterialTheme.colorScheme.surfaceVariant
+                MaterialTheme.colorScheme.surfaceContainerLow
             }
         ),
         elevation = CardDefaults.elevatedCardElevation(
-            defaultElevation = if (isSelected) 4.dp else 2.dp
+            defaultElevation = if (isSelected) 2.dp else 1.dp
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -429,7 +447,7 @@ private fun HighLatMethodItem(
             if (isSelected) {
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
-                    contentDescription = "Selected",
+                    contentDescription = stringResource(R.string.item_selected),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
                 )

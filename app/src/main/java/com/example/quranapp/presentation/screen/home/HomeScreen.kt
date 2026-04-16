@@ -1,6 +1,7 @@
 package com.example.quranapp.presentation.screen.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -55,10 +56,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.quranapp.R
@@ -95,11 +98,13 @@ fun HomeScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .background(MaterialTheme.colorScheme.background)
+                .padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             CurrentTimeDisplay(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 32.dp)
+                    .padding(horizontal = 16.dp, vertical = 24.dp)
             )
 
             if (uiState.nextPrayer != null || uiState.lastPrayer != null) {
@@ -107,7 +112,7 @@ fun HomeScreen(
                     uiState = uiState,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp)
                 )
             }
 
@@ -117,9 +122,16 @@ fun HomeScreen(
                 onSettings = { viewModel.showPrayerSettings(true) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp)
+                    .padding(horizontal = 16.dp)
             )
 
+            Text(
+                text = stringResource(R.string.quick_access),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
             NavigationButtonsRow(
                 onNavigateToQuran = onNavigateToQuran,
                 onNavigateToAdhkar = onNavigateToAdhkar,
@@ -169,10 +181,15 @@ fun PrayerTimeProgress(
     }
 
     Card(
-        modifier = modifier,
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        modifier = modifier
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant,
+                shape = RoundedCornerShape(16.dp)
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         shape = RoundedCornerShape(16.dp)
     ) {
@@ -182,6 +199,12 @@ fun PrayerTimeProgress(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            Text(
+                text = stringResource(R.string.prayer_progress_title),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Medium
+            )
             if (uiState.nextPrayer?.dateTime != null && uiState.lastPrayer?.dateTime != null) {
                 ProgressBar(
                     progress = progress,
@@ -223,8 +246,8 @@ private fun ProgressBar(
                 .fillMaxWidth()
                 .height(6.dp)
                 .clip(RoundedCornerShape(3.dp)),
-            color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+            color = MaterialTheme.colorScheme.secondary,
+            trackColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
         )
         Spacer(modifier = Modifier.height(8.dp))
         Row(
@@ -295,15 +318,16 @@ private fun PrayerCard(
     prayerTime: String,
     timeDifference: String,
     differenceLabel: String,
-    containerColor: androidx.compose.ui.graphics.Color,
-    onContainerColor: androidx.compose.ui.graphics.Color,
-    accentColor: androidx.compose.ui.graphics.Color
+    containerColor: Color,
+    onContainerColor: Color,
+    accentColor: Color
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(containerColor, RoundedCornerShape(12.dp))
-            .padding(12.dp),
+            .background(containerColor, RoundedCornerShape(16.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(16.dp))
+            .padding(14.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -396,7 +420,17 @@ fun CurrentTimeDisplay(
     }
 
     Column(
-        modifier = modifier.padding(16.dp),
+        modifier = modifier
+            .background(
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(24.dp)
+            )
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant,
+                shape = RoundedCornerShape(24.dp)
+            )
+            .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -415,7 +449,7 @@ fun CurrentTimeDisplay(
             Text(
                 text = amPmFormatter.format(now),
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.tertiary,
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
@@ -441,17 +475,29 @@ fun PrayerTimesComponent(
     onRefresh: () -> Unit = {},
     onSettings: () -> Unit = {},
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        PrayerTimesHeader(
-            currentLocation = uiState.currentLocation,
-            locationAddress = uiState.locationAddress,
-            onSettings = onSettings
-        )
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(20.dp)),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Column(modifier = Modifier.padding(vertical = 8.dp)) {
+            PrayerTimesHeader(
+                currentLocation = uiState.currentLocation,
+                locationAddress = uiState.locationAddress,
+                onSettings = onSettings
+            )
 
-        when {
-            uiState.isLoading -> LoadingState()
-            uiState.error != null -> ErrorState(error = uiState.error, onRefresh = onRefresh)
-            else -> PrayerTimesList(prayerTimes = uiState.prayerTimes)
+            when {
+                uiState.isLoading -> LoadingState()
+                uiState.error != null -> ErrorState(error = uiState.error, onRefresh = onRefresh)
+                else -> PrayerTimesList(
+                    prayerTimes = uiState.prayerTimes,
+                    nextPrayerName = uiState.nextPrayer?.name
+                )
+            }
         }
     }
 }
@@ -511,24 +557,26 @@ private fun LocationIndicator(
     currentLocation: com.example.quranapp.data.model.Location?
 ) {
     Surface(
-        shape = CircleShape,
-        color = MaterialTheme.colorScheme.primaryContainer
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.LocationOn,
                 contentDescription = stringResource(R.string.location),
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(16.dp)
+                tint = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.size(14.dp)
             )
             Text(
                 text = locationAddress ?: currentLocation.toString(),
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -605,14 +653,17 @@ private fun ErrorState(error: String, onRefresh: () -> Unit) {
  * Horizontal scrollable list of prayer times
  */
 @Composable
-private fun PrayerTimesList(prayerTimes: List<PrayerTimeData>) {
+private fun PrayerTimesList(prayerTimes: List<PrayerTimeData>, nextPrayerName: String?) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         items(prayerTimes) { prayerTime ->
-            PrayerTimeItem(prayerTimeData = prayerTime)
+            PrayerTimeItem(
+                prayerTimeData = prayerTime,
+                isNextPrayer = prayerTime.name == nextPrayerName
+            )
         }
     }
 }
@@ -621,18 +672,31 @@ private fun PrayerTimesList(prayerTimes: List<PrayerTimeData>) {
  * Individual prayer time card showing icon, name, and time
  */
 @Composable
-fun PrayerTimeItem(prayerTimeData: PrayerTimeData) {
+fun PrayerTimeItem(
+    prayerTimeData: PrayerTimeData,
+    isNextPrayer: Boolean = false,
+) {
     val localizedName = getLocalizedPrayerName(prayerTimeData.name)
     val icon = getPrayerIcon(prayerTimeData.name)
     val contentDesc = getPrayerContentDescription(prayerTimeData.name)
 
     Card(
-        modifier = Modifier.width(130.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        modifier = Modifier
+            .width(136.dp)
+            .border(
+                width = 1.dp,
+                color = if (isNextPrayer) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.outlineVariant,
+                shape = RoundedCornerShape(14.dp)
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isNextPrayer) 2.dp else 1.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = if (isNextPrayer) {
+                MaterialTheme.colorScheme.tertiaryContainer
+            } else {
+                MaterialTheme.colorScheme.surfaceContainerLow
+            }
         ),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(14.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -659,8 +723,16 @@ fun PrayerTimeItem(prayerTimeData: PrayerTimeData) {
                 text = prayerTimeData.time,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = if (isNextPrayer) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.primary
             )
+            if (isNextPrayer) {
+                Text(
+                    text = stringResource(R.string.next_label),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.tertiary,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
         }
     }
 }
@@ -707,7 +779,7 @@ fun NavigationButtonsRow(
 ) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         item {
@@ -742,14 +814,15 @@ private fun NavigationButton(icon: ImageVector, label: String, onClick: () -> Un
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .width(80.dp)
+            .width(92.dp)
             .padding(vertical = 8.dp)
             .clickable { onClick() },
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Surface(
-            shape = CircleShape,
-            color = MaterialTheme.colorScheme.primaryContainer,
+            shape = RoundedCornerShape(16.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
+            tonalElevation = 1.dp,
             modifier = Modifier.size(56.dp)
         ) {
             Box(

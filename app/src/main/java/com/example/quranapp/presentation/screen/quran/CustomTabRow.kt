@@ -48,14 +48,14 @@ fun CustomTabRow(
 
     Box(
         modifier = modifier
-            .fillMaxWidth(0.8f)
+            .fillMaxWidth()
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp)
                 .clip(RoundedCornerShape(24.dp))
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                .background(MaterialTheme.colorScheme.surfaceContainerLow)
                 .padding(horizontal = 4.dp, vertical = 4.dp)
                 .onGloballyPositioned { coordinates ->
                     tabWidth = with(density) {
@@ -78,7 +78,7 @@ fun CustomTabRow(
                         .height(40.dp)
                         .offset(x = targetOffsetX)
                         .clip(RoundedCornerShape(20.dp))
-                        .background(MaterialTheme.colorScheme.primary)
+                        .background(MaterialTheme.colorScheme.secondary)
                 )
             }
 
@@ -103,7 +103,7 @@ fun CustomTabRow(
                                 indication = ripple(
                                     bounded = true,
                                     color = if (isSelected) {
-                                        MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.12f)
+                                        MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.12f)
                                     } else {
                                         MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f)
                                     }
@@ -120,7 +120,7 @@ fun CustomTabRow(
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
                             color = if (isSelected) {
-                                MaterialTheme.colorScheme.onPrimary
+                                MaterialTheme.colorScheme.onSecondary
                             } else {
                                 MaterialTheme.colorScheme.onSurfaceVariant
                             },

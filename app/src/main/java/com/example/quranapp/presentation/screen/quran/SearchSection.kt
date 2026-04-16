@@ -11,9 +11,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.quranapp.R
 
 @Composable
 fun SearchSection(
@@ -28,7 +30,7 @@ fun SearchSection(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         placeholder = {
             Text(
-                text = "Search Surah by name or number...",
+                text = stringResource(R.string.quran_search_placeholder),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -36,7 +38,7 @@ fun SearchSection(
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,
-                contentDescription = "Search",
+                contentDescription = stringResource(R.string.quran_search),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },

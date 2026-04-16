@@ -52,6 +52,7 @@ fun TasbihScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+    val targetCompletedMessage = stringResource(R.string.target_completed)
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Trigger haptic and show snackbar when target is reached
@@ -61,7 +62,7 @@ fun TasbihScreen(
                 triggerHapticFeedback(context, true)
             }
             snackbarHostState.showSnackbar(
-                message = context.getString(R.string.target_completed),
+                message = targetCompletedMessage,
                 duration = SnackbarDuration.Short
             )
         }

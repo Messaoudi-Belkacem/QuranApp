@@ -10,6 +10,52 @@
     <string name="loading_prayer_times">جاري تحميل أوقات الصلاة…</string>
     <string name="retry">إعادة المحاولة</string>
     <string name="error">خطأ</string>
+    <string name="quick_access">الوصول السريع</string>
+    <string name="next_label">التالي</string>
+    <string name="prayer_progress_title">نافذة الصلاة</string>
+
+    <!-- Prayer Settings Dialog -->
+    <string name="prayer_time_settings_title">إعدادات أوقات الصلاة</string>
+    <string name="tab_method">الطريقة</string>
+    <string name="tab_asr">العصر</string>
+    <string name="tab_high_lat">العرض العالي</string>
+    <string name="tab_notification">الإشعارات</string>
+    <string name="updated_to_prefix">تم التحديث إلى</string>
+    <string name="asr_method_updated">تم تحديث طريقة العصر</string>
+    <string name="high_lat_method_updated">تم تحديث طريقة خطوط العرض العالية</string>
+    <string name="high_lat_info">تُستخدم عندما لا تصل الشمس إلى الزوايا المطلوبة</string>
+    <string name="done">تم</string>
+    <string name="notification">إشعار</string>
+    <string name="prayer_countdown">العد التنازلي للصلاة</string>
+    <string name="show_time_until_next_prayer">إظهار الوقت حتى الصلاة التالية</string>
+    <string name="prayer_countdown_description">يبقى هذا الإشعار ظاهرًا بشكل دائم لعرض الوقت المتبقي حتى الصلاة التالية.</string>
+    <string name="notification_permission_required">إذن الإشعارات مطلوب</string>
+    <string name="notification_permission_message">لعرض إشعار العد التنازلي للصلاة، يُرجى منح إذن الإشعارات.</string>
+
+    <!-- Quran Screen -->
+    <string name="quran_section_title">القرآن الكريم</string>
+    <string name="quran_tab_surah">السور</string>
+    <string name="quran_tab_juz">الأجزاء</string>
+    <string name="quran_tab_page">الصفحات</string>
+    <string name="quran_search">بحث</string>
+    <string name="quran_close_search">إغلاق البحث</string>
+    <string name="quran_search_placeholder">ابحث في السور بالاسم أو الرقم</string>
+    <string name="quran_clear_search">مسح البحث</string>
+    <string name="quran_loading_surahs">جاري تحميل السور…</string>
+    <string name="quran_error_title">حدث خطأ ما</string>
+    <string name="quran_try_again">حاول مرة أخرى</string>
+    <string name="quran_page_format">الصفحة %1$d</string>
+    <string name="quran_juz_format">الجزء %1$d</string>
+    <string name="quran_verses_format">%1$d آيات</string>
+    <string name="quran_no_search_results">لا توجد نتائج بحث</string>
+    <string name="quran_no_surahs_found">لم يتم العثور على سور</string>
+    <string name="quran_try_different_keywords">جرّب كلمات بحث مختلفة</string>
+    <string name="quran_no_content">لا يوجد محتوى</string>
+    <string name="quran_no_surahs_available">لا توجد سور متاحة</string>
+    <string name="quran_check_back_later">يرجى المحاولة لاحقًا</string>
+    <string name="quran_last_read">آخر قراءة</string>
+    <string name="quran_ayah_format">الآية %1$d</string>
+    <string name="quran_icon">أيقونة القرآن</string>
 
     <!-- Prayer Time Progress -->
     <string name="next_prayer">الصلاة القادمة</string>

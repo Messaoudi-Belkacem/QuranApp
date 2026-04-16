@@ -3,6 +3,7 @@ package com.example.quranapp.presentation.screen.home
 import android.Manifest
 import android.content.Intent
 import android.os.Build
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
@@ -11,9 +12,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.example.quranapp.R
 import com.example.quranapp.data.repository.PrayerSettingsRepository
 import com.example.quranapp.service.PrayerForegroundService
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -47,9 +50,11 @@ fun PrayerNotificationToggle(
     }
 
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.medium),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         )
     ) {
         Column(
@@ -69,19 +74,19 @@ fun PrayerNotificationToggle(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Notifications,
-                        contentDescription = "Notification",
-                        tint = MaterialTheme.colorScheme.primary,
+                        contentDescription = stringResource(R.string.notification),
+                        tint = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.size(24.dp)
                     )
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Prayer Countdown",
+                            text = stringResource(R.string.prayer_countdown),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "Show time until next prayer",
+                            text = stringResource(R.string.show_time_until_next_prayer),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -125,7 +130,7 @@ fun PrayerNotificationToggle(
             // Description/Info text
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "This notification stays visible to continuously show the remaining time until the next prayer.",
+                text = stringResource(R.string.prayer_countdown_description),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 36.dp)
@@ -137,9 +142,9 @@ fun PrayerNotificationToggle(
     if (showPermissionRationale) {
         AlertDialog(
             onDismissRequest = { showPermissionRationale = false },
-            title = { Text("Notification Permission Required") },
+            title = { Text(stringResource(R.string.notification_permission_required)) },
             text = {
-                Text("To show prayer countdown notifications, please grant notification permission.")
+                Text(stringResource(R.string.notification_permission_message))
             },
             confirmButton = {
                 TextButton(
@@ -148,12 +153,12 @@ fun PrayerNotificationToggle(
                         notificationPermissionState?.launchPermissionRequest()
                     }
                 ) {
-                    Text("Grant Permission")
+                    Text(stringResource(R.string.grant_permission))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showPermissionRationale = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )

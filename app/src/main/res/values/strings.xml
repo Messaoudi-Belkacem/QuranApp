@@ -9,6 +9,52 @@
     <string name="loading_prayer_times">Loading prayer times…</string>
     <string name="retry">Retry</string>
     <string name="error">Error</string>
+    <string name="quick_access">Quick Access</string>
+    <string name="next_label">Next</string>
+    <string name="prayer_progress_title">Prayer Window</string>
+
+    <!-- Prayer Settings Dialog -->
+    <string name="prayer_time_settings_title">Prayer Time Settings</string>
+    <string name="tab_method">Method</string>
+    <string name="tab_asr">Asr</string>
+    <string name="tab_high_lat">High Lat</string>
+    <string name="tab_notification">Notif</string>
+    <string name="updated_to_prefix">Updated to</string>
+    <string name="asr_method_updated">Asr method updated</string>
+    <string name="high_lat_method_updated">High latitude method updated</string>
+    <string name="high_lat_info">Used when the sun doesn\'t reach required angles</string>
+    <string name="done">Done</string>
+    <string name="notification">Notification</string>
+    <string name="prayer_countdown">Prayer Countdown</string>
+    <string name="show_time_until_next_prayer">Show time until next prayer</string>
+    <string name="prayer_countdown_description">This notification stays visible to continuously show the remaining time until the next prayer.</string>
+    <string name="notification_permission_required">Notification Permission Required</string>
+    <string name="notification_permission_message">To show prayer countdown notifications, please grant notification permission.</string>
+
+    <!-- Quran Screen -->
+    <string name="quran_section_title">Al Quran</string>
+    <string name="quran_tab_surah">Surah</string>
+    <string name="quran_tab_juz">Juz</string>
+    <string name="quran_tab_page">Page</string>
+    <string name="quran_search">Search</string>
+    <string name="quran_close_search">Close search</string>
+    <string name="quran_search_placeholder">Search surahs by name or number</string>
+    <string name="quran_clear_search">Clear search</string>
+    <string name="quran_loading_surahs">Loading surahs…</string>
+    <string name="quran_error_title">Something went wrong</string>
+    <string name="quran_try_again">Try again</string>
+    <string name="quran_page_format">Page %1$d</string>
+    <string name="quran_juz_format">Juz %1$d</string>
+    <string name="quran_verses_format">%1$d verses</string>
+    <string name="quran_no_search_results">No search results</string>
+    <string name="quran_no_surahs_found">No surahs found</string>
+    <string name="quran_try_different_keywords">Try searching with different keywords</string>
+    <string name="quran_no_content">No content</string>
+    <string name="quran_no_surahs_available">No surahs available</string>
+    <string name="quran_check_back_later">Please check back later</string>
+    <string name="quran_last_read">Last Read</string>
+    <string name="quran_ayah_format">Ayah %1$d</string>
+    <string name="quran_icon">Quran icon</string>
 
     <!-- Prayer Time Progress -->
     <string name="next_prayer">Next Prayer</string>
