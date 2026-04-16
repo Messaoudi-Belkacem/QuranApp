@@ -150,22 +150,22 @@ dependencies {
     implementation(libs.androidx.constraintlayout.compose)
 
     // Google Fonts
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.10.4")
+    implementation(libs.androidx.compose.ui.text.google.fonts)
 
     // Google Play Services Location
     implementation(libs.play.services.location)
 
     // WorkManager for widget updates
-    implementation("androidx.work:work-runtime-ktx:2.11.1")
+    implementation(libs.androidx.work.runtime.ktx)
 
     // Glance for App Widgets
     implementation(libs.glance.appwidget)
     implementation(libs.glance.material3)
 
     // Adhan library for accurate prayer times
-    implementation("com.batoulapps.adhan:adhan2:0.0.6")
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1")
+    implementation(libs.adhan2)
+    implementation(libs.kotlinx.datetime)
 
     // Muslim Data
-    implementation("dev.kosrat:muslimdata:2.7.1")
+    implementation(libs.muslimdata)
 }
