@@ -6,7 +6,7 @@ plugins {
     id("dagger.hilt.android.plugin")
 }
 
-android {
+configure<com.android.build.api.dsl.ApplicationExtension> {
     namespace = "com.example.quranapp"
     compileSdk = 36
 
@@ -18,23 +18,14 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
         vectorDrawables {
             useSupportLibrary = true
-        }
-
-        // Add this for Room
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments += mapOf(
-                    "room.schemaLocation" to "$projectDir/schemas",
-                    "room.incremental" to "true"
-                )
-            }
         }
     }
 
     buildTypes {
-        release {
+        getByName("release") {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -42,25 +33,47 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
-        freeCompilerArgs = listOf("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
+
+    // New location for Kotlin compiler options (built-in Kotlin)
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+            freeCompilerArgs.add("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
+            // If needed: languageVersion.set(KotlinVersion.KOTLIN_2_0) etc.
+        }
     }
+
     buildFeatures {
         compose = true
     }
+
+    // Compose compiler version — moved from old composeOptions
+    // If your alias(libs.plugins.compose.compiler) sets it automatically, you may not need this.
+    // Otherwise keep similar to before or update to latest (check your BOM / compiler compat)
     composeOptions {
-        kotlinCompilerExtensionVersion = "2.0.0"
+        kotlinCompilerExtensionVersion = "2.0.0"  // ← update this if possible (2026 compat usually higher)
     }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    // Room schema location & incremental (for KSP)
+    // This used to be in javaCompileOptions → now in ksp block below
+}
+
+// KSP configuration block (for Room + Hilt processors)
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+    arg("room.incremental", "true")
+    // You can add more KSP args here if needed (e.g. for other processors)
 }
 
 dependencies {
@@ -137,13 +150,13 @@ dependencies {
     implementation(libs.androidx.constraintlayout.compose)
 
     // Google Fonts
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.10.0")
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.10.4")
 
     // Google Play Services Location
     implementation(libs.play.services.location)
 
     // WorkManager for widget updates
-    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation("androidx.work:work-runtime-ktx:2.11.1")
 
     // Glance for App Widgets
     implementation(libs.glance.appwidget)
@@ -151,7 +164,7 @@ dependencies {
 
     // Adhan library for accurate prayer times
     implementation("com.batoulapps.adhan:adhan2:0.0.6")
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1")
 
     // Muslim Data
     implementation("dev.kosrat:muslimdata:2.7.1")
