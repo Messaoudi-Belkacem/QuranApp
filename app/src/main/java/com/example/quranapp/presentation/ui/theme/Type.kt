@@ -15,14 +15,14 @@ val provider = GoogleFont.Provider(
 
 val bodyFontFamily = FontFamily(
     androidx.compose.ui.text.googlefonts.Font(
-        googleFont = GoogleFont("Poppins"),
+        googleFont = GoogleFont("Roboto"),
         fontProvider = provider,
     )
 )
 
 val displayFontFamily = FontFamily(
     androidx.compose.ui.text.googlefonts.Font(
-        googleFont = GoogleFont("Poppins"),
+        googleFont = GoogleFont("Roboto"),
         fontProvider = provider,
     )
 )
