@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.quranapp.data.repository.HomeLayoutPreferencesRepository
 import com.example.quranapp.data.repository.PrayerSettingsRepository
 import com.example.quranapp.data.repository.QuranRepository
 import com.example.quranapp.domain.model.AsrCalculationMethod
@@ -17,6 +18,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -31,6 +33,7 @@ import javax.inject.Inject
 class HomeScreenViewModel @Inject constructor(
     private val quranRepository: QuranRepository,
     private val prayerSettingsRepository: PrayerSettingsRepository,
+    private val homeLayoutRepository: HomeLayoutPreferencesRepository,
     @ApplicationContext private val context: Context,
 ) : ViewModel() {
 
@@ -46,7 +49,27 @@ class HomeScreenViewModel @Inject constructor(
 
     init {
         loadUserPreferences()
+        observeHomeLayout()
         loadPrayerTimes()
+    }
+
+    /**
+     * Observes real-time layout changes (card sequence and visibility) from DataStore
+     */
+    private fun observeHomeLayout() {
+        viewModelScope.launch {
+            combine(
+                homeLayoutRepository.cardOrderFlow,
+                homeLayoutRepository.hiddenCardsFlow
+            ) { order, hidden ->
+                order to hidden
+            }.collect { (order, hidden) ->
+                _uiState.value = _uiState.value.copy(
+                    cardOrder = order,
+                    hiddenCards = hidden
+                )
+            }
+        }
     }
 
     /**
@@ -473,6 +496,65 @@ class HomeScreenViewModel @Inject constructor(
     fun getPrayerSettingsRepository(): PrayerSettingsRepository {
         return prayerSettingsRepository
     }
+
+    /**
+     * Toggles layout editing mode
+     */
+    fun toggleEditMode() {
+        _uiState.value = _uiState.value.copy(isEditMode = !_uiState.value.isEditMode)
+    }
+
+    /**
+     * Sets layout editing mode explicitly
+     */
+    fun setEditMode(enabled: Boolean) {
+        _uiState.value = _uiState.value.copy(isEditMode = enabled)
+    }
+
+    /**
+     * Moves a card up one position in the sequence and persists change locally
+     */
+    fun moveCardUp(card: HomeCardType) {
+        viewModelScope.launch {
+            homeLayoutRepository.moveCardUp(card)
+        }
+    }
+
+    /**
+     * Moves a card down one position in the sequence and persists change locally
+     */
+    fun moveCardDown(card: HomeCardType) {
+        viewModelScope.launch {
+            homeLayoutRepository.moveCardDown(card)
+        }
+    }
+
+    /**
+     * Swaps cards at indices [fromIndex] and [toIndex]
+     */
+    fun swapCards(fromIndex: Int, toIndex: Int) {
+        viewModelScope.launch {
+            homeLayoutRepository.swapCards(fromIndex, toIndex)
+        }
+    }
+
+    /**
+     * Toggles visibility of a specific card
+     */
+    fun toggleCardVisibility(card: HomeCardType) {
+        viewModelScope.launch {
+            homeLayoutRepository.toggleCardVisibility(card)
+        }
+    }
+
+    /**
+     * Resets card ordering and visibility to factory defaults
+     */
+    fun resetCardLayout() {
+        viewModelScope.launch {
+            homeLayoutRepository.resetToDefault()
+        }
+    }
 }
 
 /**
@@ -490,7 +572,15 @@ data class HomeUiState(
     val calculationMethod: PrayerCalculationMethod = PrayerCalculationMethod.MWL,
     val asrMethod: AsrCalculationMethod = AsrCalculationMethod.SHAFII,
     val highLatMethod: HighLatitudeMethod = HighLatitudeMethod.ANGLE_BASED,
-)
+    val cardOrder: List<HomeCardType> = HomeCardType.DEFAULT_ORDER,
+    val hiddenCards: Set<HomeCardType> = emptySet(),
+    val isEditMode: Boolean = false,
+) {
+    fun isCardVisible(card: HomeCardType): Boolean = card !in hiddenCards
+
+    val visibleCards: List<HomeCardType>
+        get() = cardOrder.filter { isCardVisible(it) }
+}
 
 /**
  * Prayer time data model

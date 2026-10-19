@@ -15,12 +15,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -30,6 +36,7 @@ import androidx.compose.material.icons.filled.NightsStay
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SportsHandball
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.WbCloudy
 import androidx.compose.material.icons.filled.WbShade
 import androidx.compose.material.icons.filled.WbSunny
@@ -37,7 +44,6 @@ import androidx.compose.material.icons.filled.WbTwilight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -84,6 +90,8 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val pullToRefreshState = rememberPullToRefreshState()
+    val showHomeSkeleton = uiState.isLoading && uiState.prayerTimes.isEmpty() && uiState.error == null
+    val displayedCards = if (uiState.isEditMode) uiState.cardOrder else uiState.visibleCards
 
     PullToRefreshBox(
         isRefreshing = uiState.isLoading,
@@ -93,50 +101,102 @@ fun HomeScreen(
             .fillMaxSize()
             .padding(innerPadding)
     ) {
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .background(MaterialTheme.colorScheme.background)
-                .padding(bottom = 24.dp),
+                .background(MaterialTheme.colorScheme.background),
+            contentPadding = PaddingValues(
+                top = if (uiState.isEditMode) 8.dp else 16.dp,
+                bottom = 24.dp
+            ),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            CurrentTimeDisplay(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 24.dp)
-            )
-
-            if (uiState.nextPrayer != null || uiState.lastPrayer != null) {
-                PrayerTimeProgress(
-                    uiState = uiState,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                )
+            if (uiState.isEditMode) {
+                item(key = "edit_mode_banner") {
+                    EditModeBanner(
+                        onReset = { viewModel.resetCardLayout() },
+                        onDone = { viewModel.setEditMode(false) },
+                        modifier = Modifier.animateItem()
+                    )
+                }
             }
 
-            PrayerTimesComponent(
-                uiState = uiState,
-                onRefresh = { viewModel.refreshPrayerTimes() },
-                onSettings = { viewModel.showPrayerSettings(true) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            )
+            items(
+                items = displayedCards,
+                key = { it.id }
+            ) { cardType ->
+                val isHidden = !uiState.isCardVisible(cardType)
+                val cardIndex = displayedCards.indexOf(cardType)
+                val isFirst = cardIndex == 0
+                val isLast = cardIndex == displayedCards.size - 1
 
-            Text(
-                text = stringResource(R.string.quick_access),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-            NavigationButtonsRow(
-                onNavigateToQuran = onNavigateToQuran,
-                onNavigateToAdhkar = onNavigateToAdhkar,
-                onNavigateToTasbih = onNavigateToTasbih
-            )
+                ReorderableCardContainer(
+                    cardType = cardType,
+                    isEditMode = uiState.isEditMode,
+                    isHidden = isHidden,
+                    isFirst = isFirst,
+                    isLast = isLast,
+                    onMoveUp = { viewModel.moveCardUp(cardType) },
+                    onMoveDown = { viewModel.moveCardDown(cardType) },
+                    onToggleVisibility = { viewModel.toggleCardVisibility(cardType) },
+                    onEnterEditMode = { viewModel.setEditMode(true) },
+                    modifier = Modifier.animateItem()
+                ) {
+                    when (cardType) {
+                        HomeCardType.CURRENT_TIME -> {
+                            if (showHomeSkeleton) {
+                                CurrentTimeSkeleton(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp)
+                                )
+                            } else {
+                                CurrentTimeDisplay(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp)
+                                )
+                            }
+                        }
+                        HomeCardType.PRAYER_PROGRESS -> {
+                            if (showHomeSkeleton) {
+                                PrayerTimeProgressSkeleton(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp)
+                                )
+                            } else if (uiState.nextPrayer != null || uiState.lastPrayer != null) {
+                                PrayerTimeProgress(
+                                    uiState = uiState,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp)
+                                )
+                            }
+                        }
+                        HomeCardType.PRAYER_TIMES -> {
+                            PrayerTimesComponent(
+                                uiState = uiState,
+                                onRefresh = { viewModel.refreshPrayerTimes() },
+                                onSettings = { viewModel.showPrayerSettings(true) },
+                                onCustomize = { viewModel.setEditMode(true) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp)
+                            )
+                        }
+                        HomeCardType.QUICK_ACCESS -> {
+                            QuickAccessSection(
+                                showSkeleton = showHomeSkeleton,
+                                onNavigateToQuran = onNavigateToQuran,
+                                onNavigateToAdhkar = onNavigateToAdhkar,
+                                onNavigateToTasbih = onNavigateToTasbih,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -474,6 +534,7 @@ fun PrayerTimesComponent(
     uiState: HomeUiState,
     onRefresh: () -> Unit = {},
     onSettings: () -> Unit = {},
+    onCustomize: () -> Unit = {},
 ) {
     Card(
         modifier = modifier
@@ -487,7 +548,8 @@ fun PrayerTimesComponent(
             PrayerTimesHeader(
                 currentLocation = uiState.currentLocation,
                 locationAddress = uiState.locationAddress,
-                onSettings = onSettings
+                onSettings = onSettings,
+                onCustomize = onCustomize
             )
 
             when {
@@ -509,7 +571,8 @@ fun PrayerTimesComponent(
 private fun PrayerTimesHeader(
     currentLocation: com.example.quranapp.data.model.Location?,
     locationAddress: String?,
-    onSettings: () -> Unit
+    onSettings: () -> Unit,
+    onCustomize: () -> Unit = {},
 ) {
     Row(
         modifier = Modifier
@@ -529,6 +592,18 @@ private fun PrayerTimesHeader(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            IconButton(
+                onClick = onCustomize,
+                modifier = Modifier.size(36.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Tune,
+                    contentDescription = stringResource(R.string.customize_layout),
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
             IconButton(
                 onClick = onSettings,
                 modifier = Modifier.size(36.dp)
@@ -583,29 +658,241 @@ private fun LocationIndicator(
 }
 
 /**
- * Loading state with spinner and message
+ * Loading state with skeleton placeholders
  */
 @Composable
 private fun LoadingState() {
-    Box(
+    val skeletonColor = rememberSkeletonColor(label = "home_prayer_times_loading")
+    LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(32.dp),
-        contentAlignment = Alignment.Center
+            .padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp)
+    ) {
+        items(5) {
+            PrayerTimeItemSkeleton(skeletonColor = skeletonColor)
+        }
+    }
+}
+
+@Composable
+private fun rememberSkeletonColor(label: String): Color {
+    val transition = rememberInfiniteTransition(label = label)
+    val alpha by transition.animateFloat(
+        initialValue = 0.35f,
+        targetValue = 0.75f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(900),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "${label}_alpha"
+    )
+    return MaterialTheme.colorScheme.surfaceVariant.copy(alpha = alpha)
+}
+
+@Composable
+private fun CurrentTimeSkeleton(modifier: Modifier = Modifier) {
+    val skeletonColor = rememberSkeletonColor(label = "home_current_time_skeleton")
+    Column(
+        modifier = modifier
+            .background(
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(24.dp)
+            )
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant,
+                shape = RoundedCornerShape(24.dp)
+            )
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(width = 140.dp, height = 48.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(skeletonColor)
+            )
+            Box(
+                modifier = Modifier
+                    .size(width = 36.dp, height = 28.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(skeletonColor)
+            )
+        }
+        Box(
+            modifier = Modifier
+                .size(width = 220.dp, height = 20.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(skeletonColor)
+        )
+    }
+}
+
+@Composable
+private fun PrayerTimeProgressSkeleton(modifier: Modifier = Modifier) {
+    val skeletonColor = rememberSkeletonColor(label = "home_progress_skeleton")
+    Card(
+        modifier = modifier
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant,
+                shape = RoundedCornerShape(16.dp)
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(width = 130.dp, height = 16.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(skeletonColor)
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(6.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(skeletonColor)
+            )
+            PrayerInfoSkeletonRow(skeletonColor = skeletonColor)
+            PrayerInfoSkeletonRow(skeletonColor = skeletonColor)
+        }
+    }
+}
+
+@Composable
+private fun PrayerInfoSkeletonRow(skeletonColor: Color) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                shape = RoundedCornerShape(16.dp)
+            )
+            .padding(14.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Box(
+                modifier = Modifier
+                    .size(width = 86.dp, height = 12.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(skeletonColor)
+            )
+            Box(
+                modifier = Modifier
+                    .size(width = 120.dp, height = 18.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(skeletonColor)
+            )
+            Box(
+                modifier = Modifier
+                    .size(width = 96.dp, height = 12.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(skeletonColor)
+            )
+        }
+        Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Box(
+                modifier = Modifier
+                    .size(width = 70.dp, height = 22.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(skeletonColor)
+            )
+            Box(
+                modifier = Modifier
+                    .size(width = 48.dp, height = 12.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(skeletonColor)
+            )
+        }
+    }
+}
+
+@Composable
+private fun PrayerTimeItemSkeleton(skeletonColor: Color) {
+    Card(
+        modifier = Modifier
+            .width(136.dp)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant,
+                shape = RoundedCornerShape(14.dp)
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        shape = RoundedCornerShape(14.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(40.dp),
-                strokeWidth = 3.dp
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(skeletonColor)
             )
-            Text(
-                text = stringResource(R.string.loading_prayer_times),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            Box(
+                modifier = Modifier
+                    .size(width = 72.dp, height = 16.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(skeletonColor)
             )
+            Box(
+                modifier = Modifier
+                    .size(width = 58.dp, height = 18.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(skeletonColor)
+            )
+        }
+    }
+}
+
+@Composable
+private fun NavigationButtonsSkeletonRow() {
+    val skeletonColor = rememberSkeletonColor(label = "home_nav_skeleton")
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        items(3) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .width(92.dp)
+                    .padding(vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(skeletonColor)
+                )
+                Box(
+                    modifier = Modifier
+                        .size(width = 66.dp, height = 14.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(skeletonColor)
+                )
+            }
         }
     }
 }
@@ -765,6 +1052,40 @@ private fun getPrayerContentDescription(prayerName: String): String {
         "Maghrib" -> stringResource(R.string.maghrib_prayer)
         "Isha" -> stringResource(R.string.isha_prayer)
         else -> prayerName
+    }
+}
+
+/**
+ * Quick Access section providing one-tap navigation to Quran, Adhkar, and Tasbih
+ */
+@Composable
+fun QuickAccessSection(
+    modifier: Modifier = Modifier,
+    showSkeleton: Boolean = false,
+    onNavigateToQuran: () -> Unit = {},
+    onNavigateToAdhkar: () -> Unit = {},
+    onNavigateToTasbih: () -> Unit = {},
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.quick_access),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+        if (showSkeleton) {
+            NavigationButtonsSkeletonRow()
+        } else {
+            NavigationButtonsRow(
+                onNavigateToQuran = onNavigateToQuran,
+                onNavigateToAdhkar = onNavigateToAdhkar,
+                onNavigateToTasbih = onNavigateToTasbih
+            )
+        }
     }
 }
 

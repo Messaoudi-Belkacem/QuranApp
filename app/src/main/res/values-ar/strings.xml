@@ -13,6 +13,24 @@
     <string name="quick_access">الوصول السريع</string>
     <string name="next_label">التالي</string>
     <string name="prayer_progress_title">نافذة الصلاة</string>
+    <string name="card_current_time">الوقت والتاريخ</string>
+    <string name="card_current_time_desc">عرض الساعة الرقمية وتاريخ اليوم</string>
+    <string name="card_prayer_progress">نافذة الصلاة</string>
+    <string name="card_prayer_progress_desc">العد التنازلي للصلاة التالية والوقت المنقضي</string>
+    <string name="card_prayer_times">أوقات الصلاة</string>
+    <string name="card_prayer_times_desc">جدول مواقيت الصلاة اليومية وتحديد الموقع</string>
+    <string name="card_quick_access">الوصول السريع</string>
+    <string name="card_quick_access_desc">روابط سريعة ومباشرة للمصحف، الأذكار، والسبحة</string>
+    <string name="customize_layout">تخصيص الواجهة</string>
+    <string name="customize_layout_hint">اضغط مطولاً على أي بطاقة لتعديل الترتيب</string>
+    <string name="reset_layout">استعادة الافتراضي</string>
+    <string name="done_editing">تم</string>
+    <string name="move_up">تحريك للأعلى</string>
+    <string name="move_down">تحريك للأسفل</string>
+    <string name="hide_card">إخفاء</string>
+    <string name="show_card">إظهار</string>
+    <string name="hidden_badge">مخفية</string>
+    <string name="at_least_one_card_must_be_visible">يجب إبقاء بطاقة واحدة على الأقل ظاهرية</string>
 
     <!-- Prayer Settings Dialog -->
     <string name="prayer_time_settings_title">إعدادات أوقات الصلاة</string>
@@ -45,6 +63,7 @@
     <string name="quran_error_title">حدث خطأ ما</string>
     <string name="quran_try_again">حاول مرة أخرى</string>
     <string name="quran_page_format">الصفحة %1$d</string>
+    <string name="quran_page_range_format">الصفحات %1$d–%2$d</string>
     <string name="quran_juz_format">الجزء %1$d</string>
     <string name="quran_verses_format">%1$d آيات</string>
     <string name="quran_no_search_results">لا توجد نتائج بحث</string>
@@ -125,6 +144,7 @@
     <string name="help_description">الأسئلة الشائعة والإرشادات</string>
     <string name="about">حول</string>
     <string name="about_description">مهمة التطبيق والإصدار</string>
+    <string name="more_screen_subtitle">وصول سريع لأدوات العبادة وإعدادات التطبيق وموارد الدعم.</string>
 
     <!-- Tasbih Screen -->
     <string name="back">رجوع</string>
