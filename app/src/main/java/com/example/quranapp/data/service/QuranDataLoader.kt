@@ -126,7 +126,7 @@ class QuranDataLoader @Inject constructor(
                             val ayah = Ayah(
                                 id = ayahJson.ayahNumber,
                                 surahId = surahNumber,
-                                text = ayahJson.ayahText.trim(),
+                                text = com.example.quranapp.util.QuranTextSanitizer.sanitize(ayahJson.ayahText),
                                 juzz = ayahJson.juzz,
                                 page = ayahJson.page.toIntOrNull() ?: 1,
                                 lineStart = ayahJson.lineStart,

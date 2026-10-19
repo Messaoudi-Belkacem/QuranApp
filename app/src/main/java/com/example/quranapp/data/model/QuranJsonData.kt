@@ -13,11 +13,11 @@ data class QuranAyahJson(
     val juzz: Int,
     @SerializedName("page")
     val page: String,
-    @SerializedName("sura_no")
+    @SerializedName(value = "sura_no", alternate = ["sora"])
     val surahNumber: Int,
-    @SerializedName("sura_name_en")
+    @SerializedName(value = "sura_name_en", alternate = ["sora_name_en"])
     val surahNameEn: String,
-    @SerializedName("sura_name_ar")
+    @SerializedName(value = "sura_name_ar", alternate = ["sora_name_ar"])
     val surahNameAr: String,
     @SerializedName("line_start")
     val lineStart: Int,
