@@ -114,6 +114,7 @@ private const val SCROLL_TO_TOP_THRESHOLD = 3
 private const val ANIMATION_DURATION_STANDARD = 300
 private const val ANIMATION_DURATION_FAST = 200
 private const val ANIMATION_DURATION_VERY_FAST = 150
+private const val SURAH_FATIHAH_ID = 1 // Surah Al-Fatihah has Bismillah as Ayah 1
 private const val SURAH_TAWBAH_ID = 9 // Surah At-Tawbah doesn't have Bismillah
 
 // ========================================
@@ -481,8 +482,8 @@ private fun ListViewContent(
             SurahHeaderCard(surah = surah)
         }
 
-        // Bismillah (except for Surah At-Tawbah and when searching)
-        if (surah.id != SURAH_TAWBAH_ID && searchQuery.isBlank()) {
+        // Bismillah (except for Surah Al-Fatihah, Surah At-Tawbah and when searching)
+        if (surah.id != SURAH_FATIHAH_ID && surah.id != SURAH_TAWBAH_ID && searchQuery.isBlank()) {
             item(key = "bismillah") {
                 BismillahCard()
             }
@@ -537,8 +538,8 @@ private fun MushafViewContent(
             SurahHeaderCard(surah = surah)
         }
 
-        // Bismillah (except for Surah At-Tawbah and when searching)
-        if (surah.id != SURAH_TAWBAH_ID && searchQuery.isBlank()) {
+        // Bismillah (except for Surah Al-Fatihah, Surah At-Tawbah and when searching)
+        if (surah.id != SURAH_FATIHAH_ID && surah.id != SURAH_TAWBAH_ID && searchQuery.isBlank()) {
             item(key = "bismillah") {
                 BismillahCard()
             }
@@ -681,16 +682,21 @@ private fun buildMushafAnnotatedString(
         ) {
             append(ayah.text)
 
-            // Add ayah number marker in Arabic numerals
-            withStyle(
-                style = SpanStyle(
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = uthmaniFont,
-                    color = androidx.compose.ui.graphics.Color(0xFF1976D2)
-                )
-            ) {
-                append(" ${convertToArabicNumerals(ayah.id)}۝ ")
+            // If ayah text doesn't already end with an Arabic numeral/ayah marker, add one
+            val lastChar = ayah.text.trim().lastOrNull() ?: ' '
+            if (lastChar !in '\u0660'..'\u0669') {
+                withStyle(
+                    style = SpanStyle(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = uthmaniFont,
+                        color = androidx.compose.ui.graphics.Color(0xFF1976D2)
+                    )
+                ) {
+                    append(" ${convertToArabicNumerals(ayah.id)}۝ ")
+                }
+            } else {
+                append(" ")
             }
         }
 
@@ -1037,11 +1043,11 @@ private fun BismillahCard() {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+                text = "بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ",
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontFamily = uthmaniFont
                 ),
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Normal,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 fontSize = 28.sp,

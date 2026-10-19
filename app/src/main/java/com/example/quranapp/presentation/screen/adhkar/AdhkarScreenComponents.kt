@@ -1,9 +1,8 @@
 package com.example.quranapp.presentation.screen.adhkar
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -18,6 +17,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,6 +30,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,14 +41,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
@@ -57,7 +50,7 @@ import androidx.compose.ui.unit.dp
 import com.example.quranapp.R
 import com.example.quranapp.data.model.AdhkarCategoryItem
 import com.example.quranapp.data.model.Dhikr
-import kotlin.math.PI
+import com.example.quranapp.presentation.ui.theme.uthmaniFont
 
 @Composable
 fun LoadingState() {
@@ -117,11 +110,11 @@ fun CategoryCard(
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 2.dp,
-            pressedElevation = 8.dp
+            pressedElevation = 4.dp
         )
     ) {
         Row(
@@ -142,11 +135,19 @@ fun CategoryCard(
                     style = MaterialTheme.typography.titleLarge
                 )
             }
-            Text(
-                text = category.titleEng,
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    text = category.title,
+                    style = MaterialTheme.typography.titleLarge.copy(fontFamily = uthmaniFont),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    lineHeight = MaterialTheme.typography.titleLarge.lineHeight * 1.8f
+                )
+                Text(
+                    text = category.titleEng,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }
@@ -185,85 +186,36 @@ fun DhikrCard(
     // Smooth animated progress with responsive spring animation
     val animatedProgress by animateFloatAsState(
         targetValue = progressFraction.coerceIn(0f, 1f),
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
+        animationSpec = tween(durationMillis = 250),
         label = "progressAnimation"
     )
 
     var isExpanded by remember { mutableStateOf(false) }
 
-    // Colors for the progress border
-    val progressColor = if (isCompleted) Color(0xFF4CAF50) else Color(0xFF2196F3)
-    val trackColor = Color.LightGray.copy(alpha = 0.3f)
-
-    val cornerRadiusDp = 16.dp
-    val strokeWidthDp = 4.dp
+    val progressColor = if (isCompleted) {
+        MaterialTheme.colorScheme.tertiary
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
 
     Card(
-        shape = RoundedCornerShape(cornerRadiusDp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (isCompleted)
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f)
             else
                 MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 2.dp,
-            pressedElevation = 6.dp
+            pressedElevation = 4.dp
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .drawWithContent {
-                drawContent()
-
-                val strokeWidth = strokeWidthDp.toPx()
-                val cornerRadius = cornerRadiusDp.toPx()
-                val halfStroke = strokeWidth / 2
-
-                // Calculate the total perimeter of the rounded rectangle
-                val rectWidth = size.width - strokeWidth
-                val rectHeight = size.height - strokeWidth
-                val straightWidth = rectWidth - 2 * cornerRadius
-                val straightHeight = rectHeight - 2 * cornerRadius
-                val cornerArcLength = (PI.toFloat() * cornerRadius) / 2f
-                val totalPerimeter = 2 * straightWidth + 2 * straightHeight + 4 * cornerArcLength
-
-                // Draw background track (full border)
-                drawRoundRect(
-                    color = trackColor,
-                    topLeft = Offset(halfStroke, halfStroke),
-                    size = Size(rectWidth, rectHeight),
-                    cornerRadius = CornerRadius(cornerRadius, cornerRadius),
-                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-                )
-
-                // Draw progress border using PathEffect to create dash pattern
-                if (animatedProgress > 0f) {
-                    val progressLength = totalPerimeter * animatedProgress
-                    val gapLength = totalPerimeter - progressLength
-
-                    drawRoundRect(
-                        color = progressColor,
-                        topLeft = Offset(halfStroke, halfStroke),
-                        size = Size(rectWidth, rectHeight),
-                        cornerRadius = CornerRadius(cornerRadius, cornerRadius),
-                        style = Stroke(
-                            width = strokeWidth,
-                            cap = StrokeCap.Round,
-                            pathEffect = PathEffect.dashPathEffect(
-                                intervals = floatArrayOf(progressLength, gapLength.coerceAtLeast(0.1f)),
-                                phase = 0f
-                            )
-                        )
-                    )
-                }
-            }
             .combinedClickable(
                 onClick = {
                     if (!isCompleted) {
-                        hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                         onTap()
                     }
                 },
@@ -280,10 +232,20 @@ fun DhikrCard(
             // Dhikr text
             Text(
                 text = dhikr.text,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleLarge.copy(fontFamily = uthmaniFont),
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
-                lineHeight = MaterialTheme.typography.titleLarge.lineHeight * 1.3f
+                lineHeight = MaterialTheme.typography.titleLarge.lineHeight * 1.9f
+            )
+
+            LinearProgressIndicator(
+                progress = { animatedProgress },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                color = progressColor,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant
             )
 
             // Benefit text (expandable)
@@ -295,7 +257,7 @@ fun DhikrCard(
                 ) {
                     Card(
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.35f)
                         ),
                         shape = RoundedCornerShape(12.dp)
                     ) {
@@ -319,7 +281,7 @@ fun DhikrCard(
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = stringResource(R.string.completed),
-                        tint = Color(0xFF4CAF50),
+                        tint = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -328,7 +290,7 @@ fun DhikrCard(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = if (isCompleted)
-                        Color(0xFF4CAF50)
+                        MaterialTheme.colorScheme.tertiary
                     else
                         MaterialTheme.colorScheme.onSurfaceVariant
                 )

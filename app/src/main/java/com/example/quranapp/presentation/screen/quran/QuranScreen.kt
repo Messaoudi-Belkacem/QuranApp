@@ -2,6 +2,10 @@ package com.example.quranapp.presentation.screen.quran
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -38,7 +42,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -70,6 +73,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.quranapp.R
 import com.example.quranapp.data.database.entities.Surah
 import com.example.quranapp.util.ArabicNumeralFormatter.convertToArabicNumerals
+import kotlin.math.min
 
 @Composable
 fun QuranScreen(
@@ -91,6 +95,28 @@ fun QuranScreen(
                         surah.nameArabic.contains(searchQuery) ||
                         surah.id.toString() == searchQuery
             }
+        }
+    }
+    val allPages = remember { (1..604).toList() }
+    val filteredPages = remember(searchQuery, allPages) {
+        if (searchQuery.isBlank()) {
+            allPages
+        } else {
+            allPages.filter { it.toString().contains(searchQuery.trim()) }
+        }
+    }
+    val allJuz = remember {
+        (1..30).map { juz ->
+            val start = ((juz - 1) * 20) + 1
+            val end = min(juz * 20, 604)
+            JuzData(juz, start, end)
+        }
+    }
+    val filteredJuz = remember(searchQuery, allJuz) {
+        if (searchQuery.isBlank()) {
+            allJuz
+        } else {
+            allJuz.filter { it.number.toString().contains(searchQuery.trim()) }
         }
     }
 
@@ -130,21 +156,28 @@ fun QuranScreen(
                 )
 
                 when {
-                    uiState.isLoading -> LoadingSection()
+                    uiState.isLoading -> QuranSkeletonSection(selectedTab = selectedTab)
                     uiState.errorMessage != null -> ErrorSection(
                         errorMessage = uiState.errorMessage!!,
                         onRetry = { viewModel.refreshSurahs() }
                     )
 
-                    selectedTab == 2 -> PageListSection(
-                        totalPages = 604,
-                        onPageClick = onPageClick
-                    )
-
-                    filteredSurahs.isEmpty() && searchQuery.isNotEmpty() -> EmptySearchSection()
-                    filteredSurahs.isNotEmpty() -> SurahListSection(
+                    selectedTab == 0 && filteredSurahs.isEmpty() && searchQuery.isNotEmpty() -> EmptySearchSection()
+                    selectedTab == 0 && filteredSurahs.isNotEmpty() -> SurahListSection(
                         surahs = filteredSurahs,
                         onSurahClick = onSurahClick
+                    )
+
+                    selectedTab == 1 && filteredJuz.isEmpty() && searchQuery.isNotEmpty() -> EmptySearchSection()
+                    selectedTab == 1 -> JuzListSection(
+                        juzList = filteredJuz,
+                        onJuzClick = { onPageClick(it.startPage) }
+                    )
+
+                    selectedTab == 2 && filteredPages.isEmpty() && searchQuery.isNotEmpty() -> EmptySearchSection()
+                    selectedTab == 2 -> PageListSection(
+                        pages = filteredPages,
+                        onPageClick = onPageClick
                     )
 
                     else -> EmptyStateSection()
@@ -264,26 +297,153 @@ private fun SearchSection(
 }
 
 @Composable
-private fun LoadingSection() {
-    Box(
+private fun QuranSkeletonSection(selectedTab: Int) {
+    val shimmerTransition = rememberInfiniteTransition(label = "quran_skeleton")
+    val shimmerAlpha by shimmerTransition.animateFloat(
+        initialValue = 0.35f,
+        targetValue = 0.75f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(900),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "quran_skeleton_alpha"
+    )
+    val skeletonColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = shimmerAlpha)
+
+    LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentPadding = PaddingValues(vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+        items(7) {
+            when (selectedTab) {
+                0 -> SurahSkeletonItem(skeletonColor = skeletonColor)
+                1 -> JuzSkeletonItem(skeletonColor = skeletonColor)
+                else -> PageSkeletonItem(skeletonColor = skeletonColor)
+            }
+        }
+    }
+}
+
+@Composable
+private fun SurahSkeletonItem(skeletonColor: Color) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(16.dp)),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(48.dp),
-                color = MaterialTheme.colorScheme.secondary,
-                strokeWidth = 4.dp
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(skeletonColor)
             )
 
-            Text(
-                text = stringResource(R.string.quran_loading_surahs),
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.42f)
+                        .height(20.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(skeletonColor)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Box(
+                        modifier = Modifier
+                            .size(width = 72.dp, height = 14.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(skeletonColor)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(width = 88.dp, height = 14.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(skeletonColor)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+            Box(
+                modifier = Modifier
+                    .size(width = 82.dp, height = 24.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(skeletonColor)
+            )
+        }
+    }
+}
+
+@Composable
+private fun JuzSkeletonItem(skeletonColor: Color) {
+    PageLikeSkeletonItem(skeletonColor = skeletonColor)
+}
+
+@Composable
+private fun PageSkeletonItem(skeletonColor: Color) {
+    PageLikeSkeletonItem(skeletonColor = skeletonColor)
+}
+
+@Composable
+private fun PageLikeSkeletonItem(skeletonColor: Color) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(16.dp)),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(skeletonColor)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.36f)
+                        .height(20.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(skeletonColor)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.52f)
+                        .height(14.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(skeletonColor)
+                )
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Box(
+                modifier = Modifier
+                    .size(width = 40.dp, height = 24.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(skeletonColor)
             )
         }
     }
@@ -369,11 +529,9 @@ private fun SurahListSection(
 
 @Composable
 private fun PageListSection(
-    totalPages: Int,
+    pages: List<Int>,
     onPageClick: (Int) -> Unit,
 ) {
-    val pages = remember(totalPages) { (1..totalPages).toList() }
-
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 12.dp),
@@ -395,18 +553,50 @@ private fun PageListSection(
     }
 }
 
+private data class JuzData(
+    val number: Int,
+    val startPage: Int,
+    val endPage: Int,
+)
+
 @Composable
-private fun PageItem(
-    pageNumber: Int,
-    onPageClick: (Int) -> Unit,
+private fun JuzListSection(
+    juzList: List<JuzData>,
+    onJuzClick: (JuzData) -> Unit,
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(
+            items = juzList,
+            key = { juz -> "juz_${juz.number}" }
+        ) { juz ->
+            JuzItem(
+                juzData = juz,
+                onJuzClick = onJuzClick
+            )
+        }
+
+        item(key = "bottom_spacer_juz") {
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+private fun JuzItem(
+    juzData: JuzData,
+    onJuzClick: (JuzData) -> Unit,
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp))
-            .clickable { onPageClick(pageNumber) },
-        shape = RoundedCornerShape(14.dp),
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(16.dp))
+            .clickable { onJuzClick(juzData) },
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
@@ -418,8 +608,77 @@ private fun PageItem(
         ) {
             Box(
                 modifier = Modifier
-                    .size(44.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(MaterialTheme.colorScheme.tertiaryContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = juzData.number.toString(),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = stringResource(R.string.quran_juz_format, juzData.number),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Text(
+                    text = stringResource(
+                        R.string.quran_page_range_format,
+                        juzData.startPage,
+                        juzData.endPage
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Text(
+                text = convertToArabicNumerals(juzData.number),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.secondary
+            )
+        }
+    }
+}
+
+@Composable
+private fun PageItem(
+    pageNumber: Int,
+    onPageClick: (Int) -> Unit,
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(16.dp))
+            .clickable { onPageClick(pageNumber) },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(14.dp))
                     .background(MaterialTheme.colorScheme.tertiaryContainer),
                 contentAlignment = Alignment.Center
             ) {

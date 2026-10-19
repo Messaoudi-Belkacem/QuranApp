@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class AdhkarCategory(
     @SerializedName("title")
     val title: String,
-    @SerializedName("title_eng")
+    @SerializedName(value = "title_en", alternate = ["title_eng"])
     val titleEng: String,
     @SerializedName("content")
     val content: List<Dhikr>

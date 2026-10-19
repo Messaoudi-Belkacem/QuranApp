@@ -2,23 +2,13 @@ package com.example.quranapp.presentation.screen.tasbih
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -73,6 +63,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.quranapp.R
+import com.example.quranapp.presentation.ui.theme.uthmaniFont
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.min
@@ -84,14 +75,14 @@ fun ProgressDisplay(
 ) {
     Surface(
         shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = MaterialTheme.colorScheme.surface,
         tonalElevation = 2.dp
     ) {
         Text(
             text = stringResource(R.string.progress_format, count, target),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = MaterialTheme.colorScheme.tertiary,
             modifier = Modifier
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         )
@@ -125,7 +116,7 @@ fun DhikrDisplay(
             ),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
     ) {
@@ -137,10 +128,11 @@ fun DhikrDisplay(
         ) {
             Text(
                 text = preset.arabicText,
-                style = MaterialTheme.typography.displaySmall,
+                style = MaterialTheme.typography.displaySmall.copy(fontFamily = uthmaniFont),
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                lineHeight = MaterialTheme.typography.displaySmall.lineHeight * 1.9f
             )
 
             AnimatedVisibility(
@@ -177,20 +169,10 @@ fun DhikrDisplay(
                 enter = expandVertically() + fadeIn(),
                 exit = shrinkVertically() + fadeOut()
             ) {
-                val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-                val alpha by infiniteTransition.animateFloat(
-                    initialValue = 0.4f,
-                    targetValue = 1f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(1000),
-                        repeatMode = RepeatMode.Reverse
-                    ),
-                    label = "alpha"
-                )
                 Text(
                     text = stringResource(R.string.long_press_to_change),
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = alpha),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
             }
@@ -208,14 +190,10 @@ fun TasbihCounter(
 ) {
     val coroutineScope = rememberCoroutineScope()
 
-    // Scale animation on tap
     var isPressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.95f else if (isTargetReached) 1.05f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
+        animationSpec = tween(durationMillis = 180),
         label = "scale"
     )
 
@@ -245,7 +223,9 @@ fun TasbihCounter(
             onClick = {
                 onTap()
                 coroutineScope.launch {
-                    delay(100)
+                    isPressed = true
+                    delay(90)
+                    isPressed = false
                 }
             },
             modifier = Modifier
@@ -270,17 +250,8 @@ fun TasbihCounter(
                 AnimatedContent(
                     targetState = count,
                     transitionSpec = {
-                        if (targetState > initialState) {
-                            // Slide up when increasing
-                            (slideInVertically { height -> height } + fadeIn()).togetherWith(
-                                slideOutVertically { height -> -height } + fadeOut())
-                        } else {
-                            // Slide down when decreasing
-                            (slideInVertically { height -> -height } + fadeIn()).togetherWith(
-                                slideOutVertically { height -> height } + fadeOut())
-                        }.using(
-                            SizeTransform(clip = false)
-                        )
+                        fadeIn(animationSpec = tween(220)) togetherWith
+                            fadeOut(animationSpec = tween(220))
                     },
                     label = "count"
                 ) { targetCount ->
@@ -439,13 +410,14 @@ fun PresetItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = preset.arabicText,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleLarge.copy(fontFamily = uthmaniFont),
                     fontWeight = FontWeight.Bold,
                     color = if (isSelected) {
                         MaterialTheme.colorScheme.primary
                     } else {
                         MaterialTheme.colorScheme.onSurfaceVariant
-                    }
+                    },
+                    lineHeight = MaterialTheme.typography.titleLarge.lineHeight * 1.8f
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(

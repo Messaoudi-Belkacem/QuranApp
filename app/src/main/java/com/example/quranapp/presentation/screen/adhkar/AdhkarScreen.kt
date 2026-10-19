@@ -2,6 +2,7 @@ package com.example.quranapp.presentation.screen.adhkar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -35,12 +36,13 @@ fun AdhkarScreen(
     onNavigateBack: () -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val selectedCategory = uiState.selectedCategory
 
     Scaffold(
         topBar = {
             TopAppBar(
                 navigationIcon = {
-                    if (uiState.selectedCategory != null) {
+                    if (selectedCategory != null) {
                         IconButton(onClick = { viewModel.clearSelectedCategory() }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -59,14 +61,29 @@ fun AdhkarScreen(
                     }
                 },
                 title = {
-                    Text(
-                        text = uiState.selectedCategory?.titleEng ?: stringResource(R.string.adhkar),
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold
-                    )
+                    if (selectedCategory != null) {
+                        Column {
+                            Text(
+                                text = selectedCategory.title,
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = selectedCategory.titleEng,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    } else {
+                        Text(
+                            text = stringResource(R.string.adhkar),
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 },
                 actions = {
-                    if (uiState.selectedCategory != null) {
+                    if (selectedCategory != null) {
                         IconButton(onClick = { viewModel.resetAllProgress() }) {
                             Icon(
                                 imageVector = Icons.Default.Refresh,
@@ -80,13 +97,13 @@ fun AdhkarScreen(
                             text = stringResource(R.string.score_format, uiState.totalScore),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier.padding(end = 16.dp)
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = MaterialTheme.colorScheme.background
                 )
             )
         }
@@ -103,7 +120,8 @@ fun AdhkarScreen(
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.05f),
+                            MaterialTheme.colorScheme.background,
+                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.06f),
                             MaterialTheme.colorScheme.surface
                         )
                     )
