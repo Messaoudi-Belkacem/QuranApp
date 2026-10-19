@@ -26,6 +26,7 @@ data class SurahAyahGroup(
 data class PageReadingUiState(
     val pageNumber: Int = 1,
     val surahGroups: List<SurahAyahGroup> = emptyList(),
+    val pagesCache: Map<Int, List<SurahAyahGroup>> = emptyMap(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val selectedAyahId: Int? = null,
@@ -45,53 +46,96 @@ class PageReadingViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(PageReadingUiState())
     val uiState: StateFlow<PageReadingUiState> = _uiState.asStateFlow()
 
+    private val pagesCache = mutableMapOf<Int, List<SurahAyahGroup>>()
+
     /**
      * Loads all ayahs for the given page number, grouped by surah.
      */
     fun loadPage(pageNumber: Int) {
+        val clampedPage = PageNavigationPolicy.clampPage(pageNumber)
+
+        // If already in memory cache, update state immediately without loading spinner
+        if (pagesCache.containsKey(clampedPage)) {
+            _uiState.value = _uiState.value.copy(
+                pageNumber = clampedPage,
+                surahGroups = pagesCache[clampedPage] ?: emptyList(),
+                pagesCache = pagesCache.toMap(),
+                isLoading = false,
+                errorMessage = null
+            )
+            prefetchAdjacent(clampedPage)
+            return
+        }
+
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 isLoading = true,
                 errorMessage = null,
-                pageNumber = pageNumber
+                pageNumber = clampedPage
             )
 
             try {
-                val ayahs = quranRepository.getAyahsByPage(pageNumber)
-                val allPages = quranRepository.getAllPageNumbers()
-
-                // Group ayahs by surahId and fetch surah details
-                val groups = mutableListOf<SurahAyahGroup>()
-                val ayahsBySurah = ayahs.groupBy { it.surahId }
-
-                // Maintain order: iterate ayahs and build groups in order of appearance
-                val seenSurahs = mutableSetOf<Int>()
-                for (ayah in ayahs) {
-                    if (ayah.surahId !in seenSurahs) {
-                        seenSurahs.add(ayah.surahId)
-                        val surah = quranRepository.getSurahById(ayah.surahId)
-                        if (surah != null) {
-                            groups.add(
-                                SurahAyahGroup(
-                                    surah = surah,
-                                    ayahs = ayahsBySurah[ayah.surahId] ?: emptyList()
-                                )
-                            )
-                        }
-                    }
-                }
+                val groups = fetchPageGroups(clampedPage)
+                pagesCache[clampedPage] = groups
 
                 _uiState.value = _uiState.value.copy(
+                    pageNumber = clampedPage,
                     surahGroups = groups,
+                    pagesCache = pagesCache.toMap(),
                     isLoading = false,
-                    errorMessage = null,
-                    totalPages = allPages.size
+                    errorMessage = null
                 )
+
+                prefetchAdjacent(clampedPage)
             } catch (exception: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     errorMessage = "Failed to load page: ${exception.message}"
                 )
+            }
+        }
+    }
+
+    private suspend fun fetchPageGroups(page: Int): List<SurahAyahGroup> {
+        val ayahs = quranRepository.getAyahsByPage(page)
+        val groups = mutableListOf<SurahAyahGroup>()
+        val ayahsBySurah = ayahs.groupBy { it.surahId }
+
+        val seenSurahs = mutableSetOf<Int>()
+        for (ayah in ayahs) {
+            if (ayah.surahId !in seenSurahs) {
+                seenSurahs.add(ayah.surahId)
+                val surah = quranRepository.getSurahById(ayah.surahId)
+                if (surah != null) {
+                    groups.add(
+                        SurahAyahGroup(
+                            surah = surah,
+                            ayahs = ayahsBySurah[ayah.surahId] ?: emptyList()
+                        )
+                    )
+                }
+            }
+        }
+        return groups
+    }
+
+    private fun prefetchAdjacent(centerPage: Int) {
+        viewModelScope.launch {
+            if (PageNavigationPolicy.hasPrevious(centerPage)) {
+                val prevPage = PageNavigationPolicy.getPreviousPage(centerPage)
+                if (!pagesCache.containsKey(prevPage)) {
+                    val groups = fetchPageGroups(prevPage)
+                    pagesCache[prevPage] = groups
+                    _uiState.value = _uiState.value.copy(pagesCache = pagesCache.toMap())
+                }
+            }
+            if (PageNavigationPolicy.hasNext(centerPage)) {
+                val nextPage = PageNavigationPolicy.getNextPage(centerPage)
+                if (!pagesCache.containsKey(nextPage)) {
+                    val groups = fetchPageGroups(nextPage)
+                    pagesCache[nextPage] = groups
+                    _uiState.value = _uiState.value.copy(pagesCache = pagesCache.toMap())
+                }
             }
         }
     }
